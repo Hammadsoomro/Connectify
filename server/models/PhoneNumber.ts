@@ -70,9 +70,6 @@ const PhoneNumberSchema: Schema = new Schema(
   },
 );
 
-// Indexes
-PhoneNumberSchema.index({ userId: 1 });
-PhoneNumberSchema.index({ number: 1 });
-PhoneNumberSchema.index({ twilioSid: 1 });
+// Indexes already created by unique: true options and compound indexes
 
 export default mongoose.model<IPhoneNumber>("PhoneNumber", PhoneNumberSchema);
