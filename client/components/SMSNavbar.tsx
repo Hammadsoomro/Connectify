@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Phone, Plus, Bell, User, LogOut, MessageSquare } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import ProfileSettingsDialog from "./ProfileSettingsDialog";
 
 interface PhoneNumber {
   id: string;
@@ -25,21 +26,43 @@ interface PhoneNumber {
   isActive: boolean;
 }
 
+interface Profile {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 interface SMSNavbarProps {
   unreadCount: number;
   phoneNumbers: PhoneNumber[];
   activeNumber: string | null;
+  profile: Profile;
   onSelectNumber: (numberId: string) => void;
   onBuyNewNumber: () => void;
+  onUpdateProfile: (profile: Profile) => void;
+  onLogout: () => void;
 }
 
 export default function SMSNavbar({
   unreadCount,
   phoneNumbers,
   activeNumber,
+  profile,
   onSelectNumber,
   onBuyNewNumber,
+  onUpdateProfile,
+  onLogout,
 }: SMSNavbarProps) {
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-6">
@@ -48,7 +71,7 @@ export default function SMSNavbar({
           <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-md">
             <MessageSquare className="w-4 h-4 text-primary-foreground" />
           </div>
-          <h1 className="text-lg font-semibold text-foreground">SMS Hub</h1>
+          <h1 className="text-lg font-semibold text-foreground">Connectify</h1>
         </div>
 
         {/* Phone Numbers */}
@@ -122,9 +145,13 @@ export default function SMSNavbar({
                 className="relative h-8 w-8 rounded-full"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="" alt="Profile" />
+                  <AvatarImage src={profile.avatar} alt={profile.name} />
                   <AvatarFallback className="bg-primary/10">
-                    <User className="h-4 w-4" />
+                    {profile.avatar ? (
+                      <User className="h-4 w-4" />
+                    ) : (
+                      getInitials(profile.name)
+                    )}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -132,24 +159,31 @@ export default function SMSNavbar({
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">John Doe</p>
+                  <p className="font-medium">{profile.name}</p>
                   <p className="w-[200px] truncate text-sm text-muted-foreground">
-                    john.doe@example.com
+                    {profile.email}
                   </p>
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem onClick={onLogout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log Out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <ProfileSettingsDialog
+            open={isProfileDialogOpen}
+            onOpenChange={setIsProfileDialogOpen}
+            profile={profile}
+            onUpdateProfile={onUpdateProfile}
+          />
         </div>
       </div>
     </nav>

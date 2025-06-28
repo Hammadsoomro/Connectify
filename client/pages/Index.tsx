@@ -170,6 +170,11 @@ export default function Index() {
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "John Doe",
+    email: "john.doe@example.com",
+    avatar: "",
+  });
 
   // Calculate total unread count
   const totalUnreadCount = contacts.reduce(
@@ -277,6 +282,15 @@ export default function Index() {
     window.location.href = "/buy-numbers";
   };
 
+  const handleUpdateProfile = (newProfile: typeof profile) => {
+    setProfile(newProfile);
+  };
+
+  const handleLogout = () => {
+    // TODO: Implement logout logic
+    console.log("Logging out...");
+  };
+
   const selectedContact =
     contacts.find((contact) => contact.id === selectedContactId) || null;
 
@@ -287,8 +301,11 @@ export default function Index() {
         unreadCount={totalUnreadCount}
         phoneNumbers={phoneNumbers}
         activeNumber={activePhoneNumber}
+        profile={profile}
         onSelectNumber={handleSelectPhoneNumber}
         onBuyNewNumber={handleBuyNewNumber}
+        onUpdateProfile={handleUpdateProfile}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}

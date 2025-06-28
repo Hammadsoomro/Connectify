@@ -81,7 +81,7 @@ export default function BuyNumbers() {
           <Link to="/">
             <Button variant="ghost" size="sm" className="mr-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to SMS Hub
+              Back to Connectify
             </Button>
           </Link>
           <h1 className="text-xl font-semibold">Buy Phone Numbers</h1>
