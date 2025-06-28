@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Phone, Plus, Bell, Settings, MessageSquare } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
@@ -40,20 +47,34 @@ export default function SMSNavbar({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Numbers:</span>
+            <span className="text-sm text-muted-foreground">
+              Active Number:
+            </span>
           </div>
 
-          {phoneNumbers.map((phone) => (
-            <Button
-              key={phone.id}
-              variant={activeNumber === phone.id ? "default" : "outline"}
-              size="sm"
-              onClick={() => onSelectNumber(phone.id)}
-              className="text-xs font-mono"
-            >
-              {phone.number}
-            </Button>
-          ))}
+          <Select value={activeNumber || ""} onValueChange={onSelectNumber}>
+            <SelectTrigger className="w-48 h-9 font-mono text-sm">
+              <SelectValue placeholder="Select a number..." />
+            </SelectTrigger>
+            <SelectContent>
+              {phoneNumbers.map((phone) => (
+                <SelectItem
+                  key={phone.id}
+                  value={phone.id}
+                  className="font-mono"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span>{phone.number}</span>
+                    {phone.isActive && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        Active
+                      </Badge>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Button
             onClick={onBuyNewNumber}
