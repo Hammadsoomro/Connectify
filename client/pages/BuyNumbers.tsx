@@ -64,7 +64,17 @@ export default function BuyNumbers() {
       );
     } catch (error: any) {
       console.error("Error purchasing number:", error);
-      alert(error.message || "Failed to purchase number. Please try again.");
+
+      let errorMessage = "Failed to purchase number. Please try again.";
+      if (error.message.includes("ADMIN_ONLY")) {
+        errorMessage =
+          "Only admin accounts can purchase phone numbers. Contact your admin.";
+      } else {
+        errorMessage =
+          error.message || "Failed to purchase number. Please try again.";
+      }
+
+      alert(errorMessage);
     } finally {
       setPurchasingNumber(null);
     }

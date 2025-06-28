@@ -147,6 +147,42 @@ class ApiService {
     });
   }
 
+  // Admin methods
+  async createSubAccount(name: string, email: string, password: string) {
+    return this.request("/admin/sub-accounts", {
+      method: "POST",
+      body: JSON.stringify({ name, email, password }),
+    });
+  }
+
+  async getSubAccounts() {
+    return this.request("/admin/sub-accounts");
+  }
+
+  async assignNumberToSubAccount(subAccountId: string, phoneNumberId: string) {
+    return this.request("/admin/assign-number", {
+      method: "POST",
+      body: JSON.stringify({ subAccountId, phoneNumberId }),
+    });
+  }
+
+  async removeNumberAssignment(subAccountId: string, phoneNumber: string) {
+    return this.request("/admin/remove-assignment", {
+      method: "POST",
+      body: JSON.stringify({ subAccountId, phoneNumber }),
+    });
+  }
+
+  async deactivateSubAccount(subAccountId: string) {
+    return this.request(`/admin/sub-accounts/${subAccountId}/deactivate`, {
+      method: "PUT",
+    });
+  }
+
+  async getDashboardStats() {
+    return this.request("/admin/dashboard-stats");
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");

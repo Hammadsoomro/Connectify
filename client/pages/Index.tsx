@@ -306,8 +306,23 @@ export default function Index() {
             : contact,
         ),
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
+
+      let errorMessage = "Failed to send message";
+      if (error.message.includes("NO_PHONE_NUMBER")) {
+        errorMessage = "Please buy a phone number first to send SMS messages";
+      } else if (error.message.includes("NO_ASSIGNED_NUMBER")) {
+        errorMessage =
+          "No phone number assigned to your account. Contact your admin to assign a number.";
+      } else if (error.message.includes("INVALID_NUMBER")) {
+        errorMessage = "Invalid phone number selected";
+      } else {
+        errorMessage = error.message || "Failed to send message";
+      }
+
+      alert(errorMessage);
+
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === newMessage.id

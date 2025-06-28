@@ -16,9 +16,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Phone, Plus, Bell, User, LogOut, MessageSquare } from "lucide-react";
+import {
+  Phone,
+  Plus,
+  Bell,
+  User,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Shield,
+} from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import ProfileSettingsDialog from "./ProfileSettingsDialog";
+import AdminDashboard from "./AdminDashboard";
 
 interface PhoneNumber {
   id: string;
@@ -30,6 +40,7 @@ interface Profile {
   name: string;
   email: string;
   avatar?: string;
+  role?: string;
 }
 
 interface SMSNavbarProps {
@@ -54,6 +65,7 @@ export default function SMSNavbar({
   onLogout,
 }: SMSNavbarProps) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -63,6 +75,8 @@ export default function SMSNavbar({
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const isAdmin = profile.role === "admin";
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-6">
@@ -107,15 +121,17 @@ export default function SMSNavbar({
             </SelectContent>
           </Select>
 
-          <Button
-            onClick={onBuyNewNumber}
-            size="sm"
-            variant="ghost"
-            className="text-primary hover:text-primary/80"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Buy New
-          </Button>
+          {isAdmin && (
+            <Button
+              onClick={onBuyNewNumber}
+              size="sm"
+              variant="ghost"
+              className="text-primary hover:text-primary/80"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Buy New
+            </Button>
+          )}
         </div>
 
         {/* Right side actions */}
@@ -159,7 +175,14 @@ export default function SMSNavbar({
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{profile.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{profile.name}</p>
+                    {isAdmin && (
+                      <Badge variant="default" className="text-xs">
+                        Admin
+                      </Badge>
+                    )}
+                  </div>
                   <p className="w-[200px] truncate text-sm text-muted-foreground">
                     {profile.email}
                   </p>
@@ -170,6 +193,17 @@ export default function SMSNavbar({
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => setIsAdminDashboardOpen(true)}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin Dashboard</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onLogout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
@@ -184,6 +218,13 @@ export default function SMSNavbar({
             profile={profile}
             onUpdateProfile={onUpdateProfile}
           />
+
+          {isAdmin && (
+            <AdminDashboard
+              open={isAdminDashboardOpen}
+              onOpenChange={setIsAdminDashboardOpen}
+            />
+          )}
         </div>
       </div>
     </nav>
