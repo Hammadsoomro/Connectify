@@ -21,7 +21,7 @@ const availableNumbers = [
     country: "United States",
     type: "Local",
     price: "$1.00/month",
-    features: ["SMS", "Voice", "MMS"],
+    features: ["SMS", "MMS"],
   },
   {
     id: "3",
