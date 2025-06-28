@@ -6,31 +6,64 @@ import { Link } from "react-router-dom";
 
 const availableNumbers = [
   {
-    id: "1",
-    number: "+1 (555) 123-0001",
+    id: "tw_1",
+    number: "+1 (212) 555-0147",
     location: "New York, NY",
     country: "United States",
     type: "Local",
     price: "$1.00/month",
     features: ["SMS", "MMS"],
+    provider: "Twilio",
   },
   {
-    id: "2",
-    number: "+1 (555) 123-0002",
+    id: "tw_2",
+    number: "+1 (323) 555-0289",
     location: "Los Angeles, CA",
     country: "United States",
     type: "Local",
     price: "$1.00/month",
     features: ["SMS", "MMS"],
+    provider: "Twilio",
   },
   {
-    id: "3",
-    number: "+1 (844) 123-0003",
+    id: "tw_3",
+    number: "+1 (312) 555-0356",
+    location: "Chicago, IL",
+    country: "United States",
+    type: "Local",
+    price: "$1.00/month",
+    features: ["SMS", "MMS"],
+    provider: "Twilio",
+  },
+  {
+    id: "tw_4",
+    number: "+1 (844) 555-0789",
     location: "United States",
     country: "United States",
     type: "Toll-Free",
     price: "$2.00/month",
     features: ["SMS", "MMS"],
+    provider: "Twilio",
+  },
+  {
+    id: "tw_5",
+    number: "+1 (833) 555-0456",
+    location: "United States",
+    country: "United States",
+    type: "Toll-Free",
+    price: "$2.00/month",
+    features: ["SMS", "MMS"],
+    provider: "Twilio",
+  },
+  {
+    id: "tw_6",
+    number: "+1 (415) 555-0123",
+    location: "San Francisco, CA",
+    country: "United States",
+    type: "Local",
+    price: "$1.00/month",
+    features: ["SMS", "MMS"],
+    provider: "Twilio",
   },
 ];
 
@@ -59,11 +92,12 @@ export default function BuyNumbers() {
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            Available Phone Numbers
+            Available Twilio Phone Numbers
           </h2>
           <p className="text-muted-foreground">
-            Choose from our available phone numbers to start sending and
-            receiving SMS messages.
+            Choose from our available Twilio phone numbers to start sending and
+            receiving SMS messages. All numbers are powered by Twilio's reliable
+            infrastructure.
           </p>
         </div>
 
@@ -72,13 +106,18 @@ export default function BuyNumbers() {
             <Card key={number.id} className="relative">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge
-                    variant={
-                      number.type === "Toll-Free" ? "default" : "secondary"
-                    }
-                  >
-                    {number.type}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge
+                      variant={
+                        number.type === "Toll-Free" ? "default" : "secondary"
+                      }
+                    >
+                      {number.type}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      Twilio
+                    </Badge>
+                  </div>
                   <span className="text-lg font-bold text-primary">
                     {number.price}
                   </span>

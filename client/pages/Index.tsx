@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Users, Phone, Settings } from "lucide-react";
 
 // Mock data - in a real app, this would come from your backend/Twilio
-const mockPhoneNumbers = [
-  { id: "1", number: "+1 (555) 123-4567", isActive: true },
+const initialPhoneNumbers = [
+  { id: "1", number: "+1 (555) 123-4567", isActive: false },
   { id: "2", number: "+1 (555) 987-6543", isActive: false },
+  { id: "3", number: "+1 (555) 456-7890", isActive: false },
 ];
 
 const mockContacts: Contact[] = [
@@ -158,7 +159,13 @@ export default function Index() {
     null,
   );
   const [activePhoneNumber, setActivePhoneNumber] = useState<string | null>(
-    mockPhoneNumbers[0].id,
+    initialPhoneNumbers[0].id,
+  );
+  const [phoneNumbers, setPhoneNumbers] = useState(
+    initialPhoneNumbers.map((phone, index) => ({
+      ...phone,
+      isActive: index === 0,
+    })),
   );
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -257,6 +264,13 @@ export default function Index() {
 
   const handleSelectPhoneNumber = (numberId: string) => {
     setActivePhoneNumber(numberId);
+    // Update active state for all phone numbers
+    setPhoneNumbers((prev) =>
+      prev.map((phone) => ({
+        ...phone,
+        isActive: phone.id === numberId,
+      })),
+    );
   };
 
   const handleBuyNewNumber = () => {
@@ -271,7 +285,7 @@ export default function Index() {
       {/* Navigation Bar */}
       <SMSNavbar
         unreadCount={totalUnreadCount}
-        phoneNumbers={mockPhoneNumbers}
+        phoneNumbers={phoneNumbers}
         activeNumber={activePhoneNumber}
         onSelectNumber={handleSelectPhoneNumber}
         onBuyNewNumber={handleBuyNewNumber}
@@ -311,7 +325,7 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4" />
-            <span>{mockPhoneNumbers.length} numbers</span>
+            <span>{phoneNumbers.length} numbers</span>
           </div>
         </div>
 
