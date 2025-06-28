@@ -298,7 +298,7 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
-            <span>{Object.values(mockMessages).flat().length} messages</span>
+            <span>{totalUnreadCount} unread</span>
           </div>
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4" />
