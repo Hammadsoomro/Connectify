@@ -229,9 +229,18 @@ export default function Index() {
     }, 1000);
   };
 
-  const handleAddContact = () => {
-    // TODO: Implement add contact modal
-    console.log("Add contact");
+  const handleAddContact = (name: string, phoneNumber: string) => {
+    const newContact: Contact = {
+      id: Date.now().toString(),
+      name,
+      phoneNumber,
+      lastMessage: undefined,
+      lastMessageTime: undefined,
+      unreadCount: 0,
+      isOnline: false,
+    };
+
+    setContacts((prev) => [newContact, ...prev]);
   };
 
   const handleEditContact = (contactId: string) => {
