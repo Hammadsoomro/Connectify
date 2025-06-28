@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Plus, Bell, Settings, MessageSquare } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 interface PhoneNumber {
   id: string;
@@ -79,6 +80,9 @@ export default function SMSNavbar({
               </Badge>
             )}
           </Button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Settings */}
           <Button variant="ghost" size="sm">

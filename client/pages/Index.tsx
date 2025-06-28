@@ -251,8 +251,7 @@ export default function Index() {
   };
 
   const handleBuyNewNumber = () => {
-    // TODO: Navigate to buy numbers page
-    console.log("Buy new number");
+    window.location.href = "/buy-numbers";
   };
 
   const selectedContact =
