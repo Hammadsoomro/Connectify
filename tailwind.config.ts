@@ -57,6 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom messaging app colors
+        message: {
+          sent: "hsl(var(--primary))",
+          received: "hsl(var(--muted))",
+          typing: "hsl(220 14% 96%)",
+        },
+        online: "hsl(142 76% 36%)",
+        offline: "hsl(220 14% 71%)",
       },
       borderRadius: {
         lg: "var(--radius)",
