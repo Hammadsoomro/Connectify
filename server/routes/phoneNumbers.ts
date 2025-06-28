@@ -5,19 +5,45 @@ import PhoneNumber from "../models/PhoneNumber.js";
 export const getPhoneNumbers = async (req: any, res: Response) => {
   try {
     const userId = req.user._id;
+    const user = req.user;
 
-    const phoneNumbers = await PhoneNumber.find({ userId, status: "active" });
+    let phoneNumbers = [];
 
-    const formattedNumbers = phoneNumbers.map((num) => ({
-      id: num._id,
-      number: num.number,
-      isActive: num.isActive,
-      location: num.location,
-      type: num.type,
-      status: num.status,
-    }));
+    if (user.role === "admin") {
+      // Admin sees all their purchased numbers
+      const adminNumbers = await PhoneNumber.find({ userId, status: "active" });
+      phoneNumbers = adminNumbers.map((num) => ({
+        id: num._id,
+        number: num.number,
+        isActive: num.isActive,
+        location: num.location,
+        type: num.type,
+        status: num.status,
+        isOwned: true,
+      }));
+    } else if (user.role === "sub-account") {
+      // Sub-account sees only assigned numbers
+      if (user.assignedNumbers && user.assignedNumbers.length > 0) {
+        const assignedNumbers = await PhoneNumber.find({
+          userId: user.adminId,
+          number: { $in: user.assignedNumbers },
+          status: "active",
+        });
 
-    res.json(formattedNumbers);
+        phoneNumbers = assignedNumbers.map((num) => ({
+          id: num._id,
+          number: num.number,
+          isActive: num.isActive,
+          location: num.location,
+          type: num.type,
+          status: num.status,
+          isOwned: false,
+          isAssigned: true,
+        }));
+      }
+    }
+
+    res.json(phoneNumbers);
   } catch (error) {
     console.error("Get phone numbers error:", error);
     res.status(500).json({ message: "Failed to fetch phone numbers" });

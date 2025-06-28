@@ -26,6 +26,14 @@ import {
   setActiveNumber,
   releaseNumber,
 } from "./routes/phoneNumbers.js";
+import {
+  createSubAccount,
+  getSubAccounts,
+  assignNumberToSubAccount,
+  removeNumberAssignment,
+  deactivateSubAccount,
+  getDashboardStats,
+} from "./routes/admin.js";
 
 // Load environment variables
 dotenv.config();
@@ -72,6 +80,18 @@ export function createServer() {
   app.delete("/api/phone-numbers/:numberId", auth, releaseNumber);
   app.get("/api/phone-numbers/available", getAvailableNumbers);
   app.post("/api/phone-numbers/purchase", auth, purchaseNumber);
+
+  // Admin routes
+  app.post("/api/admin/sub-accounts", auth, createSubAccount);
+  app.get("/api/admin/sub-accounts", auth, getSubAccounts);
+  app.post("/api/admin/assign-number", auth, assignNumberToSubAccount);
+  app.post("/api/admin/remove-assignment", auth, removeNumberAssignment);
+  app.put(
+    "/api/admin/sub-accounts/:subAccountId/deactivate",
+    auth,
+    deactivateSubAccount,
+  );
+  app.get("/api/admin/dashboard-stats", auth, getDashboardStats);
 
   // Health check
   app.get("/api/health", (_req, res) => {

@@ -9,6 +9,7 @@ export const sendSMS = async (req: any, res: Response) => {
   try {
     const { contactId, content, fromNumber } = req.body;
     const userId = req.user._id;
+    const user = req.user;
 
     // Get contact
     const contact = await Contact.findOne({ _id: contactId, userId });
@@ -16,14 +17,56 @@ export const sendSMS = async (req: any, res: Response) => {
       return res.status(404).json({ message: "Contact not found" });
     }
 
-    // Verify user owns the from number
-    const phoneNumber = await PhoneNumber.findOne({
-      userId,
-      number: fromNumber,
-      status: "active",
-    });
-    if (!phoneNumber) {
-      return res.status(400).json({ message: "Invalid phone number" });
+    let canUseNumber = false;
+    let phoneNumber = null;
+
+    if (user.role === "admin") {
+      // Admin can use any of their purchased numbers
+      phoneNumber = await PhoneNumber.findOne({
+        userId,
+        number: fromNumber,
+        status: "active",
+      });
+      canUseNumber = !!phoneNumber;
+    } else if (user.role === "sub-account") {
+      // Sub-account can only use assigned numbers
+      if (user.assignedNumbers && user.assignedNumbers.includes(fromNumber)) {
+        // Verify the number still exists and belongs to their admin
+        phoneNumber = await PhoneNumber.findOne({
+          userId: user.adminId,
+          number: fromNumber,
+          status: "active",
+        });
+        canUseNumber = !!phoneNumber;
+      }
+    }
+
+    if (!canUseNumber) {
+      if (user.role === "admin") {
+        // Check if admin has any numbers at all
+        const adminNumbers = await PhoneNumber.countDocuments({
+          userId,
+          status: "active",
+        });
+
+        if (adminNumbers === 0) {
+          return res.status(400).json({
+            message: "Please buy a phone number first to send SMS messages",
+            code: "NO_PHONE_NUMBER",
+          });
+        } else {
+          return res.status(400).json({
+            message: "Invalid phone number selected",
+            code: "INVALID_NUMBER",
+          });
+        }
+      } else {
+        return res.status(400).json({
+          message:
+            "No phone number assigned to your account. Contact your admin to assign a number.",
+          code: "NO_ASSIGNED_NUMBER",
+        });
+      }
     }
 
     // Send via Twilio
@@ -178,11 +221,19 @@ export const getAvailableNumbers = async (req: Request, res: Response) => {
   }
 };
 
-// Purchase a phone number
+// Purchase a phone number (Admin only)
 export const purchaseNumber = async (req: any, res: Response) => {
   try {
     const { phoneNumber } = req.body;
     const userId = req.user._id;
+
+    // Check if user is admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "Only admin accounts can purchase phone numbers",
+        code: "ADMIN_ONLY",
+      });
+    }
 
     // Purchase via Twilio
     const twilioNumber = await twilioService.purchaseNumber(phoneNumber);

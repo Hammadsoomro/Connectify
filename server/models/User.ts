@@ -6,6 +6,11 @@ export interface IUser extends Document {
   password: string;
   avatar?: string;
   phoneNumbers: string[];
+  role: "admin" | "sub-account";
+  adminId?: mongoose.Types.ObjectId; // For sub-accounts, reference to admin
+  subAccounts?: mongoose.Types.ObjectId[]; // For admins, list of sub-accounts
+  assignedNumbers?: string[]; // Numbers assigned by admin to sub-account
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +44,34 @@ const UserSchema: Schema = new Schema(
         trim: true,
       },
     ],
+    role: {
+      type: String,
+      enum: ["admin", "sub-account"],
+      default: "admin", // First user becomes admin by default
+    },
+    adminId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: function () {
+        return this.role === "sub-account";
+      },
+    },
+    subAccounts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    assignedNumbers: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
