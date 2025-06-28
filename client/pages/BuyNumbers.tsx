@@ -59,7 +59,9 @@ export default function BuyNumbers() {
       );
 
       // Show success message or redirect
-      alert("Number purchased successfully! You can now use it to send messages.");
+      alert(
+        "Number purchased successfully! You can now use it to send messages.",
+      );
     } catch (error: any) {
       console.error("Error purchasing number:", error);
       alert(error.message || "Failed to purchase number. Please try again.");
@@ -91,7 +93,8 @@ export default function BuyNumbers() {
           </h2>
           <p className="text-muted-foreground mb-6">
             Choose from our available Twilio phone numbers to start sending and
-            receiving SMS messages. All numbers are powered by Twilio's reliable infrastructure.
+            receiving SMS messages. All numbers are powered by Twilio's reliable
+            infrastructure.
           </p>
 
           {/* Search by Area Code */}
@@ -206,12 +209,22 @@ export default function BuyNumbers() {
             {availableNumbers.length === 0 && !isLoading && (
               <div className="col-span-full text-center py-8">
                 <p className="text-muted-foreground">
-                  {areaCode ? "No numbers found for this area code" : "No numbers available"}
+                  {areaCode
+                    ? "No numbers found for this area code"
+                    : "No numbers available"}
                 </p>
               </div>
             )}
           </div>
         )}
+
+        {/* Info Section */}
+        <div className="mt-12 bg-muted/50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-4">How it works</h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-primary-foreground font-bold">1</span>
               </div>
               <h4 className="font-medium mb-2">Choose a Number</h4>
               <p className="text-sm text-muted-foreground">
@@ -233,7 +246,7 @@ export default function BuyNumbers() {
               </div>
               <h4 className="font-medium mb-2">Start Messaging</h4>
               <p className="text-sm text-muted-foreground">
-                Use your new number immediately for SMS and calls
+                Use your new number immediately for SMS messages
               </p>
             </div>
           </div>
