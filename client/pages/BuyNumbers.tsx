@@ -1,76 +1,71 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Phone, MapPin, Globe } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Phone, MapPin, Globe, Search } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const availableNumbers = [
-  {
-    id: "tw_1",
-    number: "+1 (212) 555-0147",
-    location: "New York, NY",
-    country: "United States",
-    type: "Local",
-    price: "$1.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-  {
-    id: "tw_2",
-    number: "+1 (323) 555-0289",
-    location: "Los Angeles, CA",
-    country: "United States",
-    type: "Local",
-    price: "$1.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-  {
-    id: "tw_3",
-    number: "+1 (312) 555-0356",
-    location: "Chicago, IL",
-    country: "United States",
-    type: "Local",
-    price: "$1.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-  {
-    id: "tw_4",
-    number: "+1 (844) 555-0789",
-    location: "United States",
-    country: "United States",
-    type: "Toll-Free",
-    price: "$2.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-  {
-    id: "tw_5",
-    number: "+1 (833) 555-0456",
-    location: "United States",
-    country: "United States",
-    type: "Toll-Free",
-    price: "$2.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-  {
-    id: "tw_6",
-    number: "+1 (415) 555-0123",
-    location: "San Francisco, CA",
-    country: "United States",
-    type: "Local",
-    price: "$1.00/month",
-    features: ["SMS", "MMS"],
-    provider: "Twilio",
-  },
-];
+import ApiService from "@/services/api";
 
 export default function BuyNumbers() {
-  const handlePurchaseNumber = (numberId: string) => {
-    // TODO: Implement number purchase logic
-    console.log("Purchase number:", numberId);
+  const [availableNumbers, setAvailableNumbers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [areaCode, setAreaCode] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [purchasingNumber, setPurchasingNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAvailableNumbers();
+  }, []);
+
+  const loadAvailableNumbers = async () => {
+    try {
+      setIsLoading(true);
+      const numbers = await ApiService.getAvailableNumbers();
+      setAvailableNumbers(numbers);
+    } catch (error) {
+      console.error("Error loading available numbers:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!areaCode.trim()) {
+      loadAvailableNumbers();
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+      const numbers = await ApiService.getAvailableNumbers(areaCode);
+      setAvailableNumbers(numbers);
+    } catch (error) {
+      console.error("Error searching numbers:", error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handlePurchaseNumber = async (phoneNumber: string) => {
+    try {
+      setPurchasingNumber(phoneNumber);
+      await ApiService.purchaseNumber(phoneNumber);
+
+      // Remove purchased number from available list
+      setAvailableNumbers((prev) =>
+        prev.filter((num) => num.number !== phoneNumber),
+      );
+
+      // Show success message or redirect
+      alert("Number purchased successfully! You can now use it to send messages.");
+    } catch (error: any) {
+      console.error("Error purchasing number:", error);
+      alert(error.message || "Failed to purchase number. Please try again.");
+    } finally {
+      setPurchasingNumber(null);
+    }
   };
 
   return (
@@ -94,85 +89,129 @@ export default function BuyNumbers() {
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Available Twilio Phone Numbers
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-6">
             Choose from our available Twilio phone numbers to start sending and
-            receiving SMS messages. All numbers are powered by Twilio's reliable
-            infrastructure.
+            receiving SMS messages. All numbers are powered by Twilio's reliable infrastructure.
           </p>
+
+          {/* Search by Area Code */}
+          <div className="flex gap-4 max-w-md">
+            <div className="flex-1">
+              <Label htmlFor="areaCode">Search by Area Code (Optional)</Label>
+              <Input
+                id="areaCode"
+                placeholder="e.g., 212, 415, 310"
+                value={areaCode}
+                onChange={(e) => setAreaCode(e.target.value)}
+                maxLength={3}
+              />
+            </div>
+            <Button
+              onClick={handleSearch}
+              disabled={searchLoading}
+              className="mt-6"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              {searchLoading ? "Searching..." : "Search"}
+            </Button>
+          </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {availableNumbers.map((number) => (
-            <Card key={number.id} className="relative">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
-                    <Badge
-                      variant={
-                        number.type === "Toll-Free" ? "default" : "secondary"
-                      }
-                    >
-                      {number.type}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      Twilio
-                    </Badge>
+        {isLoading ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-muted rounded mb-2" />
+                  <div className="h-6 bg-muted rounded" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-muted rounded" />
+                    <div className="h-4 bg-muted rounded" />
+                    <div className="h-10 bg-muted rounded mt-4" />
                   </div>
-                  <span className="text-lg font-bold text-primary">
-                    {number.price}
-                  </span>
-                </div>
-                <CardTitle className="text-lg font-mono">
-                  {number.number}
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span>{number.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Globe className="w-4 h-4" />
-                    <span>{number.country}</span>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium mb-2">Features:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {number.features.map((feature) => (
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {availableNumbers.map((number) => (
+              <Card key={number.id} className="relative">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
                       <Badge
-                        key={feature}
-                        variant="outline"
-                        className="text-xs"
+                        variant={
+                          number.type === "Toll-Free" ? "default" : "secondary"
+                        }
                       >
-                        {feature}
+                        {number.type}
                       </Badge>
-                    ))}
+                      <Badge variant="outline" className="text-xs">
+                        Twilio
+                      </Badge>
+                    </div>
+                    <span className="text-lg font-bold text-primary">
+                      {number.price}
+                    </span>
                   </div>
-                </div>
+                  <CardTitle className="text-lg font-mono">
+                    {number.number}
+                  </CardTitle>
+                </CardHeader>
 
-                <Button
-                  onClick={() => handlePurchaseNumber(number.id)}
-                  className="w-full"
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Purchase Number
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
+                      <span>{number.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Globe className="w-4 h-4" />
+                      <span>{number.country}</span>
+                    </div>
+                  </div>
 
-        {/* Info Section */}
-        <div className="mt-12 bg-muted/50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">How it works</h3>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary-foreground font-bold">1</span>
+                  <div>
+                    <p className="text-sm font-medium mb-2">Features:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {number.features.map((feature: string) => (
+                        <Badge
+                          key={feature}
+                          variant="outline"
+                          className="text-xs"
+                        >
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => handlePurchaseNumber(number.number)}
+                    className="w-full"
+                    disabled={purchasingNumber === number.number}
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    {purchasingNumber === number.number
+                      ? "Purchasing..."
+                      : "Purchase Number"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+
+            {availableNumbers.length === 0 && !isLoading && (
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">
+                  {areaCode ? "No numbers found for this area code" : "No numbers available"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
               </div>
               <h4 className="font-medium mb-2">Choose a Number</h4>
               <p className="text-sm text-muted-foreground">
