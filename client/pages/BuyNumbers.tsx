@@ -30,7 +30,7 @@ const availableNumbers = [
     country: "United States",
     type: "Toll-Free",
     price: "$2.00/month",
-    features: ["SMS", "Voice", "MMS"],
+    features: ["SMS", "MMS"],
   },
 ];
 
