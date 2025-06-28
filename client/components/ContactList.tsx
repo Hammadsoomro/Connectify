@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AddContactDialog from "./AddContactDialog";
 
 export interface Contact {
   id: string;
@@ -27,7 +28,7 @@ interface ContactListProps {
   contacts: Contact[];
   selectedContactId: string | null;
   onSelectContact: (contactId: string) => void;
-  onAddContact: () => void;
+  onAddContact: (name: string, phoneNumber: string) => void;
   onEditContact: (contactId: string) => void;
   onDeleteContact: (contactId: string) => void;
 }
@@ -41,6 +42,7 @@ export default function ContactList({
   onDeleteContact,
 }: ContactListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const filteredContacts = contacts.filter(
     (contact) =>
@@ -83,7 +85,11 @@ export default function ContactList({
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground">Contacts</h2>
-          <Button onClick={onAddContact} size="sm" className="h-8 w-8 p-0">
+          <Button
+            onClick={() => setIsAddDialogOpen(true)}
+            size="sm"
+            className="h-8 w-8 p-0"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
@@ -206,6 +212,12 @@ export default function ContactList({
           )}
         </div>
       </ScrollArea>
+
+      <AddContactDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onAddContact={onAddContact}
+      />
     </div>
   );
 }
