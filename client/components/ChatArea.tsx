@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MoreVertical, Paperclip, Smile } from "lucide-react";
+import {
+  Send,
+  MoreVertical,
+  Paperclip,
+  Smile,
+  MessageSquare,
+} from "lucide-react";
 import { Contact } from "./ContactList";
 
 export interface Message {
@@ -74,7 +80,7 @@ export default function ChatArea({
       <div className="flex-1 flex items-center justify-center bg-muted/30">
         <div className="text-center">
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <Phone className="w-8 h-8 text-muted-foreground" />
+            <MessageSquare className="w-8 h-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
             Welcome to SMS Hub
