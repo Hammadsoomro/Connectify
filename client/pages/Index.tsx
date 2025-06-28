@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import SMSNavbar from "@/components/SMSNavbar";
 import ContactList, { Contact } from "@/components/ContactList";
 import ChatArea, { Message } from "@/components/ChatArea";
+import Login from "./Login";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Users, Phone, Settings } from "lucide-react";
+import ApiService from "@/services/api";
 
 // Mock data - in a real app, this would come from your backend/Twilio
 const initialPhoneNumbers = [
@@ -155,26 +157,65 @@ const mockMessages: Record<string, Message[]> = {
 };
 
 export default function Index() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     null,
   );
   const [activePhoneNumber, setActivePhoneNumber] = useState<string | null>(
-    initialPhoneNumbers[0].id,
+    null,
   );
-  const [phoneNumbers, setPhoneNumbers] = useState(
-    initialPhoneNumbers.map((phone, index) => ({
-      ...phone,
-      isActive: index === 0,
-    })),
-  );
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+  const [phoneNumbers, setPhoneNumbers] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
+    name: "",
+    email: "",
     avatar: "",
   });
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (ApiService.isAuthenticated()) {
+        try {
+          const userProfile = await ApiService.getProfile();
+          setProfile(userProfile);
+          setIsAuthenticated(true);
+          await loadInitialData();
+        } catch (error) {
+          console.error("Auth check failed:", error);
+          ApiService.logout();
+          setIsAuthenticated(false);
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      const [contactsData, phoneNumbersData] = await Promise.all([
+        ApiService.getContacts(),
+        ApiService.getPhoneNumbers(),
+      ]);
+
+      setContacts(contactsData);
+      setPhoneNumbers(phoneNumbersData);
+
+      // Set first phone number as active if none is active
+      const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
+      if (activeNumber) {
+        setActivePhoneNumber(activeNumber.id);
+      } else if (phoneNumbersData.length > 0) {
+        setActivePhoneNumber(phoneNumbersData[0].id);
+        await ApiService.setActiveNumber(phoneNumbersData[0].id);
+      }
+    } catch (error) {
+      console.error("Error loading initial data:", error);
+    }
+  };
 
   // Calculate total unread count
   const totalUnreadCount = contacts.reduce(
@@ -182,28 +223,49 @@ export default function Index() {
     0,
   );
 
+  const handleLoginSuccess = (user: any) => {
+    setProfile(user);
+    setIsAuthenticated(true);
+    loadInitialData();
+  };
+
   // Load messages when contact is selected
   useEffect(() => {
-    if (selectedContactId) {
-      setMessages(mockMessages[selectedContactId] || []);
+    const loadMessages = async () => {
+      if (selectedContactId && isAuthenticated) {
+        try {
+          const messagesData = await ApiService.getMessages(selectedContactId);
+          setMessages(messagesData);
 
-      // Mark messages as read
-      setContacts((prev) =>
-        prev.map((contact) =>
-          contact.id === selectedContactId
-            ? { ...contact, unreadCount: 0 }
-            : contact,
-        ),
-      );
-    }
-  }, [selectedContactId]);
+          // Mark messages as read
+          await ApiService.markAsRead(selectedContactId);
+
+          // Update local contact state
+          setContacts((prev) =>
+            prev.map((contact) =>
+              contact.id === selectedContactId
+                ? { ...contact, unreadCount: 0 }
+                : contact,
+            ),
+          );
+        } catch (error) {
+          console.error("Error loading messages:", error);
+        }
+      }
+    };
+
+    loadMessages();
+  }, [selectedContactId, isAuthenticated]);
 
   const handleSelectContact = (contactId: string) => {
     setSelectedContactId(contactId);
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!selectedContactId) return;
+    if (!selectedContactId || !activePhoneNumber) return;
+
+    const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
+    if (!activeNumber) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -217,14 +279,20 @@ export default function Index() {
     setMessages((prev) => [...prev, newMessage]);
     setIsLoading(true);
 
-    // Simulate sending message
-    setTimeout(() => {
+    try {
+      const sentMessage = await ApiService.sendSMS(
+        selectedContactId,
+        content,
+        activeNumber.number,
+      );
+
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.id === newMessage.id ? { ...msg, status: "sent" as const } : msg,
+          msg.id === newMessage.id
+            ? { ...msg, id: sentMessage.id, status: "sent" as const }
+            : msg,
         ),
       );
-      setIsLoading(false);
 
       // Update last message in contact list
       setContacts((prev) =>
@@ -238,21 +306,27 @@ export default function Index() {
             : contact,
         ),
       );
-    }, 1000);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === newMessage.id
+            ? { ...msg, status: "failed" as const }
+            : msg,
+        ),
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAddContact = (name: string, phoneNumber: string) => {
-    const newContact: Contact = {
-      id: Date.now().toString(),
-      name,
-      phoneNumber,
-      lastMessage: undefined,
-      lastMessageTime: undefined,
-      unreadCount: 0,
-      isOnline: false,
-    };
-
-    setContacts((prev) => [newContact, ...prev]);
+  const handleAddContact = async (name: string, phoneNumber: string) => {
+    try {
+      const newContact = await ApiService.addContact(name, phoneNumber);
+      setContacts((prev) => [newContact, ...prev]);
+    } catch (error) {
+      console.error("Error adding contact:", error);
+    }
   };
 
   const handleEditContact = (contactId: string) => {
@@ -260,39 +334,65 @@ export default function Index() {
     console.log("Edit contact:", contactId);
   };
 
-  const handleDeleteContact = (contactId: string) => {
-    setContacts((prev) => prev.filter((contact) => contact.id !== contactId));
-    if (selectedContactId === contactId) {
-      setSelectedContactId(null);
+  const handleDeleteContact = async (contactId: string) => {
+    try {
+      await ApiService.deleteContact(contactId);
+      setContacts((prev) => prev.filter((contact) => contact.id !== contactId));
+      if (selectedContactId === contactId) {
+        setSelectedContactId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting contact:", error);
     }
   };
 
-  const handleSelectPhoneNumber = (numberId: string) => {
-    setActivePhoneNumber(numberId);
-    // Update active state for all phone numbers
-    setPhoneNumbers((prev) =>
-      prev.map((phone) => ({
-        ...phone,
-        isActive: phone.id === numberId,
-      })),
-    );
+  const handleSelectPhoneNumber = async (numberId: string) => {
+    try {
+      await ApiService.setActiveNumber(numberId);
+      setActivePhoneNumber(numberId);
+      // Update active state for all phone numbers
+      setPhoneNumbers((prev) =>
+        prev.map((phone) => ({
+          ...phone,
+          isActive: phone.id === numberId,
+        })),
+      );
+    } catch (error) {
+      console.error("Error setting active number:", error);
+    }
   };
 
   const handleBuyNewNumber = () => {
     window.location.href = "/buy-numbers";
   };
 
-  const handleUpdateProfile = (newProfile: typeof profile) => {
-    setProfile(newProfile);
+  const handleUpdateProfile = async (newProfile: typeof profile) => {
+    try {
+      const updatedProfile = await ApiService.updateProfile(newProfile);
+      setProfile(updatedProfile);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log("Logging out...");
+    ApiService.logout();
+    setIsAuthenticated(false);
+    setProfile({ name: "", email: "", avatar: "" });
+    setContacts([]);
+    setPhoneNumbers([]);
+    setMessages([]);
+    setSelectedContactId(null);
+    setActivePhoneNumber(null);
   };
 
   const selectedContact =
     contacts.find((contact) => contact.id === selectedContactId) || null;
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background">
