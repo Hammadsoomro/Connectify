@@ -43,6 +43,7 @@ export const register = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -78,6 +79,7 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -95,6 +97,7 @@ export const getMe = async (req: any, res: Response) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      role: user.role,
       phoneNumbers: user.phoneNumbers,
     });
   } catch (error) {
@@ -126,6 +129,7 @@ export const updateProfile = async (req: any, res: Response) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      role: user.role,
     });
   } catch (error) {
     console.error("Update profile error:", error);
