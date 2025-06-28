@@ -72,4 +72,5 @@ const PhoneNumberSchema: Schema = new Schema(
 
 // Indexes already created by unique: true options and compound indexes
 
-export default mongoose.model<IPhoneNumber>("PhoneNumber", PhoneNumberSchema);
+export default mongoose.models.PhoneNumber ||
+  mongoose.model<IPhoneNumber>("PhoneNumber", PhoneNumberSchema);

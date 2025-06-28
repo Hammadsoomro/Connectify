@@ -66,4 +66,5 @@ const MessageSchema: Schema = new Schema(
 MessageSchema.index({ userId: 1, contactId: 1, createdAt: -1 });
 MessageSchema.index({ twilioSid: 1 }, { sparse: true });
 
-export default mongoose.model<IMessage>("Message", MessageSchema);
+export default mongoose.models.Message ||
+  mongoose.model<IMessage>("Message", MessageSchema);

@@ -49,4 +49,5 @@ const ContactSchema: Schema = new Schema(
 // Compound index for user-specific contact lookups
 ContactSchema.index({ userId: 1, phoneNumber: 1 }, { unique: true });
 
-export default mongoose.model<IContact>("Contact", ContactSchema);
+export default mongoose.models.Contact ||
+  mongoose.model<IContact>("Contact", ContactSchema);
