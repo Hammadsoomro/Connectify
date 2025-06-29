@@ -57,7 +57,7 @@ dotenv.config();
 
 export function createServer() {
   const app = express();
-  const server = createServer(app);
+  const server = createHttpServer(app);
 
   // Connect to MongoDB
   connectDB();
