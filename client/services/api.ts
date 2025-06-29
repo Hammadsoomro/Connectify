@@ -183,6 +183,29 @@ class ApiService {
     return this.request("/admin/dashboard-stats");
   }
 
+  // Wallet methods
+  async getWallet() {
+    return this.request("/wallet");
+  }
+
+  async addFunds(amount: number, paymentMethod: string = "manual") {
+    return this.request("/wallet/add-funds", {
+      method: "POST",
+      body: JSON.stringify({ amount, paymentMethod }),
+    });
+  }
+
+  async getWalletStats() {
+    return this.request("/wallet/stats");
+  }
+
+  async updateMonthlyLimit(limit: number) {
+    return this.request("/wallet/monthly-limit", {
+      method: "PUT",
+      body: JSON.stringify({ limit }),
+    });
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");
