@@ -111,6 +111,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                   onLoginSuccess={() => {
                     onLoginSuccess();
                   }}
+                  isSignUp={true}
                 />
               </DialogContent>
             </Dialog>
