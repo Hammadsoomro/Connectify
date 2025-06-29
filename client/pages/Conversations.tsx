@@ -246,22 +246,6 @@ export default function Conversations() {
         onLogout={handleLogout}
       />
 
-      {/* Header with Back Button */}
-      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center gap-4 px-6 py-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Button>
-          <h1 className="text-lg font-semibold">Conversations</h1>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Contact List Sidebar */}
