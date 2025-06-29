@@ -148,7 +148,10 @@ export default function Pricing() {
     try {
       const stripe = await stripePromise;
       if (!stripe) {
-        throw new Error("Stripe not loaded");
+        alert("Stripe is not configured. Please use Demo Payment mode.");
+        setPaymentMethod("demo");
+        setIsProcessing(false);
+        return;
       }
 
       const amount = parseFloat(paymentAmount);
