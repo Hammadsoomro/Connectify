@@ -40,9 +40,7 @@ export default function BuyNumbers() {
   // Filter numbers by selected country
   useEffect(() => {
     const filtered = availableNumbers.filter((number) => {
-      const selectedCountryName = countries.find(
-        (c) => c.code === selectedCountry,
-      )?.name;
+      const selectedCountryName = countries.find(c => c.code === selectedCountry)?.name;
       return number.country === selectedCountryName;
     });
     setFilteredNumbers(filtered);
@@ -140,10 +138,7 @@ export default function BuyNumbers() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl">
             <div>
               <Label htmlFor="country">Select Country</Label>
-              <Select
-                value={selectedCountry}
-                onValueChange={setSelectedCountry}
-              >
+              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose country" />
                 </SelectTrigger>
@@ -200,7 +195,17 @@ export default function BuyNumbers() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {availableNumbers.map((number) => (
+            {filteredNumbers.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <Phone className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Numbers Available</h3>
+                <p className="text-muted-foreground">
+                  No phone numbers available for {countries.find(c => c.code === selectedCountry)?.name}.
+                  Try selecting a different country.
+                </p>
+              </div>
+            ) : (
+              filteredNumbers.map((number) => (
               <Card key={number.id} className="relative">
                 <CardHeader>
                   <div className="flex items-center justify-between">
