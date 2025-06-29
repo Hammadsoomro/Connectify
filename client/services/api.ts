@@ -206,6 +206,16 @@ class ApiService {
     });
   }
 
+  async getBillingSummary() {
+    return this.request("/wallet/billing-summary");
+  }
+
+  async triggerMonthlyBilling() {
+    return this.request("/wallet/trigger-billing", {
+      method: "POST",
+    });
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");
