@@ -26,8 +26,10 @@ const countries = [
 
 export default function BuyNumbers() {
   const [availableNumbers, setAvailableNumbers] = useState<any[]>([]);
+  const [filteredNumbers, setFilteredNumbers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [areaCode, setAreaCode] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("US");
   const [searchLoading, setSearchLoading] = useState(false);
   const [purchasingNumber, setPurchasingNumber] = useState<string | null>(null);
 
