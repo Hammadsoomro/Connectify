@@ -37,6 +37,17 @@ export default function BuyNumbers() {
     loadAvailableNumbers();
   }, []);
 
+  // Filter numbers by selected country
+  useEffect(() => {
+    const filtered = availableNumbers.filter((number) => {
+      const selectedCountryName = countries.find(
+        (c) => c.code === selectedCountry,
+      )?.name;
+      return number.country === selectedCountryName;
+    });
+    setFilteredNumbers(filtered);
+  }, [availableNumbers, selectedCountry]);
+
   const loadAvailableNumbers = async () => {
     try {
       setIsLoading(true);
