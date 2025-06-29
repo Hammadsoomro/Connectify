@@ -52,6 +52,7 @@ import {
   createSetupIntent,
 } from "./routes/payments.js";
 import { getTwilioBalance } from "./routes/twilio.js";
+import { debugDeployment, testSMSConfig } from "./routes/debug.js";
 
 // Load environment variables
 dotenv.config();
