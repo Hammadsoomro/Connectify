@@ -37,11 +37,14 @@ class WebSocketService {
       };
 
       this.ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        console.warn("WebSocket error (real-time features disabled):", error);
       };
     } catch (error) {
-      console.error("Failed to connect WebSocket:", error);
-      this.attemptReconnect();
+      console.warn(
+        "Failed to connect WebSocket (real-time features disabled):",
+        error,
+      );
+      // Don't attempt reconnect for now to avoid spam
     }
   }
 
