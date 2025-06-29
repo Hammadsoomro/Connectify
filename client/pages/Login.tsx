@@ -14,9 +14,13 @@ import ApiService from "@/services/api";
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
+  isSignUp?: boolean;
 }
 
-export default function Login({ onLoginSuccess }: LoginProps) {
+export default function Login({
+  onLoginSuccess,
+  isSignUp = false,
+}: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
