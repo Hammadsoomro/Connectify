@@ -53,7 +53,6 @@ const WalletSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
     },
     balance: {
       type: Number,
