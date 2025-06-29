@@ -618,12 +618,25 @@ export default function Home() {
           {/* Right Sidebar */}
           <div className="space-y-8">
             {/* Buy New Number */}
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
+                <img
+                  src="https://images.pexels.com/photos/2265486/pexels-photo-2265486.jpeg"
+                  alt="Communication Technology"
+                  className="w-full h-full object-cover mix-blend-overlay opacity-50"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Phone className="w-12 h-12 text-white" />
+                </div>
+              </div>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Phone className="w-5 h-5" />
+                  <Globe className="w-5 h-5" />
                   Buy New Number
                 </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Get phone numbers from {countries.length} countries worldwide
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -634,15 +647,21 @@ export default function Home() {
                     value={selectedCountry}
                     onValueChange={setSelectedCountry}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12">
                       <SelectValue placeholder="Choose country" />
                     </SelectTrigger>
                     <SelectContent>
                       {countries.map((country) => (
                         <SelectItem key={country.code} value={country.code}>
-                          <div className="flex items-center gap-2">
-                            <span>{country.flag}</span>
-                            <span>{country.name}</span>
+                          <div className="flex items-center gap-3 py-1">
+                            <span className="text-xl">{country.flag}</span>
+                            <div>
+                              <div className="font-medium">{country.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                Local: {country.priceLocal} • Toll-free:{" "}
+                                {country.priceTollFree}
+                              </div>
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
@@ -652,40 +671,87 @@ export default function Home() {
 
                 {selectedCountry && (
                   <div className="space-y-3">
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">
-                          Local Number
-                        </span>
-                        <span className="text-sm font-bold text-primary">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm font-medium">
+                            Local Number
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
                           {
                             countries.find((c) => c.code === selectedCountry)
                               ?.priceLocal
                           }
-                          /month
+                          <span className="text-sm font-normal text-muted-foreground">
+                            /month
+                          </span>
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         Perfect for local businesses and regional communication
                       </p>
+                      <div className="flex items-center gap-1 mt-2">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span className="text-xs text-green-600 dark:text-green-400">
+                          Instant activation
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">
-                          Toll-Free Number
-                        </span>
-                        <span className="text-sm font-bold text-primary">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <span className="text-sm font-medium">
+                            Toll-Free Number
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
                           {
                             countries.find((c) => c.code === selectedCountry)
                               ?.priceTollFree
                           }
-                          /month
+                          <span className="text-sm font-normal text-muted-foreground">
+                            /month
+                          </span>
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         Professional appearance for customer service and support
                       </p>
+                      <div className="flex items-center gap-1 mt-2">
+                        <Star className="w-3 h-3 text-purple-500" />
+                        <span className="text-xs text-purple-600 dark:text-purple-400">
+                          Premium features
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Pricing Benefits */}
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <h4 className="text-sm font-medium mb-2">
+                        What's included:
+                      </h4>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          Unlimited SMS sending
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          Real-time delivery status
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          Multi-country support
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          24/7 customer support
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 )}
@@ -695,25 +761,46 @@ export default function Home() {
                     <Button className="w-full" size="lg">
                       <Plus className="w-4 h-4 mr-2" />
                       Buy Phone Number
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Purchase Phone Number</DialogTitle>
+                      <DialogTitle className="flex items-center gap-2">
+                        <span className="text-2xl">
+                          {
+                            countries.find((c) => c.code === selectedCountry)
+                              ?.flag
+                          }
+                        </span>
+                        Purchase Phone Number
+                      </DialogTitle>
                       <DialogDescription>
                         Get a new phone number for{" "}
-                        {
-                          countries.find((c) => c.code === selectedCountry)
-                            ?.name
-                        }
+                        <span className="font-medium">
+                          {
+                            countries.find((c) => c.code === selectedCountry)
+                              ?.name
+                          }
+                        </span>
                       </DialogDescription>
                     </DialogHeader>
                     <div className="text-center py-6">
-                      <p className="mb-4">
-                        This will redirect you to our number selection page.
+                      <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Phone className="w-8 h-8 text-primary" />
+                      </div>
+                      <p className="mb-6 text-sm text-muted-foreground">
+                        This will redirect you to our number selection page
+                        where you can choose from available numbers and complete
+                        your purchase.
                       </p>
-                      <Button onClick={handleBuyNumber} size="lg">
+                      <Button
+                        onClick={handleBuyNumber}
+                        size="lg"
+                        className="w-full"
+                      >
                         Continue to Number Selection
+                        <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </div>
                   </DialogContent>
