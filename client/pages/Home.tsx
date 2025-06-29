@@ -115,6 +115,101 @@ export default function Home() {
       />
 
       <div className="container mx-auto px-6 py-8">
+        {/* Main Action Buttons */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
+          {/* Conversations Button */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 hover:scale-105"
+            onClick={() => navigate("/conversations")}
+          >
+            <CardHeader className="text-center pb-4">
+              <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <CardTitle className="flex items-center justify-center gap-2">
+                <span>Conversations</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+              {stats.unreadMessages > 0 && (
+                <Badge className="mx-auto bg-red-500">
+                  {stats.unreadMessages} unread
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-muted-foreground mb-4">
+                Access your real-time SMS conversations and manage contacts
+              </p>
+              <div className="flex justify-between text-sm">
+                <span>Contacts: {stats.contacts}</span>
+                <span>Numbers: {stats.phoneNumbers}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Buy Numbers Button */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 hover:scale-105"
+            onClick={() => navigate("/buy-numbers")}
+          >
+            <CardHeader className="text-center pb-4">
+              <div className="bg-green-100 dark:bg-green-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <CardTitle className="flex items-center justify-center gap-2">
+                <span>Buy Numbers</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-muted-foreground mb-4">
+                Purchase phone numbers from 50+ countries worldwide
+              </p>
+              <div className="space-y-1 text-sm">
+                <div className="flex items-center justify-center gap-2">
+                  <Globe className="w-4 h-4 text-green-500" />
+                  <span>Global Coverage</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Zap className="w-4 h-4 text-blue-500" />
+                  <span>Instant Activation</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pricing Button */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 hover:scale-105"
+            onClick={() => navigate("/pricing")}
+          >
+            <CardHeader className="text-center pb-4">
+              <div className="bg-purple-100 dark:bg-purple-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <CardTitle className="flex items-center justify-center gap-2">
+                <span>Pricing</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-muted-foreground mb-4">
+                View pricing and add funds to your wallet
+              </p>
+              <div className="space-y-1 text-sm">
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Pay-as-you-go</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>No hidden fees</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center mb-16 relative">
           {/* Background Image */}
