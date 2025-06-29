@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,10 +25,13 @@ import {
   MessageSquare,
   Settings,
   Shield,
+  Wallet,
 } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import ProfileSettingsDialog from "./ProfileSettingsDialog";
 import AdminDashboard from "./AdminDashboard";
+import WalletComponent from "./WalletComponent";
+import ApiService from "@/services/api";
 
 interface PhoneNumber {
   id: string;
