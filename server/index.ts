@@ -44,6 +44,14 @@ import {
   getBillingSummary,
   triggerMonthlyBilling,
 } from "./routes/wallet.js";
+import {
+  createPaymentIntent,
+  createSubscription,
+  confirmPayment,
+  getPaymentMethods,
+  handleStripeWebhook,
+  createSetupIntent,
+} from "./routes/payments.js";
 
 // Load environment variables
 dotenv.config();
