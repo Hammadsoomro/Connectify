@@ -128,6 +128,9 @@ export function createServer() {
   app.post("/api/payments/setup-intent", auth, createSetupIntent);
   app.post("/api/webhooks/stripe", handleStripeWebhook); // No auth for webhooks
 
+  // Twilio routes
+  app.get("/api/twilio/balance", auth, getTwilioBalance);
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
