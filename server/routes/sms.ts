@@ -36,6 +36,14 @@ export const sendSMS = async (req: any, res: Response) => {
         status: "active",
       });
       canUseNumber = !!phoneNumber;
+      console.log(
+        `Admin phone number check: ${fromNumber} - ${canUseNumber ? "Found" : "Not found"}`,
+      );
+      if (phoneNumber) {
+        console.log(
+          `Phone number details: ${phoneNumber.number} (${phoneNumber.status})`,
+        );
+      }
     } else if (user.role === "sub-account") {
       // Sub-account can only use assigned numbers
       if (user.assignedNumbers && user.assignedNumbers.includes(fromNumber)) {
