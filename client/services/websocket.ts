@@ -52,14 +52,16 @@ class WebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(
-        `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
+        `Attempting WebSocket reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
       );
 
       setTimeout(() => {
         this.connect();
       }, this.reconnectInterval * this.reconnectAttempts);
     } else {
-      console.log("Max reconnection attempts reached");
+      console.log(
+        "Max WebSocket reconnection attempts reached, running without real-time features",
+      );
     }
   }
 
