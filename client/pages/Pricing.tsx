@@ -456,87 +456,81 @@ export default function Pricing() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="cardNumber">Card Number</Label>
+              <Label htmlFor="amount">Amount to Add (USD)</Label>
               <Input
-                id="cardNumber"
-                placeholder="1234 5678 9012 3456"
-                value={paymentForm.cardNumber}
-                onChange={(e) =>
-                  setPaymentForm((prev) => ({
-                    ...prev,
-                    cardNumber: formatCardNumber(e.target.value),
-                  }))
-                }
-                maxLength={19}
+                id="amount"
+                type="number"
+                placeholder="50.00"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                min="1"
+                max="10000"
+                step="0.01"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="expiryDate">Expiry Date</Label>
-                <Input
-                  id="expiryDate"
-                  placeholder="MM/YY"
-                  value={paymentForm.expiryDate}
-                  onChange={(e) =>
-                    setPaymentForm((prev) => ({
-                      ...prev,
-                      expiryDate: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="cvv">CVV</Label>
-                <Input
-                  id="cvv"
-                  placeholder="123"
-                  value={paymentForm.cvv}
-                  onChange={(e) =>
-                    setPaymentForm((prev) => ({ ...prev, cvv: e.target.value }))
-                  }
-                  maxLength={4}
-                />
-              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedPlan?.name === "Professional" &&
+                  "Recommended: $50 for Professional plan"}
+                {selectedPlan?.name === "Enterprise" &&
+                  "Recommended: $200 for Enterprise plan"}
+                {!selectedPlan?.name.includes("Professional") &&
+                  !selectedPlan?.name.includes("Enterprise") &&
+                  "Minimum: $1, Maximum: $10,000"}
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="name">Cardholder Name</Label>
-              <Input
-                id="name"
-                placeholder="John Doe"
-                value={paymentForm.name}
-                onChange={(e) =>
-                  setPaymentForm((prev) => ({ ...prev, name: e.target.value }))
-                }
-              />
+              <Label>Payment Method</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Button
+                  variant={paymentMethod === "card" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("card")}
+                  className="justify-start"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Credit Card
+                </Button>
+                <Button
+                  variant={paymentMethod === "demo" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("demo")}
+                  className="justify-start"
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Demo Payment
+                </Button>
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="john@example.com"
-                value={paymentForm.email}
-                onChange={(e) =>
-                  setPaymentForm((prev) => ({ ...prev, email: e.target.value }))
-                }
-              />
-            </div>
+            {paymentMethod === "card" && (
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Real Stripe Integration</strong>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  You will be redirected to Stripe's secure payment page to
+                  complete your transaction.
+                </p>
+              </div>
+            )}
+
+            {paymentMethod === "demo" && (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-2">
+                  <strong>Demo Mode</strong>
+                </p>
+                <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                  This will add funds directly to your wallet for testing
+                  purposes. In production, all payments go through Stripe.
+                </p>
+              </div>
+            )}
 
             <div className="pt-4 space-y-2">
               <Button
                 className="w-full"
-                onClick={handlePayment}
-                disabled={
-                  isProcessing ||
-                  !paymentForm.cardNumber ||
-                  !paymentForm.expiryDate ||
-                  !paymentForm.cvv ||
-                  !paymentForm.name ||
-                  !paymentForm.email
+                onClick={
+                  paymentMethod === "card" ? handlePayment : handleDirectPayment
                 }
+                disabled={isProcessing || !paymentAmount}
               >
                 {isProcessing ? (
                   <>
@@ -546,7 +540,9 @@ export default function Pricing() {
                 ) : (
                   <>
                     <DollarSign className="w-4 h-4 mr-2" />
-                    Pay {selectedPlan?.price}
+                    {paymentMethod === "card"
+                      ? "Pay with Stripe"
+                      : "Add Funds (Demo)"}
                   </>
                 )}
               </Button>
