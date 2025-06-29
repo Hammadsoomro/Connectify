@@ -34,6 +34,12 @@ import {
   deactivateSubAccount,
   getDashboardStats,
 } from "./routes/admin.js";
+import {
+  getWallet,
+  addFunds,
+  getWalletStats,
+  updateMonthlyLimit,
+} from "./routes/wallet.js";
 
 // Load environment variables
 dotenv.config();
