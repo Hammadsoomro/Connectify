@@ -99,6 +99,12 @@ export function createServer() {
   );
   app.get("/api/admin/dashboard-stats", auth, getDashboardStats);
 
+  // Wallet routes
+  app.get("/api/wallet", auth, getWallet);
+  app.post("/api/wallet/add-funds", auth, addFunds);
+  app.get("/api/wallet/stats", auth, getWalletStats);
+  app.put("/api/wallet/monthly-limit", auth, updateMonthlyLimit);
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
