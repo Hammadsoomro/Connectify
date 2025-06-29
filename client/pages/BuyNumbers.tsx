@@ -136,10 +136,31 @@ export default function BuyNumbers() {
             infrastructure.
           </p>
 
-          {/* Search by Area Code */}
-          <div className="flex gap-4 max-w-md">
-            <div className="flex-1">
-              <Label htmlFor="areaCode">Search by Area Code (Optional)</Label>
+          {/* Country and Area Code Search */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl">
+            <div>
+              <Label htmlFor="country">Select Country</Label>
+              <Select
+                value={selectedCountry}
+                onValueChange={setSelectedCountry}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      <div className="flex items-center gap-2">
+                        <span>{country.flag}</span>
+                        <span>{country.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="areaCode">Area Code (Optional)</Label>
               <Input
                 id="areaCode"
                 placeholder="e.g., 212, 415, 310"
