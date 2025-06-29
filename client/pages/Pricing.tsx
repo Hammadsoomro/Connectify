@@ -142,53 +142,76 @@ export default function Pricing() {
   };
 
   const handlePayment = async () => {
-    if (!selectedPlan) return;
+    if (!selectedPlan || !paymentAmount) return;
 
     setIsProcessing(true);
 
     try {
-      // In a real application, you would integrate with Stripe, PayPal, etc.
-      // For demo purposes, we'll simulate payment processing
-
-      // Simulate payment processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate successful payment
-      const planAmount = parseInt(selectedPlan.price.replace("$", ""));
-
-      // Add credits to wallet based on plan
-      let creditAmount = 0;
-      if (selectedPlan.name === "Professional") {
-        creditAmount = 50.0; // $50 credit for Professional plan
-      } else if (selectedPlan.name === "Enterprise") {
-        creditAmount = 200.0; // $200 credit for Enterprise plan
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error("Stripe not loaded");
       }
 
-      if (creditAmount > 0) {
-        await ApiService.addFunds(
-          creditAmount,
-          `${selectedPlan.name}-plan-purchase`,
-        );
+      const amount = parseFloat(paymentAmount);
+      if (amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
       }
 
-      alert(
-        `Payment successful! ${selectedPlan.name} plan activated. $${creditAmount} credit added to your wallet.`,
-      );
-
-      setShowPaymentDialog(false);
-      setSelectedPlan(null);
-      setPaymentForm({
-        cardNumber: "",
-        expiryDate: "",
-        cvv: "",
-        name: "",
-        email: "",
+      // Create payment intent
+      const response = await fetch("/api/payments/create-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ amount }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const { clientSecret } = await response.json();
+
+      // Redirect to Stripe Checkout or use Stripe Elements
+      const { error } = await stripe.redirectToCheckout({
+        // You can also use Stripe Elements for inline payment form
+        sessionId: clientSecret, // This would be a checkout session ID in a real implementation
+      });
+
+      if (error) {
+        console.error("Stripe error:", error);
+        alert("Payment failed: " + error.message);
+      }
     } catch (error) {
       console.error("Payment error:", error);
       alert("Payment failed. Please try again.");
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleDirectPayment = async () => {
+    if (!paymentAmount) return;
+
+    try {
+      const amount = parseFloat(paymentAmount);
+      if (amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
+
+      // For demo purposes, directly add funds (in production, this would go through Stripe)
+      await ApiService.addFunds(amount, "demo-payment");
+      alert(`Successfully added $${amount} to your wallet!`);
+
+      setShowPaymentDialog(false);
+      setSelectedPlan(null);
+      setPaymentAmount("");
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Payment failed. Please try again.");
     }
   };
 
