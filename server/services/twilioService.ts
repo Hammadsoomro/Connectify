@@ -76,7 +76,22 @@ class TwilioService {
       console.error("Error sending SMS:", error);
 
       // Handle specific Twilio errors
-      if (error.code === 21211) {
+      if (
+        error.code === 20003 ||
+        error.message?.includes("authenticate") ||
+        error.message?.includes("Authentication")
+      ) {
+        console.error("Twilio Authentication Failed:", {
+          errorCode: error.code,
+          errorMessage: error.message,
+          sidProvided: !!process.env.TWILIO_SID,
+          tokenProvided: !!process.env.TWILIO_AUTH_TOKEN,
+          sidValue: process.env.TWILIO_SID?.substring(0, 8) + "...",
+        });
+        throw new Error(
+          "Twilio authentication failed - Check your Account SID and Auth Token in environment variables",
+        );
+      } else if (error.code === 21211) {
         throw new Error("Invalid 'To' phone number");
       } else if (error.code === 21212) {
         throw new Error("Invalid 'From' phone number");
