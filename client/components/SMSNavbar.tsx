@@ -69,6 +69,23 @@ export default function SMSNavbar({
 }: SMSNavbarProps) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  // Load wallet balance for admin users
+  useEffect(() => {
+    if (profile.role === "admin") {
+      loadWalletBalance();
+    }
+  }, [profile.role]);
+
+  const loadWalletBalance = async () => {
+    try {
+      const walletInfo = await ApiService.getWallet();
+      setWalletBalance(walletInfo.balance);
+    } catch (error) {
+      console.error("Error loading wallet balance:", error);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
