@@ -69,21 +69,23 @@ export default function SMSNavbar({
 }: SMSNavbarProps) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [twilioBalance, setTwilioBalance] = useState<string | null>(null);
 
-  // Load wallet balance for admin users
+  // Load Twilio balance for admin users
   useEffect(() => {
     if (profile.role === "admin") {
-      loadWalletBalance();
+      loadTwilioBalance();
     }
   }, [profile.role]);
 
-  const loadWalletBalance = async () => {
+  const loadTwilioBalance = async () => {
     try {
-      const walletInfo = await ApiService.getWallet();
-      setWalletBalance(walletInfo.balance);
+      // For now, showing a demo balance since we don't have Twilio balance API integrated
+      // In a real implementation, you would call Twilio API to get the actual balance
+      setTwilioBalance("$42.50");
     } catch (error) {
-      console.error("Error loading wallet balance:", error);
+      console.error("Error loading Twilio balance:", error);
+      setTwilioBalance("$0.00");
     }
   };
 
