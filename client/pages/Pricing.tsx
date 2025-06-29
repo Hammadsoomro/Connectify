@@ -108,9 +108,9 @@ const smsPricing = [
 ];
 
 // Initialize Stripe (use your publishable key)
-const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "pk_test_51234567890abcdef...", // Replace with your actual Stripe publishable key
-);
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+  : null; // Will use demo payment mode if Stripe is not configured
 export default function Pricing() {
   const navigate = useNavigate();
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
