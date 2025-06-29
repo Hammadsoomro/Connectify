@@ -4,7 +4,6 @@ import Message from "../models/Message.js";
 import Contact from "../models/Contact.js";
 import PhoneNumber from "../models/PhoneNumber.js";
 import { deductFunds, checkBalance } from "./wallet.js";
-import webSocketManager from "../websocket.js";
 
 // Send SMS message
 export const sendSMS = async (req: any, res: Response) => {
