@@ -143,9 +143,29 @@ export const checkBalance = async (
   amount: number,
 ): Promise<boolean> => {
   try {
-    const wallet = await Wallet.findOne({ userId, isActive: true });
-    return wallet ? wallet.hasBalance(amount) : false;
+    let wallet = await Wallet.findOne({ userId });
+
+    // Create wallet if it doesn't exist
+    if (!wallet) {
+      wallet = new Wallet({
+        userId,
+        balance: 0,
+        currency: "USD",
+        transactions: [],
+        isActive: true,
+      });
+      await wallet.save();
+      console.log(`Created new wallet for user ${userId}`);
+      return false; // New wallet has 0 balance
+    }
+
+    if (!wallet.isActive) {
+      return false;
+    }
+
+    return wallet.hasBalance(amount);
   } catch (error) {
+    console.error("Error checking wallet balance:", error);
     return false;
   }
 };
