@@ -106,6 +106,8 @@ export function createServer() {
   app.post("/api/wallet/add-funds", auth, addFunds);
   app.get("/api/wallet/stats", auth, getWalletStats);
   app.put("/api/wallet/monthly-limit", auth, updateMonthlyLimit);
+  app.get("/api/wallet/billing-summary", auth, getBillingSummary);
+  app.post("/api/wallet/trigger-billing", auth, triggerMonthlyBilling);
 
   // Health check
   app.get("/api/health", (_req, res) => {
