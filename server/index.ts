@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import connectDB from "./db/connection.js";
 import { auth } from "./middleware/auth.js";
-import webSocketManager from "./websocket.js";
 
 // Route imports
 import { handleDemo } from "./routes/demo.js";
