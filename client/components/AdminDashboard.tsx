@@ -197,6 +197,14 @@ export default function AdminDashboard({
             Overview
           </Button>
           <Button
+            variant={activeTab === "wallet" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("wallet")}
+          >
+            <Wallet className="w-4 h-4 mr-1" />
+            Wallet
+          </Button>
+          <Button
             variant={activeTab === "subaccounts" ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("subaccounts")}
