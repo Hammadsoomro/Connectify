@@ -30,8 +30,22 @@ class TwilioService {
     try {
       // Validate Twilio credentials
       if (!process.env.TWILIO_SID || !process.env.TWILIO_AUTH_TOKEN) {
-        throw new Error("Twilio credentials not configured");
+        console.error("Missing Twilio credentials:", {
+          sidExists: !!process.env.TWILIO_SID,
+          tokenExists: !!process.env.TWILIO_AUTH_TOKEN,
+          nodeEnv: process.env.NODE_ENV,
+        });
+        throw new Error("Twilio credentials not configured in environment");
       }
+
+      // Validate credential format
+      if (!process.env.TWILIO_SID.startsWith("AC")) {
+        throw new Error("Invalid Twilio Account SID format");
+      }
+
+      console.log(
+        `Twilio Auth - SID: ${process.env.TWILIO_SID}, Token: ${process.env.TWILIO_AUTH_TOKEN?.substring(0, 8)}...`,
+      );
 
       // Validate phone numbers
       if (!from || !to) {
