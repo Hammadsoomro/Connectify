@@ -241,3 +241,43 @@ export const updateMonthlyLimit = async (req: any, res: Response) => {
     res.status(500).json({ message: "Failed to update monthly limit" });
   }
 };
+
+// Get billing summary
+export const getBillingSummary = async (req: any, res: Response) => {
+  try {
+    const userId = req.user._id;
+
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Only admins can access billing summary" });
+    }
+
+    const billingSummary = await BillingService.getAdminBillingSummary(userId);
+    res.json(billingSummary);
+  } catch (error) {
+    console.error("Get billing summary error:", error);
+    res.status(500).json({ message: "Failed to fetch billing summary" });
+  }
+};
+
+// Manual trigger for monthly billing (for testing)
+export const triggerMonthlyBilling = async (req: any, res: Response) => {
+  try {
+    const userId = req.user._id;
+
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Only admins can trigger billing" });
+    }
+
+    await BillingService.processAdminMonthlyCharges(userId);
+    res.json({ message: "Monthly billing processed successfully" });
+  } catch (error) {
+    console.error("Manual billing trigger error:", error);
+    res.status(500).json({
+      message: error.message || "Failed to process monthly billing",
+    });
+  }
+};
