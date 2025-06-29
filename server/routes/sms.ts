@@ -106,6 +106,22 @@ export const sendSMS = async (req: any, res: Response) => {
 
     await message.save();
 
+    // Deduct SMS cost from admin's wallet
+    if (user.role === "admin") {
+      try {
+        await deductFunds(
+          userId,
+          smsPrice,
+          `SMS sent to ${contact.phoneNumber}`,
+          `SMS_${twilioMessage.sid}`,
+        );
+      } catch (walletError) {
+        console.error("Wallet deduction error:", walletError);
+        // Message already sent, but wallet deduction failed
+        // Could implement compensating action here if needed
+      }
+    }
+
     res.json({
       id: message._id,
       content: message.content,
