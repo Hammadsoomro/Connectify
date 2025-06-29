@@ -64,7 +64,7 @@ const App = () => {
                 isAuthenticated ? (
                   <Home />
                 ) : (
-                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
                 )
               }
             />
