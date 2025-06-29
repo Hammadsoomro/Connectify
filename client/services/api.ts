@@ -216,6 +216,11 @@ class ApiService {
     });
   }
 
+  // Twilio methods
+  async getTwilioBalance() {
+    return this.request("/twilio/balance");
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");
