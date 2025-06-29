@@ -418,7 +418,16 @@ export default function Home() {
 
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 relative">
+          {/* Background Image */}
+          <div className="absolute inset-0 -z-10 opacity-10">
+            <img
+              src="https://images.pexels.com/photos/4031818/pexels-photo-4031818.jpeg"
+              alt="Global Communication"
+              className="w-full h-full object-cover rounded-3xl"
+            />
+          </div>
+
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-6">
             <Zap className="w-4 h-4" />
             Real-time SMS Platform
@@ -434,14 +443,73 @@ export default function Home() {
             global reach, and enterprise-grade reliability.
           </p>
 
-          {/* Quote Rotation */}
-          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 max-w-2xl mx-auto border border-gray-200/50 dark:border-gray-700/50">
-            <blockquote className="text-lg italic text-gray-700 dark:text-gray-300">
+          {/* Quote Rotation with Enhanced Design */}
+          <div className="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-8 max-w-3xl mx-auto border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <div className="bg-primary text-white p-2 rounded-full">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+            </div>
+            <blockquote className="text-lg italic text-gray-700 dark:text-gray-300 mt-4">
               "{messagingQuotes[currentQuote].text}"
             </blockquote>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 font-medium">
               — {messagingQuotes[currentQuote].author}
             </p>
+
+            {/* Indicator dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {messagingQuotes.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentQuote ? "bg-primary" : "bg-gray-300"
+                  }`}
+                  onClick={() => setCurrentQuote(index)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Features Preview Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-green-100 dark:bg-green-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Real-time Messaging
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Instant message delivery with live typing indicators and read
+                receipts
+              </p>
+            </div>
+
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-blue-100 dark:bg-blue-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Global Reach
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Phone numbers available in 50+ countries with competitive
+                pricing
+              </p>
+            </div>
+
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+              <div className="bg-purple-100 dark:bg-purple-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Enterprise Security
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Bank-level encryption with compliance standards for businesses
+              </p>
+            </div>
           </div>
         </div>
 
