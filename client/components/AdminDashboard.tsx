@@ -261,6 +261,12 @@ export default function AdminDashboard({
             </div>
           )}
 
+          {activeTab === "wallet" && (
+            <div className="space-y-4">
+              <WalletComponent />
+            </div>
+          )}
+
           {activeTab === "subaccounts" && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
