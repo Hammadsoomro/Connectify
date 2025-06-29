@@ -12,6 +12,10 @@ export const sendSMS = async (req: any, res: Response) => {
     const userId = req.user._id;
     const user = req.user;
 
+    console.log(
+      `SMS Request - User: ${user.email}, Contact: ${contactId}, From: ${fromNumber}`,
+    );
+
     // Get contact
     const contact = await Contact.findOne({ _id: contactId, userId });
     if (!contact) {
