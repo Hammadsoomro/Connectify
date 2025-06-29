@@ -28,8 +28,10 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  Wallet,
 } from "lucide-react";
 import ApiService from "@/services/api";
+import WalletComponent from "./WalletComponent";
 
 interface AdminDashboardProps {
   open: boolean;
