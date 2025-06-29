@@ -23,6 +23,8 @@ import {
   TrendingUp,
   DollarSign,
   Calendar,
+  Phone,
+  AlertTriangle,
 } from "lucide-react";
 import { WalletInfo, WalletStats, WalletTransaction } from "@shared/api";
 import ApiService from "@/services/api";
