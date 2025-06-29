@@ -269,14 +269,17 @@ export default function BuyNumbers() {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
+          </div>
+        )}
 
-            {availableNumbers.length === 0 && !isLoading && (
-              <div className="col-span-full text-center py-8">
-                <p className="text-muted-foreground">
-                  {areaCode
-                    ? "No numbers found for this area code"
-                    : "No numbers available"}
+        {availableNumbers.length === 0 && !isLoading && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              {areaCode
+                ? "No numbers found for this area code"
+                : "No numbers available"}
                 </p>
               </div>
             )}
