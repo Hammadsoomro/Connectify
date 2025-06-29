@@ -137,8 +137,21 @@ export function createServer() {
     });
   });
 
-  // Initialize WebSocket server
-  webSocketManager.initialize(server);
+  // Initialize WebSocket server conditionally (only in production or when explicitly enabled)
+  if (
+    process.env.ENABLE_WEBSOCKET === "true" ||
+    process.env.NODE_ENV === "production"
+  ) {
+    try {
+      const { webSocketManager } = await import("./websocket.js");
+      webSocketManager.initialize(server);
+      console.log("WebSocket server initialized");
+    } catch (error) {
+      console.log(
+        "WebSocket not available, running without real-time features",
+      );
+    }
+  }
 
   return server;
 }
