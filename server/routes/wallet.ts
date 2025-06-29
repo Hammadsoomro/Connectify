@@ -89,6 +89,14 @@ export const addFunds = async (req: any, res: Response) => {
       `ADD_${Date.now()}`,
     );
 
+    // Try to reactivate services if they were suspended
+    try {
+      await BillingService.reactivateServicesForAdmin(userId);
+    } catch (error) {
+      console.error("Error reactivating services:", error);
+      // Don't fail the add funds operation for this
+    }
+
     res.json({
       message: "Funds added successfully",
       balance: wallet.balance,
