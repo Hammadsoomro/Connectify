@@ -3,6 +3,7 @@ import twilioService from "../services/twilioService.js";
 import Message from "../models/Message.js";
 import Contact from "../models/Contact.js";
 import PhoneNumber from "../models/PhoneNumber.js";
+import { deductFunds, checkBalance } from "./wallet.js";
 
 // Send SMS message
 export const sendSMS = async (req: any, res: Response) => {
