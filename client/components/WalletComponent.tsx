@@ -29,6 +29,19 @@ import {
 import { WalletInfo, WalletStats, WalletTransaction } from "@shared/api";
 import ApiService from "@/services/api";
 
+interface BillingSummary {
+  phoneNumbers: Array<{
+    number: string;
+    type: string;
+    status: string;
+    monthlyRate: number;
+  }>;
+  totalMonthlyCharges: number;
+  currentBalance: number;
+  canCoverNextMonth: boolean;
+  daysUntilNextBilling: number;
+}
+
 interface WalletComponentProps {
   trigger?: React.ReactNode;
 }
@@ -37,6 +50,9 @@ export default function WalletComponent({ trigger }: WalletComponentProps) {
   const [open, setOpen] = useState(false);
   const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
   const [walletStats, setWalletStats] = useState<WalletStats | null>(null);
+  const [billingSummary, setBillingSummary] = useState<BillingSummary | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   // Add funds dialog
