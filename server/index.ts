@@ -137,21 +137,9 @@ export function createServer() {
     });
   });
 
-  // Initialize WebSocket server conditionally (only in production or when explicitly enabled)
-  if (
-    process.env.ENABLE_WEBSOCKET === "true" ||
-    process.env.NODE_ENV === "production"
-  ) {
-    try {
-      const { webSocketManager } = await import("./websocket.js");
-      webSocketManager.initialize(server);
-      console.log("WebSocket server initialized");
-    } catch (error) {
-      console.log(
-        "WebSocket not available, running without real-time features",
-      );
-    }
-  }
+  // Note: WebSocket server disabled for now to avoid import issues during development
+  // In production, you can enable it by setting ENABLE_WEBSOCKET=true
+  console.log("WebSocket server disabled during development");
 
   return server;
 }
