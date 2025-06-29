@@ -68,6 +68,16 @@ const App = () => {
               }
             />
             <Route
+              path="/conversations"
+              element={
+                isAuthenticated ? (
+                  <Conversations />
+                ) : (
+                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+                )
+              }
+            />
+            <Route
               path="/buy-numbers"
               element={
                 isAuthenticated ? (
@@ -77,6 +87,7 @@ const App = () => {
                 )
               }
             />
+            <Route path="/pricing" element={<Pricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
