@@ -147,7 +147,123 @@ export default function Home() {
 
   useEffect(() => {
     loadInitialData();
+    setupRealTimeMessaging();
+
+    return () => {
+      webSocketService.disconnect();
+    };
   }, []);
+
+  const setupRealTimeMessaging = () => {
+    // Connect to WebSocket
+    webSocketService.connect();
+
+    // Handle new incoming messages
+    const unsubscribeNewMessage = webSocketService.subscribe(
+      "new_message",
+      (payload: NewMessagePayload) => {
+        const { contactId, message } = payload;
+
+        // Add message to current conversation if it's selected
+        if (selectedContact?.id === contactId) {
+          setMessages((prev) => [...prev, message]);
+        }
+
+        // Update contact's last message and unread count
+        setContacts((prev) =>
+          prev.map((contact) =>
+            contact.id === contactId
+              ? {
+                  ...contact,
+                  lastMessage: message.content,
+                  lastMessageTime: message.timestamp,
+                  unreadCount:
+                    selectedContact?.id === contactId
+                      ? contact.unreadCount
+                      : contact.unreadCount + 1,
+                }
+              : contact,
+          ),
+        );
+
+        // Show notification if message is not from selected contact
+        if (selectedContact?.id !== contactId) {
+          const contact = contacts.find((c) => c.id === contactId);
+          if (contact) {
+            // You can implement browser notifications here
+            if (Notification.permission === "granted") {
+              new Notification(`New message from ${contact.name}`, {
+                body: message.content,
+                icon: "/placeholder.svg",
+              });
+            }
+          }
+        }
+      },
+    );
+
+    // Handle message status updates
+    const unsubscribeMessageStatus = webSocketService.subscribe(
+      "message_status",
+      (payload: MessageStatusPayload) => {
+        const { messageId, status } = payload;
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === messageId ? { ...msg, status } : msg)),
+        );
+      },
+    );
+
+    // Handle contact online/offline status
+    const unsubscribeContactOnline = webSocketService.subscribe(
+      "contact_online",
+      (payload: ContactStatusPayload) => {
+        const { contactId, isOnline } = payload;
+        setContacts((prev) =>
+          prev.map((contact) =>
+            contact.id === contactId ? { ...contact, isOnline } : contact,
+          ),
+        );
+      },
+    );
+
+    const unsubscribeContactOffline = webSocketService.subscribe(
+      "contact_offline",
+      (payload: ContactStatusPayload) => {
+        const { contactId, isOnline } = payload;
+        setContacts((prev) =>
+          prev.map((contact) =>
+            contact.id === contactId ? { ...contact, isOnline } : contact,
+          ),
+        );
+      },
+    );
+
+    // Handle typing indicators
+    const unsubscribeTyping = webSocketService.subscribe(
+      "typing",
+      (payload: TypingPayload) => {
+        const { contactId, isTyping } = payload;
+        // You can implement typing indicators here
+        console.log(
+          `Contact ${contactId} is ${isTyping ? "typing" : "stopped typing"}`,
+        );
+      },
+    );
+
+    // Request notification permission
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    // Return cleanup function
+    return () => {
+      unsubscribeNewMessage();
+      unsubscribeMessageStatus();
+      unsubscribeContactOnline();
+      unsubscribeContactOffline();
+      unsubscribeTyping();
+    };
+  };
 
   const loadInitialData = async () => {
     try {
