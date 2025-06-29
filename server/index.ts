@@ -39,6 +39,8 @@ import {
   addFunds,
   getWalletStats,
   updateMonthlyLimit,
+  getBillingSummary,
+  triggerMonthlyBilling,
 } from "./routes/wallet.js";
 
 // Load environment variables
