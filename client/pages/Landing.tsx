@@ -52,12 +52,12 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
   const [currentQuote, setCurrentQuote] = useState(0);
 
   // Rotate quotes every 5 seconds
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % messagingQuotes.length);
     }, 5000);
     return () => clearInterval(interval);
-  });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
