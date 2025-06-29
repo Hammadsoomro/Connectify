@@ -2,25 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   MessageSquare,
   Phone,
+  DollarSign,
   Plus,
   Globe,
   Users,
@@ -31,73 +16,12 @@ import {
   Shield,
   Zap,
   CheckCircle,
+  Settings,
+  CreditCard,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
-import ChatArea, { Message } from "@/components/ChatArea";
 import ApiService from "@/services/api";
-import webSocketService, {
-  NewMessagePayload,
-  MessageStatusPayload,
-  TypingPayload,
-  ContactStatusPayload,
-} from "@/services/websocket";
-
-interface Contact {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  isOnline: boolean;
-  avatar?: string;
-}
-
-interface Country {
-  code: string;
-  name: string;
-  flag: string;
-  priceLocal: string;
-  priceTollFree: string;
-}
-
-const countries: Country[] = [
-  {
-    code: "US",
-    name: "United States",
-    flag: "🇺🇸",
-    priceLocal: "$1.00",
-    priceTollFree: "$2.00",
-  },
-  {
-    code: "CA",
-    name: "Canada",
-    flag: "🇨🇦",
-    priceLocal: "$1.50",
-    priceTollFree: "$3.00",
-  },
-  {
-    code: "AU",
-    name: "Australia",
-    flag: "🇦🇺",
-    priceLocal: "$2.00",
-    priceTollFree: "$4.00",
-  },
-  {
-    code: "GB",
-    name: "United Kingdom",
-    flag: "🇬🇧",
-    priceLocal: "$1.80",
-    priceTollFree: "$3.50",
-  },
-  {
-    code: "DE",
-    name: "Germany",
-    flag: "🇩🇪",
-    priceLocal: "$1.60",
-    priceTollFree: "$3.20",
-  },
-];
 
 const messagingQuotes = [
   {
@@ -119,23 +43,20 @@ const messagingQuotes = [
 ];
 
 export default function Home() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [phoneNumbers, setPhoneNumbers] = useState<any[]>([]);
-  const [activePhoneNumber, setActivePhoneNumber] = useState<string | null>(
-    null,
-  );
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     name: "",
     email: "",
     avatar: "",
     role: "admin",
   });
-  const [selectedCountry, setSelectedCountry] = useState("US");
-  const [showBuyDialog, setShowBuyDialog] = useState(false);
+  const [phoneNumbers, setPhoneNumbers] = useState<any[]>([]);
   const [currentQuote, setCurrentQuote] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState({
+    contacts: 0,
+    phoneNumbers: 0,
+    unreadMessages: 0,
+  });
 
   // Rotate quotes every 5 seconds
   useEffect(() => {
@@ -147,278 +68,55 @@ export default function Home() {
 
   useEffect(() => {
     loadInitialData();
-    setupRealTimeMessaging();
-
-    return () => {
-      webSocketService.disconnect();
-    };
   }, []);
-
-  const setupRealTimeMessaging = () => {
-    // Connect to WebSocket
-    webSocketService.connect();
-
-    // Handle new incoming messages
-    const unsubscribeNewMessage = webSocketService.subscribe(
-      "new_message",
-      (payload: NewMessagePayload) => {
-        const { contactId, message } = payload;
-
-        // Add message to current conversation if it's selected
-        if (selectedContact?.id === contactId) {
-          setMessages((prev) => [...prev, message]);
-        }
-
-        // Update contact's last message and unread count
-        setContacts((prev) =>
-          prev.map((contact) =>
-            contact.id === contactId
-              ? {
-                  ...contact,
-                  lastMessage: message.content,
-                  lastMessageTime: message.timestamp,
-                  unreadCount:
-                    selectedContact?.id === contactId
-                      ? contact.unreadCount
-                      : contact.unreadCount + 1,
-                }
-              : contact,
-          ),
-        );
-
-        // Show notification if message is not from selected contact
-        if (selectedContact?.id !== contactId) {
-          const contact = contacts.find((c) => c.id === contactId);
-          if (contact) {
-            // You can implement browser notifications here
-            if (Notification.permission === "granted") {
-              new Notification(`New message from ${contact.name}`, {
-                body: message.content,
-                icon: "/placeholder.svg",
-              });
-            }
-          }
-        }
-      },
-    );
-
-    // Handle message status updates
-    const unsubscribeMessageStatus = webSocketService.subscribe(
-      "message_status",
-      (payload: MessageStatusPayload) => {
-        const { messageId, status } = payload;
-        setMessages((prev) =>
-          prev.map((msg) => (msg.id === messageId ? { ...msg, status } : msg)),
-        );
-      },
-    );
-
-    // Handle contact online/offline status
-    const unsubscribeContactOnline = webSocketService.subscribe(
-      "contact_online",
-      (payload: ContactStatusPayload) => {
-        const { contactId, isOnline } = payload;
-        setContacts((prev) =>
-          prev.map((contact) =>
-            contact.id === contactId ? { ...contact, isOnline } : contact,
-          ),
-        );
-      },
-    );
-
-    const unsubscribeContactOffline = webSocketService.subscribe(
-      "contact_offline",
-      (payload: ContactStatusPayload) => {
-        const { contactId, isOnline } = payload;
-        setContacts((prev) =>
-          prev.map((contact) =>
-            contact.id === contactId ? { ...contact, isOnline } : contact,
-          ),
-        );
-      },
-    );
-
-    // Handle typing indicators
-    const unsubscribeTyping = webSocketService.subscribe(
-      "typing",
-      (payload: TypingPayload) => {
-        const { contactId, isTyping } = payload;
-        // You can implement typing indicators here
-        console.log(
-          `Contact ${contactId} is ${isTyping ? "typing" : "stopped typing"}`,
-        );
-      },
-    );
-
-    // Request notification permission
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-
-    // Return cleanup function
-    return () => {
-      unsubscribeNewMessage();
-      unsubscribeMessageStatus();
-      unsubscribeContactOnline();
-      unsubscribeContactOffline();
-      unsubscribeTyping();
-    };
-  };
 
   const loadInitialData = async () => {
     try {
-      const [userProfile, contactsData, phoneNumbersData] = await Promise.all([
+      const [userProfile, phoneNumbersData, contactsData] = await Promise.all([
         ApiService.getProfile(),
-        ApiService.getContacts(),
         ApiService.getPhoneNumbers(),
+        ApiService.getContacts(),
       ]);
 
       setProfile(userProfile);
-      setContacts(contactsData);
       setPhoneNumbers(phoneNumbersData);
 
-      const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
-      if (activeNumber) {
-        setActivePhoneNumber(activeNumber.id);
-      }
+      const unreadCount = contactsData.reduce(
+        (total: number, contact: any) => total + (contact.unreadCount || 0),
+        0,
+      );
+
+      setStats({
+        contacts: contactsData.length,
+        phoneNumbers: phoneNumbersData.length,
+        unreadMessages: unreadCount,
+      });
     } catch (error) {
       console.error("Error loading data:", error);
     }
   };
 
-  const loadMessages = async (contactId: string) => {
-    try {
-      const messagesData = await ApiService.getMessages(contactId);
-      setMessages(messagesData);
-      await ApiService.markAsRead(contactId);
-
-      // Update contact unread count
-      setContacts((prev) =>
-        prev.map((contact) =>
-          contact.id === contactId ? { ...contact, unreadCount: 0 } : contact,
-        ),
-      );
-    } catch (error) {
-      console.error("Error loading messages:", error);
-    }
+  const handleLogout = () => {
+    ApiService.logout();
+    window.location.reload();
   };
-
-  const handleSelectContact = (contact: Contact) => {
-    setSelectedContact(contact);
-    loadMessages(contact.id);
-  };
-
-  const handleSendMessage = async (content: string) => {
-    if (!selectedContact || !activePhoneNumber) return;
-
-    const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-    if (!activeNumber) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      timestamp: new Date().toISOString(),
-      isOutgoing: true,
-      status: "sending",
-      type: "text",
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setIsLoading(true);
-
-    try {
-      const sentMessage = await ApiService.sendSMS(
-        selectedContact.id,
-        content,
-        activeNumber.number,
-      );
-
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id
-            ? { ...msg, id: sentMessage.id, status: "sent" as const }
-            : msg,
-        ),
-      );
-
-      // Update contact's last message
-      setContacts((prev) =>
-        prev.map((contact) =>
-          contact.id === selectedContact.id
-            ? {
-                ...contact,
-                lastMessage: content,
-                lastMessageTime: new Date().toISOString(),
-              }
-            : contact,
-        ),
-      );
-    } catch (error: any) {
-      console.error("Error sending message:", error);
-      alert(error.message || "Failed to send message");
-
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id
-            ? { ...msg, status: "failed" as const }
-            : msg,
-        ),
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSelectPhoneNumber = async (numberId: string) => {
-    try {
-      await ApiService.setActiveNumber(numberId);
-      setActivePhoneNumber(numberId);
-      setPhoneNumbers((prev) =>
-        prev.map((phone) => ({
-          ...phone,
-          isActive: phone.id === numberId,
-        })),
-      );
-    } catch (error) {
-      console.error("Error setting active number:", error);
-    }
-  };
-
-  const handleBuyNumber = async () => {
-    try {
-      // This would implement actual number purchasing
-      const availableNumbers = await ApiService.getAvailableNumbers();
-      // For now, just redirect to buy numbers page
-      window.location.href = "/buy-numbers";
-    } catch (error) {
-      console.error("Error buying number:", error);
-    }
-  };
-
-  const totalUnreadCount = contacts.reduce(
-    (total, contact) => total + contact.unreadCount,
-    0,
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <SMSNavbar
-        unreadCount={totalUnreadCount}
+        unreadCount={stats.unreadMessages}
         phoneNumbers={phoneNumbers}
-        activeNumber={activePhoneNumber}
+        activeNumber={phoneNumbers.find((p) => p.isActive)?.id || null}
         profile={profile}
-        onSelectNumber={handleSelectPhoneNumber}
-        onBuyNewNumber={handleBuyNumber}
+        onSelectNumber={() => {}}
+        onBuyNewNumber={() => navigate("/buy-numbers")}
         onUpdateProfile={() => {}}
-        onLogout={() => {
-          ApiService.logout();
-          window.location.reload();
-        }}
+        onLogout={handleLogout}
       />
 
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12 relative">
+        <div className="text-center mb-16 relative">
           {/* Background Image */}
           <div className="absolute inset-0 -z-10 opacity-10">
             <img
@@ -430,21 +128,23 @@ export default function Home() {
 
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-6">
             <Zap className="w-4 h-4" />
-            Real-time SMS Platform
+            Professional SMS Platform
           </div>
+
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Connect with
             <span className="text-primary"> Anyone</span>
             <br />
             Anywhere
           </h1>
+
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
             Professional SMS messaging platform with real-time conversations,
             global reach, and enterprise-grade reliability.
           </p>
 
-          {/* Quote Rotation with Enhanced Design */}
-          <div className="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-8 max-w-3xl mx-auto border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+          {/* Quote Rotation */}
+          <div className="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-8 max-w-3xl mx-auto border border-gray-200/50 dark:border-gray-700/50 shadow-xl mb-12">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <div className="bg-primary text-white p-2 rounded-full">
                 <MessageSquare className="w-6 h-6" />
@@ -470,12 +170,143 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Features Preview Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
-              <div className="bg-green-100 dark:bg-green-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-green-600 dark:text-green-400" />
+        {/* Main Action Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
+          {/* Conversations Card */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
+            onClick={() => navigate("/conversations")}
+          >
+            <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-lg overflow-hidden">
+              <img
+                src="https://images.pexels.com/photos/4149074/pexels-photo-4149074.jpeg"
+                alt="Messaging"
+                className="w-full h-full object-cover mix-blend-overlay opacity-70"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <MessageSquare className="w-16 h-16 text-white" />
+              </div>
+              {stats.unreadMessages > 0 && (
+                <Badge className="absolute top-4 right-4 bg-red-500">
+                  {stats.unreadMessages} unread
+                </Badge>
+              )}
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Conversations</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Access your real-time SMS conversations and manage contacts
+              </p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Total Contacts:</span>
+                  <span className="font-medium">{stats.contacts}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Active Numbers:</span>
+                  <span className="font-medium">{stats.phoneNumbers}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Buy Numbers Card */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
+            onClick={() => navigate("/buy-numbers")}
+          >
+            <div className="relative h-48 bg-gradient-to-r from-green-500 to-teal-600 rounded-t-lg overflow-hidden">
+              <img
+                src="https://images.pexels.com/photos/2265486/pexels-photo-2265486.jpeg"
+                alt="Phone Numbers"
+                className="w-full h-full object-cover mix-blend-overlay opacity-70"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Phone className="w-16 h-16 text-white" />
+              </div>
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Buy Numbers</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Purchase phone numbers from 50+ countries worldwide
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <Globe className="w-4 h-4 text-green-500" />
+                  <span>Global Coverage</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Zap className="w-4 h-4 text-blue-500" />
+                  <span>Instant Activation</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <DollarSign className="w-4 h-4 text-yellow-500" />
+                  <span>Starting at $1.00/month</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pricing Card */}
+          <Card
+            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
+            onClick={() => navigate("/pricing")}
+          >
+            <div className="relative h-48 bg-gradient-to-r from-purple-500 to-pink-600 rounded-t-lg overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <CreditCard className="w-16 h-16 text-white" />
+              </div>
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Pricing & Plans</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                View detailed pricing and choose the perfect plan for your needs
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Pay-as-you-go</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>No hidden fees</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>24/7 support</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Features Overview */}
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
+            Why Choose Our Platform?
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center p-6">
+              <div className="bg-green-100 dark:bg-green-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                 Real-time Messaging
@@ -486,9 +317,9 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
-              <div className="bg-blue-100 dark:bg-blue-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="text-center p-6">
+              <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                 Global Reach
@@ -499,9 +330,9 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
-              <div className="bg-purple-100 dark:bg-purple-900/30 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="text-center p-6">
+              <div className="bg-purple-100 dark:bg-purple-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                 Enterprise Security
@@ -510,365 +341,6 @@ export default function Home() {
                 Bank-level encryption with compliance standards for businesses
               </p>
             </div>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Recent Conversations */}
-          <div className="lg:col-span-2">
-            <Card className="h-[600px]">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5" />
-                    Recent Conversations
-                  </CardTitle>
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-700"
-                  >
-                    {totalUnreadCount} unread
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 h-[520px]">
-                <div className="flex h-full">
-                  {/* Contact List */}
-                  <div className="w-80 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-                    {contacts.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 p-8">
-                        <Users className="w-12 h-12 mb-4 opacity-50" />
-                        <p className="text-center">No conversations yet</p>
-                        <p className="text-sm text-center mt-2">
-                          Start messaging to see conversations here
-                        </p>
-                      </div>
-                    ) : (
-                      contacts.map((contact) => (
-                        <div
-                          key={contact.id}
-                          onClick={() => handleSelectContact(contact)}
-                          className={`p-4 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                            selectedContact?.id === contact.id
-                              ? "bg-primary/5 border-r-2 border-r-primary"
-                              : ""
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <Avatar className="w-10 h-10">
-                                <AvatarImage src={contact.avatar} />
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                  {contact.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              {contact.isOnline && (
-                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="font-medium text-gray-900 dark:text-white truncate">
-                                  {contact.name}
-                                </p>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {new Date(
-                                    contact.lastMessageTime,
-                                  ).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                                {contact.lastMessage}
-                              </p>
-                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                {contact.phoneNumber}
-                              </p>
-                            </div>
-                            {contact.unreadCount > 0 && (
-                              <Badge
-                                variant="destructive"
-                                className="w-5 h-5 rounded-full p-0 text-xs flex items-center justify-center"
-                              >
-                                {contact.unreadCount}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Chat Area */}
-                  <div className="flex-1">
-                    <ChatArea
-                      selectedContact={selectedContact}
-                      messages={messages}
-                      onSendMessage={handleSendMessage}
-                      isLoading={isLoading}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="space-y-8">
-            {/* Buy New Number */}
-            <Card className="overflow-hidden">
-              <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
-                <img
-                  src="https://images.pexels.com/photos/2265486/pexels-photo-2265486.jpeg"
-                  alt="Communication Technology"
-                  className="w-full h-full object-cover mix-blend-overlay opacity-50"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Phone className="w-12 h-12 text-white" />
-                </div>
-              </div>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  Buy New Number
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Get phone numbers from {countries.length} countries worldwide
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Select Country
-                  </label>
-                  <Select
-                    value={selectedCountry}
-                    onValueChange={setSelectedCountry}
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Choose country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          <div className="flex items-center gap-3 py-1">
-                            <span className="text-xl">{country.flag}</span>
-                            <div>
-                              <div className="font-medium">{country.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                Local: {country.priceLocal} • Toll-free:{" "}
-                                {country.priceTollFree}
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedCountry && (
-                  <div className="space-y-3">
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-sm font-medium">
-                            Local Number
-                          </span>
-                        </div>
-                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {
-                            countries.find((c) => c.code === selectedCountry)
-                              ?.priceLocal
-                          }
-                          <span className="text-sm font-normal text-muted-foreground">
-                            /month
-                          </span>
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Perfect for local businesses and regional communication
-                      </p>
-                      <div className="flex items-center gap-1 mt-2">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span className="text-xs text-green-600 dark:text-green-400">
-                          Instant activation
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                          <span className="text-sm font-medium">
-                            Toll-Free Number
-                          </span>
-                        </div>
-                        <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                          {
-                            countries.find((c) => c.code === selectedCountry)
-                              ?.priceTollFree
-                          }
-                          <span className="text-sm font-normal text-muted-foreground">
-                            /month
-                          </span>
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Professional appearance for customer service and support
-                      </p>
-                      <div className="flex items-center gap-1 mt-2">
-                        <Star className="w-3 h-3 text-purple-500" />
-                        <span className="text-xs text-purple-600 dark:text-purple-400">
-                          Premium features
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Pricing Benefits */}
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <h4 className="text-sm font-medium mb-2">
-                        What's included:
-                      </h4>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li className="flex items-center gap-2">
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                          Unlimited SMS sending
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                          Real-time delivery status
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                          Multi-country support
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                          24/7 customer support
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-                <Dialog open={showBuyDialog} onOpenChange={setShowBuyDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full" size="lg">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Buy Phone Number
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle className="flex items-center gap-2">
-                        <span className="text-2xl">
-                          {
-                            countries.find((c) => c.code === selectedCountry)
-                              ?.flag
-                          }
-                        </span>
-                        Purchase Phone Number
-                      </DialogTitle>
-                      <DialogDescription>
-                        Get a new phone number for{" "}
-                        <span className="font-medium">
-                          {
-                            countries.find((c) => c.code === selectedCountry)
-                              ?.name
-                          }
-                        </span>
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="text-center py-6">
-                      <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Phone className="w-8 h-8 text-primary" />
-                      </div>
-                      <p className="mb-6 text-sm text-muted-foreground">
-                        This will redirect you to our number selection page
-                        where you can choose from available numbers and complete
-                        your purchase.
-                      </p>
-                      <Button
-                        onClick={handleBuyNumber}
-                        size="lg"
-                        className="w-full"
-                      >
-                        Continue to Number Selection
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </CardContent>
-            </Card>
-
-            {/* Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="w-5 h-5" />
-                  Platform Features
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">Real-time messaging</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">Global phone numbers</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">Enterprise security</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">Scalable infrastructure</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm">24/7 support</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Your Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Active Numbers
-                  </span>
-                  <span className="font-bold">{phoneNumbers.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Contacts
-                  </span>
-                  <span className="font-bold">{contacts.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Unread Messages
-                  </span>
-                  <span className="font-bold">{totalUnreadCount}</span>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
