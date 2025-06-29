@@ -266,6 +266,27 @@ export const purchaseNumber = async (req: any, res: Response) => {
       });
     }
 
+    // Determine price based on number type
+    const isTollFree =
+      phoneNumber.includes("844") ||
+      phoneNumber.includes("833") ||
+      phoneNumber.includes("800") ||
+      phoneNumber.includes("888") ||
+      phoneNumber.includes("877") ||
+      phoneNumber.includes("866");
+    const setupCost = isTollFree ? 2.0 : 1.0; // One-time setup cost
+    const monthlyPrice = isTollFree ? 2.0 : 1.0; // Monthly cost
+
+    // Check wallet balance for setup cost
+    const hasBalance = await checkBalance(userId, setupCost);
+    if (!hasBalance) {
+      return res.status(400).json({
+        message: `Insufficient wallet balance. Phone number setup requires $${setupCost.toFixed(2)}. Please add funds to your wallet.`,
+        code: "INSUFFICIENT_BALANCE",
+        requiredAmount: setupCost,
+      });
+    }
+
     // Purchase via Twilio
     const twilioNumber = await twilioService.purchaseNumber(phoneNumber);
 
@@ -276,20 +297,23 @@ export const purchaseNumber = async (req: any, res: Response) => {
       twilioSid: twilioNumber.sid,
       isActive: false,
       location: twilioNumber.friendlyName || "United States",
-      type:
-        phoneNumber.includes("844") || phoneNumber.includes("833")
-          ? "toll-free"
-          : "local",
-      price:
-        phoneNumber.includes("844") || phoneNumber.includes("833")
-          ? "$2.00/month"
-          : "$1.00/month",
+      type: isTollFree ? "toll-free" : "local",
+      price: `$${monthlyPrice.toFixed(2)}/month`,
       status: "active",
     });
 
     await purchasedNumber.save();
 
+    // Deduct setup cost from wallet
+    await deductFunds(
+      userId,
+      setupCost,
+      `Phone number purchase: ${phoneNumber}`,
+      `PHONE_${twilioNumber.sid}`,
+    );
+
     // Update user's phone numbers
+    const User = await import("../models/User.js").then((m) => m.default);
     await User.findByIdAndUpdate(userId, {
       $push: { phoneNumbers: phoneNumber },
     });
@@ -301,9 +325,20 @@ export const purchaseNumber = async (req: any, res: Response) => {
       location: purchasedNumber.location,
       type: purchasedNumber.type,
       status: "active",
+      pricePaid: setupCost,
+      monthlyPrice: monthlyPrice,
     });
   } catch (error) {
     console.error("Purchase number error:", error);
+
+    // Check if it's a wallet error
+    if (error.message === "Insufficient balance") {
+      return res.status(400).json({
+        message: "Insufficient wallet balance for phone number purchase",
+        code: "INSUFFICIENT_BALANCE",
+      });
+    }
+
     res.status(500).json({ message: "Failed to purchase number" });
   }
 };
