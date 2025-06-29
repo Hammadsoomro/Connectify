@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Wallet from "../models/Wallet.js";
+import BillingService from "../services/billingService.js";
 
 // Get wallet balance and recent transactions
 export const getWallet = async (req: any, res: Response) => {
