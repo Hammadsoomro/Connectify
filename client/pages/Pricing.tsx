@@ -107,18 +107,18 @@ const smsPricing = [
   { region: "Middle East", price: "$0.0180" },
 ];
 
+// Initialize Stripe (use your publishable key)
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || "pk_test_...", // Replace with your actual Stripe publishable key
+);
+
 export default function Pricing() {
   const navigate = useNavigate();
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
-  const [paymentForm, setPaymentForm] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    name: "",
-    email: "",
-  });
+  const [paymentAmount, setPaymentAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("card");
 
   const handleSelectPlan = (plan: PricingPlan) => {
     setSelectedPlan(plan);
