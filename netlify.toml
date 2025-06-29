@@ -1,15 +1,23 @@
 [build]
-  command = "npm run build:client"
+  command = "npm run build"
   functions = "netlify/functions"
   publish = "dist/spa"
 
+[build.environment]
+  NODE_VERSION = "18"
 
 [functions]
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "mongoose", "twilio", "stripe", "bcryptjs", "jsonwebtoken"]
   node_bundler = "esbuild"
-  
+
 [[redirects]]
   force = true
   from = "/api/*"
   status = 200
   to = "/.netlify/functions/api/:splat"
+
+# SPA routing - all routes should go to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
