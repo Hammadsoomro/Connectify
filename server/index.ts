@@ -120,6 +120,14 @@ export function createServer() {
   app.get("/api/wallet/billing-summary", auth, getBillingSummary);
   app.post("/api/wallet/trigger-billing", auth, triggerMonthlyBilling);
 
+  // Payment routes
+  app.post("/api/payments/create-intent", auth, createPaymentIntent);
+  app.post("/api/payments/create-subscription", auth, createSubscription);
+  app.post("/api/payments/confirm", auth, confirmPayment);
+  app.get("/api/payments/methods", auth, getPaymentMethods);
+  app.post("/api/payments/setup-intent", auth, createSetupIntent);
+  app.post("/api/webhooks/stripe", handleStripeWebhook); // No auth for webhooks
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
