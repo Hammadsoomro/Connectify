@@ -150,7 +150,13 @@ export default function Conversations() {
         errorMessage = error.message || "Failed to send message";
       }
 
-      alert(errorMessage);
+      // Show more detailed error in development
+      const detailedError =
+        process.env.NODE_ENV === "development"
+          ? `\n\nDetails: ${error.message}\nStack: ${error.stack || "No stack trace"}`
+          : "";
+
+      alert(`${errorMessage}${detailedError}`);
 
       setMessages((prev) =>
         prev.map((msg) =>
