@@ -4,9 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowLeft, Phone, MapPin, Globe, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import ApiService from "@/services/api";
+
+const countries = [
+  { code: "US", name: "United States", flag: "🇺🇸" },
+  { code: "CA", name: "Canada", flag: "🇨🇦" },
+  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "AU", name: "Australia", flag: "🇦🇺" },
+  { code: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "FR", name: "France", flag: "🇫🇷" },
+];
 
 export default function BuyNumbers() {
   const [availableNumbers, setAvailableNumbers] = useState<any[]>([]);
