@@ -122,5 +122,8 @@ export function createServer() {
     });
   });
 
-  return app;
+  // Initialize WebSocket server
+  webSocketManager.initialize(server);
+
+  return server;
 }
