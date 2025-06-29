@@ -35,6 +35,12 @@ import {
 import SMSNavbar from "@/components/SMSNavbar";
 import ChatArea, { Message } from "@/components/ChatArea";
 import ApiService from "@/services/api";
+import webSocketService, {
+  NewMessagePayload,
+  MessageStatusPayload,
+  TypingPayload,
+  ContactStatusPayload,
+} from "@/services/websocket";
 
 interface Contact {
   id: string;
