@@ -70,12 +70,14 @@ export default function WalletComponent({ trigger }: WalletComponentProps) {
   const loadWalletData = async () => {
     try {
       setIsLoading(true);
-      const [wallet, stats] = await Promise.all([
+      const [wallet, stats, billing] = await Promise.all([
         ApiService.getWallet(),
         ApiService.getWalletStats(),
+        ApiService.getBillingSummary(),
       ]);
       setWalletInfo(wallet);
       setWalletStats(stats);
+      setBillingSummary(billing);
     } catch (error) {
       console.error("Error loading wallet data:", error);
     } finally {
