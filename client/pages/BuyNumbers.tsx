@@ -40,7 +40,9 @@ export default function BuyNumbers() {
   // Filter numbers by selected country
   useEffect(() => {
     const filtered = availableNumbers.filter((number) => {
-      const selectedCountryName = countries.find(c => c.code === selectedCountry)?.name;
+      const selectedCountryName = countries.find(
+        (c) => c.code === selectedCountry,
+      )?.name;
       return number.country === selectedCountryName;
     });
     setFilteredNumbers(filtered);
@@ -138,7 +140,10 @@ export default function BuyNumbers() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl">
             <div>
               <Label htmlFor="country">Select Country</Label>
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+              <Select
+                value={selectedCountry}
+                onValueChange={setSelectedCountry}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose country" />
                 </SelectTrigger>
@@ -198,90 +203,83 @@ export default function BuyNumbers() {
             {filteredNumbers.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <Phone className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Numbers Available</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No Numbers Available
+                </h3>
                 <p className="text-muted-foreground">
-                  No phone numbers available for {countries.find(c => c.code === selectedCountry)?.name}.
-                  Try selecting a different country.
+                  No phone numbers available for{" "}
+                  {countries.find((c) => c.code === selectedCountry)?.name}. Try
+                  selecting a different country.
                 </p>
               </div>
             ) : (
               filteredNumbers.map((number) => (
-              <Card key={number.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <Badge
-                        variant={
-                          number.type === "Toll-Free" ? "default" : "secondary"
-                        }
-                      >
-                        {number.type}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Twilio
-                      </Badge>
-                    </div>
-                    <span className="text-lg font-bold text-primary">
-                      {number.price}
-                    </span>
-                  </div>
-                  <CardTitle className="text-lg font-mono">
-                    {number.number}
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
-                      <span>{number.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Globe className="w-4 h-4" />
-                      <span>{number.country}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium mb-2">Features:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {number.features.map((feature: string) => (
+                <Card key={number.id} className="relative">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
                         <Badge
-                          key={feature}
-                          variant="outline"
-                          className="text-xs"
+                          variant={
+                            number.type === "Toll-Free"
+                              ? "default"
+                              : "secondary"
+                          }
                         >
-                          {feature}
+                          {number.type}
                         </Badge>
-                      ))}
+                        <Badge variant="outline" className="text-xs">
+                          Twilio
+                        </Badge>
+                      </div>
+                      <span className="text-lg font-bold text-primary">
+                        {number.price}
+                      </span>
                     </div>
-                  </div>
+                    <CardTitle className="text-lg font-mono">
+                      {number.number}
+                    </CardTitle>
+                  </CardHeader>
 
-                  <Button
-                    onClick={() => handlePurchaseNumber(number.number)}
-                    className="w-full"
-                    disabled={purchasingNumber === number.number}
-                  >
-                    <Phone className="w-4 h-4 mr-2" />
-                    {purchasingNumber === number.number
-                      ? "Purchasing..."
-                      : "Purchase Number"}
-                  </Button>
-                </CardContent>
-              </Card>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        <span>{number.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Globe className="w-4 h-4" />
+                        <span>{number.country}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-medium mb-2">Features:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {number.features.map((feature: string) => (
+                          <Badge
+                            key={feature}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => handlePurchaseNumber(number.number)}
+                      className="w-full"
+                      disabled={purchasingNumber === number.number}
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      {purchasingNumber === number.number
+                        ? "Purchasing..."
+                        : "Purchase Number"}
+                    </Button>
+                  </CardContent>
+                </Card>
               ))
-            )}
-          </div>
-        )}
-
-        {availableNumbers.length === 0 && !isLoading && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">
-              {areaCode
-                ? "No numbers found for this area code"
-                : "No numbers available"}
-                </p>
-              </div>
             )}
           </div>
         )}
