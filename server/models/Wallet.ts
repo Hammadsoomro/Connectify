@@ -80,7 +80,7 @@ const WalletSchema: Schema = new Schema(
 );
 
 // Create indexes for better query performance
-WalletSchema.index({ userId: 1 });
+WalletSchema.index({ userId: 1 }, { unique: true });
 WalletSchema.index({ "transactions.createdAt": -1 });
 
 // Methods to add/subtract balance with transaction recording
