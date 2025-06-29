@@ -132,6 +132,10 @@ export function createServer() {
   // Twilio routes
   app.get("/api/twilio/balance", auth, getTwilioBalance);
 
+  // Debug routes (for troubleshooting deployment)
+  app.get("/api/debug/deployment", debugDeployment);
+  app.get("/api/debug/sms-config", auth, testSMSConfig);
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
