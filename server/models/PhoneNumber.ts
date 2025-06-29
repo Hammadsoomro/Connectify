@@ -31,7 +31,6 @@ const PhoneNumberSchema: Schema = new Schema(
     twilioSid: {
       type: String,
       required: true,
-      unique: true,
     },
     isActive: {
       type: Boolean,
