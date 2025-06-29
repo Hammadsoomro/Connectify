@@ -80,9 +80,8 @@ export default function SMSNavbar({
 
   const loadTwilioBalance = async () => {
     try {
-      // For now, showing a demo balance since we don't have Twilio balance API integrated
-      // In a real implementation, you would call Twilio API to get the actual balance
-      setTwilioBalance("$42.50");
+      const balanceInfo = await ApiService.getTwilioBalance();
+      setTwilioBalance(`$${balanceInfo.balance}`);
     } catch (error) {
       console.error("Error loading Twilio balance:", error);
       setTwilioBalance("$0.00");
