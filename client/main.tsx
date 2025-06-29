@@ -74,7 +74,7 @@ const App = () => {
                 isAuthenticated ? (
                   <Conversations />
                 ) : (
-                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
                 )
               }
             />
@@ -84,7 +84,7 @@ const App = () => {
                 isAuthenticated ? (
                   <BuyNumbers />
                 ) : (
-                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
                 )
               }
             />
