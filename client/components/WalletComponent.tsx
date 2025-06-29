@@ -243,6 +243,72 @@ export default function WalletComponent({ trigger }: WalletComponentProps) {
               </Card>
             </div>
 
+            {/* Monthly Billing Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Phone className="w-5 h-5" />
+                  Monthly Billing Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                    <span className="font-medium">Next billing in:</span>
+                    <span className="text-lg font-bold">
+                      {billingSummary.daysUntilNextBilling} days
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {billingSummary.phoneNumbers.map((phone) => (
+                      <div
+                        key={phone.number}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
+                        <div>
+                          <span className="font-mono">{phone.number}</span>
+                          <span className="ml-2 text-sm text-muted-foreground">
+                            ({phone.type})
+                          </span>
+                          {phone.status === "suspended" && (
+                            <Badge variant="destructive" className="ml-2">
+                              Suspended
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="font-medium">
+                          {formatCurrency(phone.monthlyRate)}/month
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 border-t border-dashed font-medium">
+                    <span>Total Monthly Charges:</span>
+                    <span className="text-lg">
+                      {formatCurrency(billingSummary.totalMonthlyCharges)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Can cover next month:
+                    </span>
+                    <Badge
+                      variant={
+                        billingSummary.canCoverNextMonth
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
+                      {billingSummary.canCoverNextMonth ? "Yes" : "No"}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Recent Transactions */}
             <Card>
               <CardHeader>
