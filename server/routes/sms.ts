@@ -19,8 +19,11 @@ export const sendSMS = async (req: any, res: Response) => {
     // Get contact
     const contact = await Contact.findOne({ _id: contactId, userId });
     if (!contact) {
+      console.log(`Contact not found: ${contactId} for user ${userId}`);
       return res.status(404).json({ message: "Contact not found" });
     }
+
+    console.log(`Found contact: ${contact.name} (${contact.phoneNumber})`);
 
     let canUseNumber = false;
     let phoneNumber = null;
