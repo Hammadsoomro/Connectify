@@ -130,9 +130,35 @@ export const sendSMS = async (req: any, res: Response) => {
       status: "sent",
       type: "text",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Send SMS error:", error);
-    res.status(500).json({ message: "Failed to send message" });
+
+    // Provide more specific error messages
+    let errorMessage = "Failed to send message";
+    let statusCode = 500;
+
+    if (error.message?.includes("Twilio")) {
+      errorMessage = "SMS service unavailable. Please try again later.";
+      statusCode = 503;
+    } else if (error.message?.includes("Wallet")) {
+      errorMessage = "Wallet error. Please check your balance.";
+      statusCode = 400;
+    } else if (error.message?.includes("balance")) {
+      errorMessage = "Insufficient wallet balance. Please add funds.";
+      statusCode = 400;
+    } else if (error.message?.includes("not found")) {
+      errorMessage = "Contact or phone number not found.";
+      statusCode = 404;
+    } else if (error.code === 11000) {
+      errorMessage = "Duplicate message detected.";
+      statusCode = 409;
+    }
+
+    res.status(statusCode).json({
+      message: errorMessage,
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
 
