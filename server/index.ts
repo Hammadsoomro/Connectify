@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { createServer } from "http";
+import { createServer as createHttpServer } from "http";
 import connectDB from "./db/connection.js";
 import { auth } from "./middleware/auth.js";
 
