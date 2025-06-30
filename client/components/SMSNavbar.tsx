@@ -81,14 +81,20 @@ export default function SMSNavbar({
     console.log("=== END NAVBAR CHECK ===");
 
     if (profile.role === "admin") {
-      loadTwilioBalance();
+      // Small delay to ensure API is ready
+      setTimeout(() => {
+        loadTwilioBalance();
+      }, 1000);
     }
   }, [profile.role]);
 
   const loadTwilioBalance = async () => {
     try {
       setTwilioBalance("Loading...");
+
+      // Try the authenticated endpoint first
       const balanceInfo = await ApiService.getTwilioBalance();
+
       if (balanceInfo.error) {
         console.error("Twilio balance API error:", balanceInfo);
         if (balanceInfo.message?.includes("authentication")) {
@@ -103,12 +109,31 @@ export default function SMSNavbar({
       }
     } catch (error: any) {
       console.error("Error loading Twilio balance:", error);
+
+      // Try fallback to debug endpoint (no auth required)
+      try {
+        console.log("Trying fallback debug endpoint...");
+        const response = await fetch("/api/debug/twilio");
+        if (response.ok) {
+          const debugData = await response.json();
+          if (debugData.success && debugData.balance) {
+            setTwilioBalance(`$${debugData.balance.balance}`);
+            return;
+          }
+        }
+      } catch (fallbackError) {
+        console.error("Fallback also failed:", fallbackError);
+      }
+
+      // Set appropriate error message
       if (error.message?.includes("authentication")) {
         setTwilioBalance("Auth Error");
       } else if (error.message?.includes("credentials")) {
         setTwilioBalance("Config Error");
-      } else {
+      } else if (error.message?.includes("Network")) {
         setTwilioBalance("Network Error");
+      } else {
+        setTwilioBalance("Unavailable");
       }
     }
   };
