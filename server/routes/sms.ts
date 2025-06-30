@@ -258,20 +258,19 @@ export const getAvailableNumbers = async (req: Request, res: Response) => {
   try {
     const { areaCode } = req.query;
 
-    const [localNumbers, tollFreeNumbers] = await Promise.all([
-      twilioService.getAvailableNumbers(areaCode as string, 15),
-      twilioService.getAvailableTollFreeNumbers(5),
-    ]);
+    // Get numbers from all supported countries
+    const allNumbers = await twilioService.getAvailableNumbersAllCountries(
+      areaCode as string,
+    );
 
-    const formattedNumbers = [
-      ...localNumbers.map((num) => ({
-        id: `local_${num.phoneNumber}`,
-        number: num.phoneNumber,
-        location: `${num.locality}, ${num.region}`,
-        country: "United States",
-        type: "Local",
-        price: "$1.00/month",
-        features: ["SMS", "MMS"],
+    const formattedNumbers = allNumbers.map((num) => ({
+      id: `number_${num.phoneNumber.replace(/\D/g, '')}`,
+      number: num.phoneNumber,
+      location: `${num.locality}, ${num.region}`,
+      country: getCountryFromRegion(num.region),
+      type: "Local",
+      price: "$1.00/month",
+      features: ["SMS", "MMS"],
         provider: "Twilio",
       })),
       ...tollFreeNumbers.map((num) => ({
