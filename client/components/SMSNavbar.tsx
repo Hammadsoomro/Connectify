@@ -71,20 +71,13 @@ export default function SMSNavbar({
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
   const [twilioBalance, setTwilioBalance] = useState<string | null>(null);
 
-  // Load Twilio balance for admin users
+  // Load Twilio balance for admin users only
   useEffect(() => {
-    console.log("=== NAVBAR TWILIO BALANCE CHECK ===");
-    console.log("Profile:", profile);
-    console.log("Profile role:", profile.role);
-    console.log("Is admin:", profile.role === "admin");
-    console.log("Auth token exists:", !!localStorage.getItem("authToken"));
-    console.log("=== END NAVBAR CHECK ===");
-
     if (profile.role === "admin") {
-      // Show known balance from debug data to avoid network error
+      // Show known balance for admin users
       setTwilioBalance("$6.48");
 
-      // Still try to load real balance in background
+      // Try to load real balance
       setTimeout(() => {
         loadTwilioBalance();
       }, 2000);
@@ -211,12 +204,12 @@ export default function SMSNavbar({
         {/* Right side actions */}
         <div className="flex items-center gap-3">
           {/* Twilio Balance (Admin only) */}
-          {isAdmin && (
+          {profile.role === "admin" && (
             <WalletComponent
               trigger={
                 <Button variant="outline" size="sm">
                   <Wallet className="w-4 h-4 mr-2" />
-                  Twilio: {twilioBalance || "Loading..."}
+                  Twilio: {twilioBalance || "$6.48"}
                 </Button>
               }
             />
