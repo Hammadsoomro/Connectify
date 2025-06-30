@@ -66,6 +66,9 @@ export default function BuyNumbers() {
   };
 
   const handleSearch = async () => {
+    // Prevent double search
+    if (searchLoading) return;
+
     if (!areaCode.trim()) {
       loadAvailableNumbers();
       return;
@@ -75,14 +78,20 @@ export default function BuyNumbers() {
       setSearchLoading(true);
       const numbers = await ApiService.getAvailableNumbers(areaCode);
       setAvailableNumbers(numbers);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error searching numbers:", error);
+      if (error.message.includes("timeout")) {
+        alert("Search timed out. Please try again.");
+      }
     } finally {
       setSearchLoading(false);
     }
   };
 
   const handlePurchaseNumber = async (phoneNumber: string) => {
+    // Prevent double-clicking
+    if (purchasingNumber === phoneNumber) return;
+
     try {
       setPurchasingNumber(phoneNumber);
       await ApiService.purchaseNumber(phoneNumber);
@@ -103,6 +112,8 @@ export default function BuyNumbers() {
       if (error.message.includes("ADMIN_ONLY")) {
         errorMessage =
           "Only admin accounts can purchase phone numbers. Contact your admin.";
+      } else if (error.message.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
       } else {
         errorMessage =
           error.message || "Failed to purchase number. Please try again.";
