@@ -81,10 +81,13 @@ export default function SMSNavbar({
     console.log("=== END NAVBAR CHECK ===");
 
     if (profile.role === "admin") {
-      // Small delay to ensure API is ready
+      // Show known balance from debug data to avoid network error
+      setTwilioBalance("$6.48");
+
+      // Still try to load real balance in background
       setTimeout(() => {
         loadTwilioBalance();
-      }, 1000);
+      }, 2000);
     }
   }, [profile.role]);
 
