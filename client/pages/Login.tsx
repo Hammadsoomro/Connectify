@@ -31,6 +31,10 @@ export default function Login({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent double submission
+    if (isLoading) return;
+
     setIsLoading(true);
     setError("");
 
@@ -44,6 +48,7 @@ export default function Login({
 
       onLoginSuccess(response.user);
     } catch (error: any) {
+      console.error("Login/Register error:", error);
       setError(error.message || "Something went wrong");
     } finally {
       setIsLoading(false);

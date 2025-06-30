@@ -11,25 +11,44 @@ class ApiService {
     options: RequestInit = {},
   ): Promise<any> {
     const url = `${API_BASE_URL}${endpoint}`;
+
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
         ...this.getAuthHeader(),
         ...options.headers,
       },
+      signal: controller.signal,
       ...options,
     };
 
-    const response = await fetch(url, config);
+    try {
+      const response = await fetch(url, config);
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: "Something went wrong",
-      }));
-      throw new Error(error.message || "API request failed");
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          message: "Something went wrong",
+        }));
+        throw new Error(error.message || "API request failed");
+      }
+
+      return response.json();
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+
+      if (error.name === "AbortError") {
+        throw new Error(
+          "Request timeout. Please check your internet connection.",
+        );
+      }
+
+      throw error;
     }
-
-    return response.json();
   }
 
   // Auth methods

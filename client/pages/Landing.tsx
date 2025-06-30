@@ -56,7 +56,11 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % messagingQuotes.length);
     }, 5000);
-    return () => clearInterval(interval);
+
+    // Cleanup interval on unmount
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
