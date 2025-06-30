@@ -165,6 +165,7 @@ class TwilioService {
   // Get Twilio account balance
   async getBalance(): Promise<{ balance: string; currency: string }> {
     try {
+      const client = createTwilioClient();
       const balance = await client.balance.fetch();
       return {
         balance: balance.balance,
@@ -181,6 +182,7 @@ class TwilioService {
     limit: number = 10,
   ): Promise<AvailableNumber[]> {
     try {
+      const client = createTwilioClient();
       const availableNumbers = await client
         .availablePhoneNumbers("US")
         .tollFree.list({
@@ -203,6 +205,7 @@ class TwilioService {
   // Purchase a phone number
   async purchaseNumber(phoneNumber: string): Promise<any> {
     try {
+      const client = createTwilioClient();
       const purchasedNumber = await client.incomingPhoneNumbers.create({
         phoneNumber,
         smsUrl: `${process.env.BASE_URL || "http://localhost:8080"}/api/twilio/webhook`,
@@ -219,6 +222,7 @@ class TwilioService {
   // Get message status
   async getMessageStatus(messageSid: string): Promise<string> {
     try {
+      const client = createTwilioClient();
       const message = await client.messages(messageSid).fetch();
       return message.status;
     } catch (error) {
@@ -230,12 +234,13 @@ class TwilioService {
   // Handle incoming webhook
   validateWebhook(signature: string, url: string, params: any): boolean {
     try {
-      return twilio.validateRequest(
-        process.env.TWILIO_AUTH_TOKEN as string,
-        signature,
-        url,
-        params,
-      );
+      const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+      if (!twilioAuthToken) {
+        console.error("Twilio Auth Token not available for webhook validation");
+        return false;
+      }
+
+      return twilio.validateRequest(twilioAuthToken, signature, url, params);
     } catch (error) {
       console.error("Error validating webhook:", error);
       return false;
