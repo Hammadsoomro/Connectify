@@ -73,6 +73,13 @@ export default function SMSNavbar({
 
   // Load Twilio balance for admin users
   useEffect(() => {
+    console.log("=== NAVBAR TWILIO BALANCE CHECK ===");
+    console.log("Profile:", profile);
+    console.log("Profile role:", profile.role);
+    console.log("Is admin:", profile.role === "admin");
+    console.log("Auth token exists:", !!localStorage.getItem("authToken"));
+    console.log("=== END NAVBAR CHECK ===");
+
     if (profile.role === "admin") {
       loadTwilioBalance();
     }
