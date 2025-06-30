@@ -1,8 +1,6 @@
 import { Response } from "express";
 import twilio from "twilio";
 
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-
 // Get Twilio account balance
 export const getTwilioBalance = async (req: any, res: Response) => {
   try {
@@ -13,9 +11,46 @@ export const getTwilioBalance = async (req: any, res: Response) => {
         .json({ message: "Only admins can view Twilio balance" });
     }
 
+    // Validate Twilio credentials
+    const twilioSid = process.env.TWILIO_SID;
+    const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+
+    console.log("Twilio credentials check:", {
+      sidExists: !!twilioSid,
+      tokenExists: !!twilioAuthToken,
+      sidFormat: twilioSid?.startsWith("AC") ? "valid" : "invalid",
+      sidLength: twilioSid?.length,
+      tokenLength: twilioAuthToken?.length,
+    });
+
+    if (!twilioSid || !twilioAuthToken) {
+      console.error("Missing Twilio credentials");
+      return res.status(500).json({
+        message: "Twilio credentials not configured",
+        balance: "0.00",
+        currency: "USD",
+        error: true,
+      });
+    }
+
+    if (!twilioSid.startsWith("AC")) {
+      console.error("Invalid Twilio SID format");
+      return res.status(500).json({
+        message: "Invalid Twilio SID format",
+        balance: "0.00",
+        currency: "USD",
+        error: true,
+      });
+    }
+
+    // Create Twilio client dynamically
+    const client = twilio(twilioSid, twilioAuthToken);
+
     // Get real balance from Twilio API
     try {
+      console.log("Attempting to fetch Twilio balance...");
       const balance = await client.balance.fetch();
+      console.log("Successfully fetched balance:", balance.balance);
 
       res.json({
         balance: balance.balance,
@@ -23,7 +58,12 @@ export const getTwilioBalance = async (req: any, res: Response) => {
         lastUpdated: new Date().toISOString(),
       });
     } catch (twilioError: any) {
-      console.error("Twilio API error:", twilioError);
+      console.error("Twilio API error:", {
+        message: twilioError.message,
+        code: twilioError.code,
+        status: twilioError.status,
+        moreInfo: twilioError.moreInfo,
+      });
 
       // If Twilio API fails, return error but don't crash
       if (twilioError.code === 20003) {
@@ -32,6 +72,7 @@ export const getTwilioBalance = async (req: any, res: Response) => {
           balance: "0.00",
           currency: "USD",
           error: true,
+          details: "Invalid Account SID or Auth Token",
         });
       }
 
@@ -41,11 +82,14 @@ export const getTwilioBalance = async (req: any, res: Response) => {
         currency: "USD",
         lastUpdated: new Date().toISOString(),
         error: true,
-        message: "Could not fetch balance",
+        message: twilioError.message || "Could not fetch balance",
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Get Twilio balance error:", error);
-    res.status(500).json({ message: "Failed to fetch Twilio balance" });
+    res.status(500).json({
+      message: "Failed to fetch Twilio balance",
+      error: error.message,
+    });
   }
 };

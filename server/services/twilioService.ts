@@ -1,6 +1,20 @@
 import twilio from "twilio";
 
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+// Create Twilio client dynamically to ensure env vars are available
+function createTwilioClient() {
+  const twilioSid = process.env.TWILIO_SID;
+  const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+
+  if (!twilioSid || !twilioAuthToken) {
+    throw new Error("Twilio credentials not configured in environment");
+  }
+
+  if (!twilioSid.startsWith("AC")) {
+    throw new Error("Invalid Twilio Account SID format");
+  }
+
+  return twilio(twilioSid, twilioAuthToken);
+}
 
 export interface TwilioMessage {
   sid: string;
@@ -28,20 +42,8 @@ class TwilioService {
     body: string,
   ): Promise<TwilioMessage> {
     try {
-      // Validate Twilio credentials
-      if (!process.env.TWILIO_SID || !process.env.TWILIO_AUTH_TOKEN) {
-        console.error("Missing Twilio credentials:", {
-          sidExists: !!process.env.TWILIO_SID,
-          tokenExists: !!process.env.TWILIO_AUTH_TOKEN,
-          nodeEnv: process.env.NODE_ENV,
-        });
-        throw new Error("Twilio credentials not configured in environment");
-      }
-
-      // Validate credential format
-      if (!process.env.TWILIO_SID.startsWith("AC")) {
-        throw new Error("Invalid Twilio Account SID format");
-      }
+      // Create client dynamically
+      const client = createTwilioClient();
 
       console.log(
         `Twilio Auth - SID: ${process.env.TWILIO_SID}, Token: ${process.env.TWILIO_AUTH_TOKEN?.substring(0, 8)}...`,
@@ -112,6 +114,7 @@ class TwilioService {
     countryCode: string = "US",
   ): Promise<AvailableNumber[]> {
     try {
+      const client = createTwilioClient();
       const availableNumbers = await client
         .availablePhoneNumbers(countryCode)
         .local.list({
