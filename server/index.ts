@@ -52,7 +52,13 @@ import {
   createSetupIntent,
 } from "./routes/payments.js";
 import { getTwilioBalance } from "./routes/twilio.js";
-import { debugDeployment, testSMSConfig } from "./routes/debug.js";
+import {
+  debugDeployment,
+  testSMSConfig,
+  testTwilioCredentials,
+  testWebhook,
+  updateWebhookUrls,
+} from "./routes/debug.js";
 
 // Load environment variables
 dotenv.config();
@@ -131,6 +137,12 @@ export function createServer() {
 
   // Twilio routes
   app.get("/api/twilio/balance", auth, getTwilioBalance);
+
+  // Debug routes (for testing Twilio issues)
+  app.get("/api/debug/twilio", testTwilioCredentials);
+  app.get("/api/debug/webhook", testWebhook);
+  app.post("/api/debug/webhook", testWebhook);
+  app.post("/api/debug/update-webhooks", auth, updateWebhookUrls);
 
   // Debug routes (for troubleshooting deployment)
   app.get("/api/debug/deployment", debugDeployment);
