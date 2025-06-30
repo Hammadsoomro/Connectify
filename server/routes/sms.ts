@@ -5,6 +5,19 @@ import Contact from "../models/Contact.js";
 import PhoneNumber from "../models/PhoneNumber.js";
 import { deductFunds, checkBalance } from "./wallet.js";
 
+// Helper function to map region codes to country names
+const getCountryFromRegion = (region: string): string => {
+  const countryMap: { [key: string]: string } = {
+    US: "United States",
+    CA: "Canada",
+    GB: "United Kingdom",
+    AU: "Australia",
+    DE: "Germany",
+    FR: "France",
+  };
+  return countryMap[region] || region;
+};
+
 // Send SMS message
 export const sendSMS = async (req: any, res: Response) => {
   try {
