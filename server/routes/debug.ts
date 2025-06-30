@@ -1,131 +1,149 @@
 import { Request, Response } from "express";
-import User from "../models/User.js";
-import PhoneNumber from "../models/PhoneNumber.js";
-import Wallet from "../models/Wallet.js";
+import twilio from "twilio";
 
-// Debug route to check deployment status
-export const debugDeployment = async (req: Request, res: Response) => {
+// Debug endpoint to test Twilio credentials
+export const testTwilioCredentials = async (req: Request, res: Response) => {
   try {
-    const checks = {
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "unknown",
+    console.log("Testing Twilio credentials...");
+    console.log("TWILIO_SID:", process.env.TWILIO_SID?.substring(0, 8) + "...");
+    console.log("TWILIO_AUTH_TOKEN exists:", !!process.env.TWILIO_AUTH_TOKEN);
 
-      // Environment variables check
-      envVars: {
-        twilioSid: !!process.env.TWILIO_SID,
-        twilioAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
-        dbUrl: !!process.env.DB_URL,
-        jwtSecret: !!process.env.JWT_SECRET,
-      },
+    const client = twilio(
+      process.env.TWILIO_SID,
+      process.env.TWILIO_AUTH_TOKEN,
+    );
 
-      // Twilio credentials (masked)
-      twilio: {
-        sid: process.env.TWILIO_SID
-          ? `${process.env.TWILIO_SID.substring(0, 8)}...`
-          : "NOT_SET",
-        authToken: process.env.TWILIO_AUTH_TOKEN
-          ? `${process.env.TWILIO_AUTH_TOKEN.substring(0, 8)}...`
-          : "NOT_SET",
-      },
+    // Test 1: Get account info
+    console.log("Testing account fetch...");
+    const account = await client.api.accounts(process.env.TWILIO_SID).fetch();
 
-      // Database check
-      database: {
-        connected: false,
-        error: null,
-      },
+    // Test 2: Get balance
+    console.log("Testing balance fetch...");
+    const balance = await client.balance.fetch();
 
-      // Data check
-      data: {
-        users: 0,
-        phoneNumbers: 0,
-        wallets: 0,
-      },
-    };
-
-    // Check database connection
-    try {
-      const userCount = await User.countDocuments();
-      const phoneCount = await PhoneNumber.countDocuments();
-      const walletCount = await Wallet.countDocuments();
-
-      checks.database.connected = true;
-      checks.data.users = userCount;
-      checks.data.phoneNumbers = phoneCount;
-      checks.data.wallets = walletCount;
-    } catch (dbError: any) {
-      checks.database.error = dbError.message;
-    }
+    // Test 3: List phone numbers
+    console.log("Testing phone numbers list...");
+    const phoneNumbers = await client.incomingPhoneNumbers.list({ limit: 5 });
 
     res.json({
-      status: "ok",
-      message: "Deployment debug information",
-      checks,
+      success: true,
+      account: {
+        sid: account.sid,
+        friendlyName: account.friendlyName,
+        status: account.status,
+      },
+      balance: {
+        balance: balance.balance,
+        currency: balance.currency,
+      },
+      phoneNumbers: phoneNumbers.map((num) => ({
+        sid: num.sid,
+        phoneNumber: num.phoneNumber,
+        friendlyName: num.friendlyName,
+        smsUrl: num.smsUrl,
+      })),
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        baseUrl: process.env.BASE_URL,
+      },
     });
   } catch (error: any) {
+    console.error("Twilio test error:", error);
+
     res.status(500).json({
-      status: "error",
-      message: "Debug check failed",
+      success: false,
+      error: error.message,
+      code: error.code,
+      details: error.moreInfo || error.details,
+      credentials: {
+        sidProvided: !!process.env.TWILIO_SID,
+        tokenProvided: !!process.env.TWILIO_AUTH_TOKEN,
+        sidFormat: process.env.TWILIO_SID?.startsWith("AC")
+          ? "valid"
+          : "invalid",
+      },
+    });
+  }
+};
+
+// Test webhook endpoint
+export const testWebhook = async (req: Request, res: Response) => {
+  try {
+    console.log("Webhook test received:");
+    console.log("Method:", req.method);
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("Query:", req.query);
+
+    res.json({
+      success: true,
+      message: "Webhook endpoint is working",
+      received: {
+        method: req.method,
+        body: req.body,
+        query: req.query,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Webhook test error:", error);
+    res.status(500).json({
+      success: false,
       error: error.message,
     });
   }
 };
 
-// Test SMS configuration
-export const testSMSConfig = async (req: any, res: Response) => {
+// Update phone number webhook URLs
+export const updateWebhookUrls = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id;
+    const { webhookUrl } = req.body;
+    const targetUrl =
+      webhookUrl || "https://connectlify.netlify.app/api/twilio/webhook";
 
-    if (!userId) {
-      return res.status(401).json({
-        status: "error",
-        message: "Authentication required",
-      });
-    }
+    const client = twilio(
+      process.env.TWILIO_SID,
+      process.env.TWILIO_AUTH_TOKEN,
+    );
 
-    // Check user's phone numbers
-    const phoneNumbers = await PhoneNumber.find({
-      userId,
-      status: "active",
+    // Get all phone numbers
+    const phoneNumbers = await client.incomingPhoneNumbers.list();
+
+    const updatePromises = phoneNumbers.map(async (number) => {
+      try {
+        const updated = await client.incomingPhoneNumbers(number.sid).update({
+          smsUrl: targetUrl,
+          smsMethod: "POST",
+        });
+
+        return {
+          phoneNumber: number.phoneNumber,
+          sid: number.sid,
+          success: true,
+          newSmsUrl: updated.smsUrl,
+        };
+      } catch (error: any) {
+        return {
+          phoneNumber: number.phoneNumber,
+          sid: number.sid,
+          success: false,
+          error: error.message,
+        };
+      }
     });
 
-    // Check wallet
-    const wallet = await Wallet.findOne({ userId });
-
-    const smsConfig = {
-      user: {
-        id: userId,
-        email: req.user.email,
-        role: req.user.role,
-      },
-      phoneNumbers: phoneNumbers.map((p) => ({
-        number: p.number,
-        status: p.status,
-        type: p.type,
-      })),
-      wallet: wallet
-        ? {
-            balance: wallet.balance,
-            currency: wallet.currency,
-            isActive: wallet.isActive,
-          }
-        : null,
-      twilio: {
-        configured: !!(process.env.TWILIO_SID && process.env.TWILIO_AUTH_TOKEN),
-        sidMasked: process.env.TWILIO_SID
-          ? `${process.env.TWILIO_SID.substring(0, 8)}...`
-          : "NOT_SET",
-      },
-    };
+    const results = await Promise.all(updatePromises);
 
     res.json({
-      status: "ok",
-      message: "SMS configuration check",
-      config: smsConfig,
+      success: true,
+      message: `Updated webhook URLs for ${results.length} phone numbers`,
+      targetUrl,
+      results,
     });
   } catch (error: any) {
+    console.error("Update webhook URLs error:", error);
     res.status(500).json({
-      status: "error",
-      message: "SMS config check failed",
+      success: false,
       error: error.message,
     });
   }
