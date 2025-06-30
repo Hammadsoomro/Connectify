@@ -53,8 +53,6 @@ import {
 } from "./routes/payments.js";
 import { getTwilioBalance } from "./routes/twilio.js";
 import {
-  debugDeployment,
-  testSMSConfig,
   testTwilioCredentials,
   testWebhook,
   updateWebhookUrls,
