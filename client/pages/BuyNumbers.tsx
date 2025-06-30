@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import ApiService from "@/services/api";
 
 const countries = [
+  { code: "ALL", name: "All Countries", flag: "🌍" },
   { code: "US", name: "United States", flag: "🇺🇸" },
   { code: "CA", name: "Canada", flag: "🇨🇦" },
   { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
@@ -29,7 +30,7 @@ export default function BuyNumbers() {
   const [filteredNumbers, setFilteredNumbers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [areaCode, setAreaCode] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState("US");
+  const [selectedCountry, setSelectedCountry] = useState("ALL");
   const [searchLoading, setSearchLoading] = useState(false);
   const [purchasingNumber, setPurchasingNumber] = useState<string | null>(null);
 
@@ -39,13 +40,17 @@ export default function BuyNumbers() {
 
   // Filter numbers by selected country
   useEffect(() => {
-    const filtered = availableNumbers.filter((number) => {
+    if (selectedCountry === "ALL") {
+      setFilteredNumbers(availableNumbers);
+    } else {
       const selectedCountryName = countries.find(
         (c) => c.code === selectedCountry,
       )?.name;
-      return number.country === selectedCountryName;
-    });
-    setFilteredNumbers(filtered);
+      const filtered = availableNumbers.filter((number) => {
+        return number.country === selectedCountryName;
+      });
+      setFilteredNumbers(filtered);
+    }
   }, [availableNumbers, selectedCountry]);
 
   const loadAvailableNumbers = async () => {
