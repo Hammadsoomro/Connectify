@@ -1,4 +1,7 @@
 import { Response } from "express";
+import twilio from "twilio";
+
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Get Twilio account balance
 export const getTwilioBalance = async (req: any, res: Response) => {
@@ -10,18 +13,37 @@ export const getTwilioBalance = async (req: any, res: Response) => {
         .json({ message: "Only admins can view Twilio balance" });
     }
 
-    // For demo purposes, return a mock balance
-    // In production, you would call the Twilio API:
-    // const twilioClient = require('twilio')(accountSid, authToken);
-    // const balance = await twilioClient.balance.fetch();
+    // Get real balance from Twilio API
+    try {
+      const balance = await client.balance.fetch();
 
-    const mockBalance = {
-      balance: "42.50",
-      currency: "USD",
-      lastUpdated: new Date().toISOString(),
-    };
+      res.json({
+        balance: balance.balance,
+        currency: balance.currency,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (twilioError: any) {
+      console.error("Twilio API error:", twilioError);
 
-    res.json(mockBalance);
+      // If Twilio API fails, return error but don't crash
+      if (twilioError.code === 20003) {
+        return res.status(401).json({
+          message: "Twilio authentication failed - check credentials",
+          balance: "0.00",
+          currency: "USD",
+          error: true,
+        });
+      }
+
+      // For other errors, return a fallback
+      res.json({
+        balance: "0.00",
+        currency: "USD",
+        lastUpdated: new Date().toISOString(),
+        error: true,
+        message: "Could not fetch balance",
+      });
+    }
   } catch (error) {
     console.error("Get Twilio balance error:", error);
     res.status(500).json({ message: "Failed to fetch Twilio balance" });

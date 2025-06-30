@@ -105,14 +105,15 @@ class TwilioService {
     }
   }
 
-  // Get available phone numbers
+  // Get available phone numbers for multiple countries
   async getAvailableNumbers(
     areaCode?: string,
     limit: number = 20,
+    countryCode: string = "US",
   ): Promise<AvailableNumber[]> {
     try {
       const availableNumbers = await client
-        .availablePhoneNumbers("US")
+        .availablePhoneNumbers(countryCode)
         .local.list({
           areaCode,
           limit,
@@ -130,6 +131,45 @@ class TwilioService {
     } catch (error) {
       console.error("Error fetching available numbers:", error);
       throw new Error(`Failed to fetch available numbers: ${error}`);
+    }
+  }
+
+  // Get available numbers for multiple countries
+  async getAvailableNumbersAllCountries(
+    areaCode?: string,
+    limit: number = 5,
+  ): Promise<AvailableNumber[]> {
+    const countries = ["US", "CA", "GB", "AU", "DE", "FR"];
+    const allNumbers: AvailableNumber[] = [];
+
+    for (const country of countries) {
+      try {
+        const numbers = await this.getAvailableNumbers(
+          areaCode,
+          limit,
+          country,
+        );
+        allNumbers.push(...numbers);
+      } catch (error) {
+        console.error(`Error fetching numbers for ${country}:`, error);
+        // Continue with other countries if one fails
+      }
+    }
+
+    return allNumbers;
+  }
+
+  // Get Twilio account balance
+  async getBalance(): Promise<{ balance: string; currency: string }> {
+    try {
+      const balance = await client.balance.fetch();
+      return {
+        balance: balance.balance,
+        currency: balance.currency,
+      };
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+      throw new Error(`Failed to fetch balance: ${error}`);
     }
   }
 
