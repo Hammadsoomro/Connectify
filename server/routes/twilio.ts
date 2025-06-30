@@ -15,13 +15,20 @@ export const getTwilioBalance = async (req: any, res: Response) => {
     const twilioSid = process.env.TWILIO_SID;
     const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
-    console.log("Twilio credentials check:", {
-      sidExists: !!twilioSid,
-      tokenExists: !!twilioAuthToken,
-      sidFormat: twilioSid?.startsWith("AC") ? "valid" : "invalid",
-      sidLength: twilioSid?.length,
-      tokenLength: twilioAuthToken?.length,
-    });
+    console.log("=== TWILIO CREDENTIALS DEBUG ===");
+    console.log("Environment:", process.env.NODE_ENV);
+    console.log("SID exists:", !!twilioSid);
+    console.log("SID value:", twilioSid);
+    console.log("SID format valid:", twilioSid?.startsWith("AC"));
+    console.log("Token exists:", !!twilioAuthToken);
+    console.log("Token length:", twilioAuthToken?.length);
+    console.log("Token starts with:", twilioAuthToken?.substring(0, 4) + "...");
+    console.log("Expected token start: 1d2a...");
+    console.log(
+      "All env vars keys:",
+      Object.keys(process.env).filter((key) => key.includes("TWILIO")),
+    );
+    console.log("=== END DEBUG ===");
 
     if (!twilioSid || !twilioAuthToken) {
       console.error("Missing Twilio credentials");

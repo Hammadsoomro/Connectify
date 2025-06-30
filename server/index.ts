@@ -59,6 +59,7 @@ import {
   testWebhook,
   updateWebhookUrls,
 } from "./routes/debug.js";
+import { debugEnvironment } from "./routes/env-debug.js";
 
 // Load environment variables
 dotenv.config();
@@ -143,6 +144,7 @@ export function createServer() {
   app.get("/api/debug/webhook", testWebhook);
   app.post("/api/debug/webhook", testWebhook);
   app.post("/api/debug/update-webhooks", auth, updateWebhookUrls);
+  app.get("/api/debug/env", debugEnvironment);
 
   // Debug routes (for troubleshooting deployment)
   app.get("/api/debug/deployment", debugDeployment);
