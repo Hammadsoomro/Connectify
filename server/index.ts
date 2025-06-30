@@ -144,10 +144,6 @@ export function createServer() {
   app.post("/api/debug/update-webhooks", auth, updateWebhookUrls);
   app.get("/api/debug/env", debugEnvironment);
 
-  // Debug routes (for troubleshooting deployment)
-  app.get("/api/debug/deployment", debugDeployment);
-  app.get("/api/debug/sms-config", auth, testSMSConfig);
-
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
