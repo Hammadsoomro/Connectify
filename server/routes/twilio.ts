@@ -4,11 +4,25 @@ import twilio from "twilio";
 // Get Twilio account balance
 export const getTwilioBalance = async (req: any, res: Response) => {
   try {
+    console.log("=== TWILIO BALANCE AUTH CHECK ===");
+    console.log("User exists:", !!req.user);
+    console.log("User ID:", req.user?._id);
+    console.log("User role:", req.user?.role);
+    console.log("Is admin:", req.user?.role === "admin");
+    console.log("=== END AUTH CHECK ===");
+
     // Check if user is admin
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
     if (req.user.role !== "admin") {
       return res
         .status(403)
-        .json({ message: "Only admins can view Twilio balance" });
+        .json({
+          message:
+            "Only admins can view Twilio balance. Your role: " + req.user.role,
+        });
     }
 
     // Validate Twilio credentials
