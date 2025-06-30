@@ -264,26 +264,15 @@ export const getAvailableNumbers = async (req: Request, res: Response) => {
     );
 
     const formattedNumbers = allNumbers.map((num) => ({
-      id: `number_${num.phoneNumber.replace(/\D/g, '')}`,
+      id: `number_${num.phoneNumber.replace(/\D/g, "")}`,
       number: num.phoneNumber,
       location: `${num.locality}, ${num.region}`,
       country: getCountryFromRegion(num.region),
       type: "Local",
       price: "$1.00/month",
       features: ["SMS", "MMS"],
-        provider: "Twilio",
-      })),
-      ...tollFreeNumbers.map((num) => ({
-        id: `tollfree_${num.phoneNumber}`,
-        number: num.phoneNumber,
-        location: "United States",
-        country: "United States",
-        type: "Toll-Free",
-        price: "$2.00/month",
-        features: ["SMS", "MMS"],
-        provider: "Twilio",
-      })),
-    ];
+      provider: "Twilio",
+    }));
 
     res.json(formattedNumbers);
   } catch (error) {
