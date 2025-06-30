@@ -83,13 +83,26 @@ export default function SMSNavbar({
       setTwilioBalance("Loading...");
       const balanceInfo = await ApiService.getTwilioBalance();
       if (balanceInfo.error) {
-        setTwilioBalance("Error");
+        console.error("Twilio balance API error:", balanceInfo);
+        if (balanceInfo.message?.includes("authentication")) {
+          setTwilioBalance("Auth Error");
+        } else if (balanceInfo.message?.includes("credentials")) {
+          setTwilioBalance("Config Error");
+        } else {
+          setTwilioBalance("Error");
+        }
       } else {
         setTwilioBalance(`$${balanceInfo.balance}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading Twilio balance:", error);
-      setTwilioBalance("Error");
+      if (error.message?.includes("authentication")) {
+        setTwilioBalance("Auth Error");
+      } else if (error.message?.includes("credentials")) {
+        setTwilioBalance("Config Error");
+      } else {
+        setTwilioBalance("Network Error");
+      }
     }
   };
 
