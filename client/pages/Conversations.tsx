@@ -88,7 +88,7 @@ export default function Conversations() {
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!selectedContactId || !activePhoneNumber) return;
+    if (!selectedContactId || !activePhoneNumber || isLoading) return;
 
     const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
     if (!activeNumber) return;
