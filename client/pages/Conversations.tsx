@@ -88,18 +88,8 @@ export default function Conversations() {
 
             // Set first phone number as active if none is active
             const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
-            console.log("Found active number in data:", activeNumber);
-
             if (activeNumber) {
-              console.log(
-                "Setting active number from data:",
-                activeNumber.number,
-              );
               setActivePhoneNumber(activeNumber.id);
-              console.log(
-                "State updated - activePhoneNumber should now be:",
-                activeNumber.id,
-              );
             } else if (phoneNumbersData.length > 0) {
               console.log(
                 "No active number found, setting first number as active:",
