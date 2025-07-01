@@ -52,11 +52,14 @@ export default function Conversations() {
           // Real-time contact updates
           ApiService.getContacts(phoneNumber)
             .then((contactsData) => {
-              if (contactsData.length !== contacts.length) {
+              if (contactsData && contactsData.length !== contacts.length) {
                 setContacts(contactsData);
               }
             })
-            .catch(() => {});
+            .catch((error) => {
+              // Silent fail for real-time updates to prevent UI disruption
+              console.log("Real-time contact update failed:", error.message);
+            });
         }
       }
     }, 3000); // Real-time 3-second polling
