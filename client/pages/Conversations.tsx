@@ -166,9 +166,27 @@ export default function Conversations() {
       }
 
       const contactsData = await ApiService.getContacts(activeNumber.number);
-      setContacts(contactsData);
+
+      // Ensure we have valid data before setting
+      if (Array.isArray(contactsData)) {
+        setContacts(contactsData);
+      } else {
+        console.log("Invalid contacts data received");
+        setContacts([]);
+      }
     } catch (error: any) {
       console.error("Failed to load contacts:", error.message);
+
+      // Handle different error types gracefully
+      if (error.message?.includes("Failed to fetch")) {
+        console.log("Network error - server may be temporarily unavailable");
+      } else if (
+        error.message?.includes("403") ||
+        error.message?.includes("401")
+      ) {
+        console.log("Authentication error - please login again");
+      }
+
       setContacts([]);
     } finally {
       setIsLoadingContacts(false);
