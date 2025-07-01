@@ -45,14 +45,12 @@ export default function Conversations() {
 
   const loadInitialData = async () => {
     try {
-      const [userProfile, contactsData, phoneNumbersData] = await Promise.all([
+      const [userProfile, phoneNumbersData] = await Promise.all([
         ApiService.getProfile(),
-        ApiService.getContacts(),
         ApiService.getPhoneNumbers(),
       ]);
 
       setProfile(userProfile);
-      setContacts(contactsData);
       setPhoneNumbers(phoneNumbersData);
 
       // Set first phone number as active if none is active
@@ -65,6 +63,22 @@ export default function Conversations() {
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
+    }
+  };
+
+  const loadContacts = async () => {
+    try {
+      // Get the active phone number
+      const activeNumber = phoneNumbers.find(
+        (phone) => phone.id === activePhoneNumber,
+      );
+      const phoneNumber = activeNumber?.number;
+
+      // Load contacts filtered by active phone number
+      const contactsData = await ApiService.getContacts(phoneNumber);
+      setContacts(contactsData);
+    } catch (error) {
+      console.error("Error loading contacts:", error);
     }
   };
 
