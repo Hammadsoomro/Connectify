@@ -120,6 +120,10 @@ export default function Conversations() {
                 phoneNumbersData[0].id,
               );
               setActivePhoneNumber(phoneNumbersData[0].id);
+              console.log(
+                "State updated - activePhoneNumber should now be:",
+                phoneNumbersData[0].id,
+              );
 
               // Try to set active number, but don't fail if it doesn't work
               try {
