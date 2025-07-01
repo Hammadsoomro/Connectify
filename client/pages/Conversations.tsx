@@ -148,9 +148,6 @@ export default function Conversations() {
 
   const loadInitialData = async () => {
     try {
-      setIsLoadingContacts(true);
-      setIsInitialLoading(true);
-
       const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
 
