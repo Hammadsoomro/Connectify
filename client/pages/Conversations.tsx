@@ -108,6 +108,10 @@ export default function Conversations() {
                 activeNumber.number,
               );
               setActivePhoneNumber(activeNumber.id);
+              console.log(
+                "State updated - activePhoneNumber should now be:",
+                activeNumber.id,
+              );
             } else if (phoneNumbersData.length > 0) {
               console.log(
                 "No active number found, setting first number as active:",
