@@ -259,8 +259,6 @@ export default function Conversations() {
       }
 
       setContacts([]);
-    } finally {
-      setIsLoadingContacts(false);
     }
   };
 
