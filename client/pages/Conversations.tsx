@@ -31,38 +31,66 @@ export default function Conversations() {
   useEffect(() => {
     loadInitialData();
 
-    // Real-time polling every 3 seconds when conversation is active
+    // Real-time polling every 2 seconds for smooth updates
     const messagePolling = setInterval(() => {
-      if (selectedContactId && activePhoneNumber && document.hasFocus()) {
+      if (activePhoneNumber && document.hasFocus()) {
         const activeNumber = phoneNumbers.find(
           (phone) => phone.id === activePhoneNumber,
         );
         const phoneNumber = activeNumber?.number;
 
         if (phoneNumber) {
-          // Real-time message updates
-          ApiService.getMessages(selectedContactId, phoneNumber)
-            .then((messagesData) => {
-              if (messagesData.length !== messages.length) {
-                setMessages(messagesData);
+          // Always update contacts for new messages
+          ApiService.getContacts(phoneNumber)
+            .then((contactsData) => {
+              if (contactsData && Array.isArray(contactsData)) {
+                // Check for any changes in contacts or unread counts
+                const contactsChanged =
+                  contactsData.length !== contacts.length ||
+                  contactsData.some((newContact, index) => {
+                    const oldContact = contacts[index];
+                    return (
+                      !oldContact ||
+                      oldContact.unreadCount !== newContact.unreadCount ||
+                      oldContact.lastMessage !== newContact.lastMessage ||
+                      oldContact.lastMessageTime !== newContact.lastMessageTime
+                    );
+                  });
+
+                if (contactsChanged) {
+                  setContacts(contactsData);
+                }
               }
             })
             .catch(() => {});
 
-          // Real-time contact updates
-          ApiService.getContacts(phoneNumber)
-            .then((contactsData) => {
-              if (contactsData && contactsData.length !== contacts.length) {
-                setContacts(contactsData);
-              }
-            })
-            .catch((error) => {
-              // Silent fail for real-time updates to prevent UI disruption
-              console.log("Real-time contact update failed:", error.message);
-            });
+          // If a conversation is selected, update messages
+          if (selectedContactId) {
+            ApiService.getMessages(selectedContactId, phoneNumber)
+              .then((messagesData) => {
+                if (messagesData && Array.isArray(messagesData)) {
+                  // Check for new messages or status changes
+                  const messagesChanged =
+                    messagesData.length !== messages.length ||
+                    messagesData.some((newMsg, index) => {
+                      const oldMsg = messages[index];
+                      return (
+                        !oldMsg ||
+                        oldMsg.status !== newMsg.status ||
+                        oldMsg.content !== newMsg.content
+                      );
+                    });
+
+                  if (messagesChanged) {
+                    setMessages(messagesData);
+                  }
+                }
+              })
+              .catch(() => {});
+          }
         }
       }
-    }, 3000); // Real-time 3-second polling
+    }, 2000); // Real-time 2-second polling for smoothness
 
     return () => {
       clearInterval(messagePolling);
