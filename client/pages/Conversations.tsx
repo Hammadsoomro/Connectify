@@ -19,6 +19,7 @@ export default function Conversations() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -79,28 +80,40 @@ export default function Conversations() {
 
   const loadContacts = async () => {
     try {
+      setIsLoadingContacts(true);
+
       // Get the active phone number
       const activeNumber = phoneNumbers.find(
         (phone) => phone.id === activePhoneNumber,
       );
       const phoneNumber = activeNumber?.number;
 
+      console.log(`Loading contacts for phone number: ${phoneNumber}`);
+
       // Load contacts filtered by active phone number
       const contactsData = await ApiService.getContacts(phoneNumber);
+      console.log(`Loaded ${contactsData.length} contacts`);
       setContacts(contactsData);
     } catch (error) {
       console.error("Error loading contacts:", error);
+      setContacts([]); // Clear contacts on error
+    } finally {
+      setIsLoadingContacts(false);
     }
   };
 
   // Load contacts when active phone number changes
   useEffect(() => {
     if (activePhoneNumber && phoneNumbers.length > 0) {
+      // Immediately clear everything when changing numbers
+      setSelectedContactId(null);
+      setMessages([]);
+      setContacts([]);
+
+      // Then load new data for the selected number
       loadContacts();
-      setSelectedContactId(null); // Clear selected contact when changing numbers
-      setMessages([]); // Clear messages
     }
-  }, [activePhoneNumber, phoneNumbers]);
+  }, [activePhoneNumber]);
 
   // Load messages when contact is selected
   useEffect(() => {
@@ -280,6 +293,12 @@ export default function Conversations() {
 
   const handleSelectPhoneNumber = async (numberId: string) => {
     try {
+      // Immediately clear everything to prevent old data showing
+      setSelectedContactId(null);
+      setMessages([]);
+      setContacts([]);
+
+      // Update the active number
       await ApiService.setActiveNumber(numberId);
       setActivePhoneNumber(numberId);
 
@@ -291,12 +310,7 @@ export default function Conversations() {
         })),
       );
 
-      // Clear current selection and reload contacts for the new number
-      setSelectedContactId(null);
-      setMessages([]);
-
-      // Load contacts filtered by the selected phone number
-      loadContacts();
+      // Load contacts for the new number will happen in useEffect
     } catch (error) {
       console.error("Error setting active number:", error);
     }

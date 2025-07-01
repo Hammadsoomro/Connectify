@@ -133,6 +133,9 @@ export default function ContactList({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  console.log(
+                    `Contact clicked: ${contact.id} - ${contact.name}`,
+                  );
                   onSelectContact(contact.id);
                 }}
               >
