@@ -153,6 +153,17 @@ export const markAsRead = async (req: any, res: Response) => {
       { status: "read" },
     );
 
+    // Reset unread count for the contact
+    await Contact.findByIdAndUpdate(
+      contactId,
+      { unreadCount: 0 },
+      { new: true },
+    );
+
+    console.log(
+      `Messages marked as read and unread count reset for contact: ${contactId}`,
+    );
+
     res.json({ message: "Messages marked as read" });
   } catch (error) {
     console.error("Mark as read error:", error);
