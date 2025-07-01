@@ -20,6 +20,7 @@ export default function Conversations() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
