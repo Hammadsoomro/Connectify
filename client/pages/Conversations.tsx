@@ -494,6 +494,9 @@ export default function Conversations() {
 
   const handleSelectPhoneNumber = async (numberId: string) => {
     try {
+      const phoneNumber = phoneNumbers.find((p) => p.id === numberId)?.number;
+      console.log(`🔄 Switching to phone number: ${phoneNumber} (${numberId})`);
+
       // Immediately clear everything to prevent old data showing
       setSelectedContactId(null);
       setMessages([]);
@@ -502,6 +505,8 @@ export default function Conversations() {
       // Update the active number
       await ApiService.setActiveNumber(numberId);
       setActivePhoneNumber(numberId);
+
+      console.log(`✅ Phone number switched successfully to: ${phoneNumber}`);
 
       // Update active state for all phone numbers
       setPhoneNumbers((prev) =>
