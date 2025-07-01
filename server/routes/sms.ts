@@ -165,7 +165,11 @@ export const sendSMS = async (req: any, res: Response) => {
     let errorMessage = "Failed to send message";
     let statusCode = 500;
 
-    if (error.message?.includes("Twilio")) {
+    if (error.message?.includes("To' and 'From' number cannot be the same")) {
+      errorMessage =
+        "Cannot send message to the same phone number you're sending from.";
+      statusCode = 400;
+    } else if (error.message?.includes("Twilio")) {
       errorMessage = "SMS service unavailable. Please try again later.";
       statusCode = 503;
     } else if (error.message?.includes("Wallet")) {

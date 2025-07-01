@@ -93,6 +93,18 @@ export default function Conversations() {
     const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
     if (!activeNumber) return;
 
+    // Find the selected contact
+    const selectedContact = contacts.find((c) => c.id === selectedContactId);
+    if (!selectedContact) return;
+
+    // Prevent sending to the same number (self-messaging)
+    if (selectedContact.phoneNumber === activeNumber.number) {
+      alert(
+        "You cannot send messages to the same phone number you're sending from. Please select a different contact or phone number.",
+      );
+      return;
+    }
+
     const newMessage: Message = {
       id: Date.now().toString(),
       content,
