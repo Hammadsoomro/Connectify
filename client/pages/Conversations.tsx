@@ -82,6 +82,15 @@ export default function Conversations() {
     }
   };
 
+  // Load contacts when active phone number changes
+  useEffect(() => {
+    if (activePhoneNumber && phoneNumbers.length > 0) {
+      loadContacts();
+      setSelectedContactId(null); // Clear selected contact when changing numbers
+      setMessages([]); // Clear messages
+    }
+  }, [activePhoneNumber, phoneNumbers]);
+
   // Load messages when contact is selected
   useEffect(() => {
     const loadMessages = async () => {
