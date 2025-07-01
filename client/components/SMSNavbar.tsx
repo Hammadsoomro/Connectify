@@ -63,6 +63,7 @@ export default function SMSNavbar({
   phoneNumbers,
   activeNumber,
   profile,
+  phoneNumberUnreadCounts,
   onSelectNumber,
   onBuyNewNumber,
   onUpdateProfile,
