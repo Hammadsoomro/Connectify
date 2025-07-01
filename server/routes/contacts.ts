@@ -41,7 +41,9 @@ export const getContacts = async (req: any, res: Response) => {
       }
     }
 
-    const contacts = await Contact.find(query).sort({ updatedAt: -1 });
+    // Don't sort by updatedAt since it changes when messages are marked as read
+    // Let client-side handle sorting based on message times
+    const contacts = await Contact.find(query).sort({ createdAt: -1 });
 
     // Get last message and unread count for each contact
     const contactsWithDetails = await Promise.all(
