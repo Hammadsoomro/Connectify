@@ -132,9 +132,15 @@ export const updateContact = async (req: any, res: Response) => {
   try {
     const { contactId } = req.params;
     const { name, avatar } = req.body;
-    const userId = req.user._id;
+    const user = req.user;
 
-    const contact = await Contact.findOne({ _id: contactId, userId });
+    // For sub-accounts, use admin's userId for contact lookup
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+
+    const contact = await Contact.findOne({
+      _id: contactId,
+      userId: lookupUserId,
+    });
     if (!contact) {
       return res.status(404).json({ message: "Contact not found" });
     }
