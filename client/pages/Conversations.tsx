@@ -473,7 +473,15 @@ export default function Conversations() {
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {phoneNumbers.length === 0 ? (
+        {(() => {
+          console.log(
+            "Render check - phoneNumbers.length:",
+            phoneNumbers.length,
+          );
+          console.log("Render check - phoneNumbers:", phoneNumbers);
+          console.log("Render check - isLoadingContacts:", isLoadingContacts);
+          return phoneNumbers.length === 0;
+        })() ? (
           /* No Phone Numbers Message */
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-8">
