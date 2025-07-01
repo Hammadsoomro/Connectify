@@ -245,32 +245,24 @@ export default function Conversations() {
   // Load contacts when active phone number changes
   useEffect(() => {
     const loadContactsSafely = async () => {
-      try {
-        if (activePhoneNumber && phoneNumbers.length > 0) {
-          // Immediately clear everything when changing numbers
-          setSelectedContactId(null);
-          setMessages([]);
-          setContacts([]);
-
-          // Then load new data for the selected number
-          await loadContacts();
-        } else if (phoneNumbers.length === 0) {
-          // No phone numbers available - clear everything
-          setSelectedContactId(null);
-          setMessages([]);
-          setContacts([]);
-        }
-      } catch (error) {
-        console.error("Error in loadContactsSafely:", error);
-        // Ensure UI doesn't break
-        setContacts([]);
+      if (activePhoneNumber && phoneNumbers.length > 0) {
+        console.log("Loading contacts for phone number:", activePhoneNumber);
+        // Clear selected contact and messages when changing numbers
         setSelectedContactId(null);
         setMessages([]);
+
+        // Load contacts for the new number
+        await loadContacts();
+      } else if (phoneNumbers.length === 0) {
+        // No phone numbers available - clear everything
+        setSelectedContactId(null);
+        setMessages([]);
+        setContacts([]);
       }
     };
 
     loadContactsSafely();
-  }, [activePhoneNumber, phoneNumbers]);
+  }, [activePhoneNumber]);
 
   // Load messages when contact is selected
   useEffect(() => {
