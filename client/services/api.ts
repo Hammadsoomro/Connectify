@@ -94,12 +94,20 @@ class ApiService {
   }
 
   logout() {
+    // Clear all authentication data
     localStorage.removeItem("authToken");
+    localStorage.clear(); // Clear any other cached data
+
+    // Force page reload to clear any cached state
+    window.location.href = "/";
   }
 
   // Contact methods
-  async getContacts() {
-    return this.request("/contacts");
+  async getContacts(phoneNumber?: string) {
+    const params = phoneNumber
+      ? `?phoneNumber=${encodeURIComponent(phoneNumber)}`
+      : "";
+    return this.request(`/contacts${params}`);
   }
 
   async addContact(name: string, phoneNumber: string) {

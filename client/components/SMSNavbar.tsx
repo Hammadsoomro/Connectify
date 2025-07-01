@@ -204,12 +204,12 @@ export default function SMSNavbar({
         {/* Right side actions */}
         <div className="flex items-center gap-3">
           {/* Twilio Balance (Admin only) */}
-          {profile.role === "admin" && (
+          {profile.role === "admin" && twilioBalance && (
             <WalletComponent
               trigger={
                 <Button variant="outline" size="sm">
                   <Wallet className="w-4 h-4 mr-2" />
-                  Twilio: {twilioBalance || "$6.48"}
+                  Twilio: {twilioBalance}
                 </Button>
               }
             />

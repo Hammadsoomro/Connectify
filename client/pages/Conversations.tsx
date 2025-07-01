@@ -28,7 +28,20 @@ export default function Conversations() {
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+
+    // Set up real-time polling for new messages
+    const messagePolling = setInterval(() => {
+      if (selectedContactId) {
+        loadMessages();
+      }
+      // Refresh contacts to get unread counts
+      loadContacts();
+    }, 3000); // Poll every 3 seconds
+
+    return () => {
+      clearInterval(messagePolling);
+    };
+  }, [selectedContactId]);
 
   const loadInitialData = async () => {
     try {
@@ -226,6 +239,7 @@ export default function Conversations() {
     try {
       await ApiService.setActiveNumber(numberId);
       setActivePhoneNumber(numberId);
+
       // Update active state for all phone numbers
       setPhoneNumbers((prev) =>
         prev.map((phone) => ({
@@ -233,6 +247,13 @@ export default function Conversations() {
           isActive: phone.id === numberId,
         })),
       );
+
+      // Clear current selection and reload contacts for the new number
+      setSelectedContactId(null);
+      setMessages([]);
+
+      // Load contacts filtered by the selected phone number
+      loadContacts();
     } catch (error) {
       console.error("Error setting active number:", error);
     }
