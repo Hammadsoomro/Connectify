@@ -88,6 +88,9 @@ export default function Conversations() {
               setIsRealTimeUpdate(false);
             });
 
+          // Also update all phone number contacts for dropdown indicators
+          loadAllPhoneNumberContacts();
+
           // If a conversation is selected, update messages
           if (selectedContactId) {
             ApiService.getMessages(selectedContactId, phoneNumber)
