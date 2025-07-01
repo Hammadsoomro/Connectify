@@ -539,19 +539,20 @@ export default function Conversations() {
     0,
   );
 
-  // Calculate unread counts for each phone number
-  const phoneNumberUnreadCounts = phoneNumbers.reduce(
-    (acc, phone) => {
-      const phoneContacts = allPhoneNumberContacts[phone.number] || [];
-      const unreadCount = phoneContacts.reduce(
-        (total, contact) => total + contact.unreadCount,
-        0,
-      );
-      acc[phone.number] = unreadCount;
-      return acc;
-    },
-    {} as { [phoneNumber: string]: number },
-  );
+  // Calculate unread counts for each phone number with fallback
+  const phoneNumberUnreadCounts =
+    phoneNumbers.reduce(
+      (acc, phone) => {
+        const phoneContacts = allPhoneNumberContacts[phone.number] || [];
+        const unreadCount = phoneContacts.reduce(
+          (total, contact) => total + contact.unreadCount,
+          0,
+        );
+        acc[phone.number] = unreadCount;
+        return acc;
+      },
+      {} as { [phoneNumber: string]: number },
+    ) || {};
 
   // Calculate total unread across all phone numbers
   const totalUnreadAllNumbers = Object.values(phoneNumberUnreadCounts).reduce(
