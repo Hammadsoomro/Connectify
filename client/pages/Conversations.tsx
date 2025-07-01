@@ -31,9 +31,8 @@ export default function Conversations() {
   useEffect(() => {
     loadInitialData();
 
-    // Reduced polling to prevent app hanging
+    // Real-time polling every 3 seconds when conversation is active
     const messagePolling = setInterval(() => {
-      // Only poll if user is actively viewing a conversation
       if (selectedContactId && activePhoneNumber && document.hasFocus()) {
         const activeNumber = phoneNumbers.find(
           (phone) => phone.id === activePhoneNumber,
@@ -45,12 +44,20 @@ export default function Conversations() {
             .then((messagesData) => {
               if (messagesData.length !== messages.length) {
                 setMessages(messagesData);
+                // Update contact list with new message count
+                setContacts((prev) =>
+                  prev.map((contact) =>
+                    contact.id === selectedContactId
+                      ? { ...contact, unreadCount: 0 }
+                      : contact,
+                  ),
+                );
               }
             })
-            .catch((error) => console.error("Error polling messages:", error));
+            .catch(() => {}); // Silent fail for real-time updates
         }
       }
-    }, 10000); // Reduced to every 10 seconds to prevent hanging
+    }, 3000); // Real-time 3-second polling
 
     return () => {
       clearInterval(messagePolling);
