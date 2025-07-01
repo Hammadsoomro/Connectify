@@ -175,24 +175,19 @@ export default function Conversations() {
 
   // Load contacts when active phone number changes
   useEffect(() => {
-    const loadContactsSafely = async () => {
-      if (activePhoneNumber && phoneNumbers.length > 0) {
-        console.log("Loading contacts for phone number:", activePhoneNumber);
-        // Clear selected contact and messages when changing numbers
-        setSelectedContactId(null);
-        setMessages([]);
+    if (activePhoneNumber && phoneNumbers.length > 0) {
+      // Clear selected contact and messages when changing numbers
+      setSelectedContactId(null);
+      setMessages([]);
 
-        // Load contacts for the new number
-        await loadContacts();
-      } else if (phoneNumbers.length === 0) {
-        // No phone numbers available - clear everything
-        setSelectedContactId(null);
-        setMessages([]);
-        setContacts([]);
-      }
-    };
-
-    loadContactsSafely();
+      // Load contacts for the new number
+      loadContacts();
+    } else if (phoneNumbers.length === 0) {
+      // No phone numbers available - clear everything
+      setSelectedContactId(null);
+      setMessages([]);
+      setContacts([]);
+    }
   }, [activePhoneNumber]);
 
   // Load messages when contact is selected
