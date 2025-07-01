@@ -208,21 +208,23 @@ export const getMessages = async (req: any, res: Response) => {
   try {
     const { contactId } = req.params;
     const { phoneNumber } = req.query;
-    const userId = req.user._id;
+    const user = req.user;
 
-    // Build query to filter by contact and optionally by phone number
-    const messageQuery: any = {
-      userId,
-      contactId,
-    };
+    // For sub-accounts, use admin's userId for message lookup
+    const messageUserId = user.role === "sub-account" ? user.adminId : user._id;
 
-    // If phone number is provided, filter messages for that specific number
-    if (phoneNumber) {
-      messageQuery.$or = [
-        { fromNumber: phoneNumber },
-        { toNumber: phoneNumber },
-      ];
+    // Build query to filter by contact and phone number (MUST include phone number for isolation)
+    if (!phoneNumber) {
+      return res
+        .status(400)
+        .json({ message: "Phone number is required for message filtering" });
     }
+
+    const messageQuery = {
+      userId: messageUserId,
+      contactId,
+      $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
+    };
 
     const messages = await Message.find(messageQuery)
       .sort({ createdAt: 1 })
