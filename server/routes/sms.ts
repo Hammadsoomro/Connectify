@@ -88,7 +88,7 @@ export const sendSMS = async (req: any, res: Response) => {
       if (user.role === "admin") {
         // Check if admin has any numbers at all
         const adminNumbers = await PhoneNumber.countDocuments({
-          userId,
+          userId: lookupUserId,
           status: "active",
         });
 
