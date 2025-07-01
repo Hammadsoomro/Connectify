@@ -503,6 +503,20 @@ export default function Conversations() {
     0,
   );
 
+  // Update page title with unread count for real-time awareness
+  useEffect(() => {
+    if (totalUnreadCount > 0) {
+      document.title = `(${totalUnreadCount}) Connectify - Messages`;
+    } else {
+      document.title = "Connectify - Messages";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.title = "Connectify";
+    };
+  }, [totalUnreadCount]);
+
   // Only log if there are issues
   if (phoneNumbers.length === 0 && !isInitialLoading) {
     console.log("No phone numbers available");
