@@ -80,11 +80,8 @@ export default function Conversations() {
                   }
                 }
               }
-              setIsRealTimeUpdate(false);
             })
-            .catch(() => {
-              setIsRealTimeUpdate(false);
-            });
+            .catch(() => {});
 
           // Also update all phone number contacts for dropdown indicators
           loadAllPhoneNumberContacts();
