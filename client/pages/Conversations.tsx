@@ -57,8 +57,24 @@ export default function Conversations() {
                     );
                   });
 
+                // Check for new unread messages for notification
+                const hasNewUnreadMessages = contactsData.some((newContact) => {
+                  const oldContact = contacts.find(
+                    (c) => c.id === newContact.id,
+                  );
+                  return (
+                    oldContact &&
+                    newContact.unreadCount > oldContact.unreadCount
+                  );
+                });
+
                 if (contactsChanged) {
                   setContacts(contactsData);
+
+                  // Show subtle notification for new messages
+                  if (hasNewUnreadMessages && document.hasFocus()) {
+                    console.log("📱 New message received!");
+                  }
                 }
               }
             })
