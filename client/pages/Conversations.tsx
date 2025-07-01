@@ -40,21 +40,23 @@ export default function Conversations() {
         const phoneNumber = activeNumber?.number;
 
         if (phoneNumber) {
+          // Real-time message updates
           ApiService.getMessages(selectedContactId, phoneNumber)
             .then((messagesData) => {
               if (messagesData.length !== messages.length) {
                 setMessages(messagesData);
-                // Update contact list with new message count
-                setContacts((prev) =>
-                  prev.map((contact) =>
-                    contact.id === selectedContactId
-                      ? { ...contact, unreadCount: 0 }
-                      : contact,
-                  ),
-                );
               }
             })
-            .catch(() => {}); // Silent fail for real-time updates
+            .catch(() => {});
+
+          // Real-time contact updates
+          ApiService.getContacts(phoneNumber)
+            .then((contactsData) => {
+              if (contactsData.length !== contacts.length) {
+                setContacts(contactsData);
+              }
+            })
+            .catch(() => {});
         }
       }
     }, 3000); // Real-time 3-second polling
