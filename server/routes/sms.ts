@@ -203,13 +203,28 @@ export const sendSMS = async (req: any, res: Response) => {
   }
 };
 
-// Get messages for a contact
+// Get messages for a contact filtered by phone number
 export const getMessages = async (req: any, res: Response) => {
   try {
     const { contactId } = req.params;
+    const { phoneNumber } = req.query;
     const userId = req.user._id;
 
-    const messages = await Message.find({ userId, contactId })
+    // Build query to filter by contact and optionally by phone number
+    const messageQuery: any = {
+      userId,
+      contactId,
+    };
+
+    // If phone number is provided, filter messages for that specific number
+    if (phoneNumber) {
+      messageQuery.$or = [
+        { fromNumber: phoneNumber },
+        { toNumber: phoneNumber },
+      ];
+    }
+
+    const messages = await Message.find(messageQuery)
       .sort({ createdAt: 1 })
       .limit(100);
 
@@ -220,7 +235,13 @@ export const getMessages = async (req: any, res: Response) => {
       isOutgoing: msg.isOutgoing,
       status: msg.status,
       type: msg.type,
+      fromNumber: msg.fromNumber,
+      toNumber: msg.toNumber,
     }));
+
+    console.log(
+      `Retrieved ${formattedMessages.length} messages for contact ${contactId} on phone ${phoneNumber}`,
+    );
 
     res.json(formattedMessages);
   } catch (error) {
