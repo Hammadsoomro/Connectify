@@ -193,17 +193,21 @@ export default function Conversations() {
   // Load messages when contact is selected
   useEffect(() => {
     const loadMessages = async () => {
-      if (selectedContactId) {
+      if (selectedContactId && activePhoneNumber) {
         try {
           // Get the active phone number to filter messages
           const activeNumber = phoneNumbers.find(
             (phone) => phone.id === activePhoneNumber,
           );
-          const phoneNumber = activeNumber?.number;
+
+          if (!activeNumber?.number) {
+            console.log("No active phone number found for message loading");
+            return;
+          }
 
           const messagesData = await ApiService.getMessages(
             selectedContactId,
-            phoneNumber,
+            activeNumber.number,
           );
           setMessages(messagesData);
 
