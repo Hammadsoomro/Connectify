@@ -272,6 +272,31 @@ export default function Conversations() {
     }
   };
 
+  // Load contacts for all phone numbers to calculate unread counts
+  const loadAllPhoneNumberContacts = async () => {
+    if (phoneNumbers.length === 0) return;
+
+    try {
+      const allContacts: { [phoneNumber: string]: Contact[] } = {};
+
+      for (const phone of phoneNumbers) {
+        try {
+          const contactsData = await ApiService.getContacts(phone.number);
+          if (Array.isArray(contactsData)) {
+            allContacts[phone.number] = contactsData;
+          }
+        } catch (error) {
+          console.log(`Failed to load contacts for ${phone.number}`);
+          allContacts[phone.number] = [];
+        }
+      }
+
+      setAllPhoneNumberContacts(allContacts);
+    } catch (error) {
+      console.error("Failed to load all phone number contacts:", error);
+    }
+  };
+
   // Load contacts when active phone number changes
   useEffect(() => {
     if (activePhoneNumber && phoneNumbers.length > 0) {
