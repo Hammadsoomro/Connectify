@@ -81,6 +81,9 @@ export default function SMSNavbar({
       setTimeout(() => {
         loadTwilioBalance();
       }, 2000);
+    } else {
+      // Clear balance for non-admin users
+      setTwilioBalance(null);
     }
   }, [profile.role]);
 

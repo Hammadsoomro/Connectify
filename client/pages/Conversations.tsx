@@ -57,21 +57,32 @@ export default function Conversations() {
 
   const loadInitialData = async () => {
     try {
-      const [userProfile, phoneNumbersData] = await Promise.all([
-        ApiService.getProfile(),
-        ApiService.getPhoneNumbers(),
-      ]);
-
+      const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
-      setPhoneNumbers(phoneNumbersData);
 
-      // Set first phone number as active if none is active
-      const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
-      if (activeNumber) {
-        setActivePhoneNumber(activeNumber.id);
-      } else if (phoneNumbersData.length > 0) {
-        setActivePhoneNumber(phoneNumbersData[0].id);
-        await ApiService.setActiveNumber(phoneNumbersData[0].id);
+      // Try to load phone numbers
+      try {
+        const phoneNumbersData = await ApiService.getPhoneNumbers();
+        setPhoneNumbers(phoneNumbersData);
+
+        // Set first phone number as active if none is active
+        const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
+        if (activeNumber) {
+          setActivePhoneNumber(activeNumber.id);
+        } else if (phoneNumbersData.length > 0) {
+          setActivePhoneNumber(phoneNumbersData[0].id);
+          await ApiService.setActiveNumber(phoneNumbersData[0].id);
+        }
+      } catch (phoneError: any) {
+        console.log("Phone numbers not available:", phoneError.message);
+        // Sub-accounts might not have phone numbers assigned
+        setPhoneNumbers([]);
+        setActivePhoneNumber(null);
+
+        // Show a message to the user
+        if (phoneError.message?.includes("Phone number not found")) {
+          console.log("No phone numbers assigned to this account");
+        }
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
@@ -82,11 +93,24 @@ export default function Conversations() {
     try {
       setIsLoadingContacts(true);
 
+      // Check if user has any phone numbers
+      if (phoneNumbers.length === 0) {
+        console.log("No phone numbers available for this user");
+        setContacts([]);
+        return;
+      }
+
       // Get the active phone number
       const activeNumber = phoneNumbers.find(
         (phone) => phone.id === activePhoneNumber,
       );
       const phoneNumber = activeNumber?.number;
+
+      if (!phoneNumber) {
+        console.log("No active phone number selected");
+        setContacts([]);
+        return;
+      }
 
       console.log(`Loading contacts for phone number: ${phoneNumber}`);
 
@@ -112,8 +136,13 @@ export default function Conversations() {
 
       // Then load new data for the selected number
       loadContacts();
+    } else if (phoneNumbers.length === 0) {
+      // No phone numbers available - clear everything
+      setSelectedContactId(null);
+      setMessages([]);
+      setContacts([]);
     }
-  }, [activePhoneNumber]);
+  }, [activePhoneNumber, phoneNumbers]);
 
   // Load messages when contact is selected
   useEffect(() => {
@@ -356,23 +385,44 @@ export default function Conversations() {
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Contact List Sidebar */}
-        <ContactList
-          contacts={contacts}
-          selectedContactId={selectedContactId}
-          onSelectContact={handleSelectContact}
-          onAddContact={handleAddContact}
-          onEditContact={handleEditContact}
-          onDeleteContact={handleDeleteContact}
-        />
+        {phoneNumbers.length === 0 ? (
+          /* No Phone Numbers Message */
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center p-8">
+              <h2 className="text-xl font-semibold mb-4">
+                No Phone Numbers Available
+              </h2>
+              <p className="text-muted-foreground mb-4">
+                {profile.role === "admin"
+                  ? "You need to purchase phone numbers to start messaging."
+                  : "No phone numbers have been assigned to your account. Contact your admin."}
+              </p>
+              {profile.role === "admin" && (
+                <Button onClick={handleBuyNewNumber}>Buy Phone Number</Button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Contact List Sidebar */}
+            <ContactList
+              contacts={contacts}
+              selectedContactId={selectedContactId}
+              onSelectContact={handleSelectContact}
+              onAddContact={handleAddContact}
+              onEditContact={handleEditContact}
+              onDeleteContact={handleDeleteContact}
+            />
 
-        {/* Chat Area */}
-        <ChatArea
-          selectedContact={selectedContact}
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-        />
+            {/* Chat Area */}
+            <ChatArea
+              selectedContact={selectedContact}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+            />
+          </>
+        )}
       </div>
     </div>
   );
