@@ -91,32 +91,14 @@ export default function Conversations() {
             if (activeNumber) {
               setActivePhoneNumber(activeNumber.id);
             } else if (phoneNumbersData.length > 0) {
-              console.log(
-                "No active number found, setting first number as active:",
-                phoneNumbersData[0].number,
-                "ID:",
-                phoneNumbersData[0].id,
-              );
               setActivePhoneNumber(phoneNumbersData[0].id);
-              console.log(
-                "State updated - activePhoneNumber should now be:",
-                phoneNumbersData[0].id,
-              );
 
-              // Try to set active number, but don't fail if it doesn't work
+              // Try to set active number via API
               try {
-                console.log("Calling API to set active number...");
                 await ApiService.setActiveNumber(phoneNumbersData[0].id);
-                console.log("Successfully set active number via API");
               } catch (setActiveError) {
-                console.log(
-                  "Could not set active number via API:",
-                  setActiveError,
-                );
-                console.log("Continuing anyway with local state");
+                console.log("Could not set active number via API, continuing");
               }
-            } else {
-              console.log("No phone numbers to set as active");
             }
             break; // Success, exit retry loop
           }
