@@ -5,23 +5,33 @@ import Message from "../models/Message.js";
 // Get all contacts for user, optionally filtered by phone number
 export const getContacts = async (req: any, res: Response) => {
   try {
-    const userId = req.user._id;
+    const user = req.user;
     const { phoneNumber } = req.query;
+
+    // For sub-accounts, use admin's userId for message/contact lookup
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
 
     let contactIds = [];
 
     // If phoneNumber is provided, filter contacts that have messages with that number
     if (phoneNumber) {
+      console.log(
+        `Looking up contacts for phone ${phoneNumber}, userId: ${lookupUserId}, userRole: ${user.role}`,
+      );
+
       const messages = await Message.find({
-        userId,
+        userId: lookupUserId,
         $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
       }).distinct("contactId");
 
       contactIds = messages;
+      console.log(
+        `Found ${contactIds.length} contact IDs with messages for phone ${phoneNumber}`,
+      );
     }
 
-    // Build query
-    const query: any = { userId };
+    // Build query using the correct userId
+    const query: any = { userId: lookupUserId };
     if (phoneNumber) {
       if (contactIds.length > 0) {
         query._id = { $in: contactIds };
