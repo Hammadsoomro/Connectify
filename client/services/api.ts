@@ -146,8 +146,11 @@ class ApiService {
   }
 
   // Message methods
-  async getMessages(contactId: string) {
-    return this.request(`/sms/messages/${contactId}`);
+  async getMessages(contactId: string, phoneNumber?: string) {
+    const params = phoneNumber
+      ? `?phoneNumber=${encodeURIComponent(phoneNumber)}`
+      : "";
+    return this.request(`/sms/messages/${contactId}${params}`);
   }
 
   async sendSMS(contactId: string, content: string, fromNumber: string) {

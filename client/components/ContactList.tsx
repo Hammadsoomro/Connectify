@@ -130,7 +130,11 @@ export default function ContactList({
                     ? "bg-blue-50 border border-blue-200 shadow-sm"
                     : ""
                 }`}
-                onClick={() => onSelectContact(contact.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelectContact(contact.id);
+                }}
               >
                 <div className="flex items-center gap-3">
                   {/* Avatar */}

@@ -31,11 +31,22 @@ export default function Conversations() {
 
     // Set up real-time polling for new messages
     const messagePolling = setInterval(() => {
-      if (selectedContactId) {
-        loadMessages();
+      if (selectedContactId && activePhoneNumber) {
+        // Get the active phone number to filter messages
+        const activeNumber = phoneNumbers.find(
+          (phone) => phone.id === activePhoneNumber,
+        );
+        const phoneNumber = activeNumber?.number;
+
+        // Reload messages with phone number filter
+        ApiService.getMessages(selectedContactId, phoneNumber)
+          .then((messagesData) => setMessages(messagesData))
+          .catch((error) => console.error("Error polling messages:", error));
       }
       // Refresh contacts to get unread counts
-      loadContacts();
+      if (activePhoneNumber) {
+        loadContacts();
+      }
     }, 3000); // Poll every 3 seconds
 
     return () => {
@@ -96,7 +107,16 @@ export default function Conversations() {
     const loadMessages = async () => {
       if (selectedContactId) {
         try {
-          const messagesData = await ApiService.getMessages(selectedContactId);
+          // Get the active phone number to filter messages
+          const activeNumber = phoneNumbers.find(
+            (phone) => phone.id === activePhoneNumber,
+          );
+          const phoneNumber = activeNumber?.number;
+
+          const messagesData = await ApiService.getMessages(
+            selectedContactId,
+            phoneNumber,
+          );
           setMessages(messagesData);
 
           // Mark messages as read
@@ -117,7 +137,7 @@ export default function Conversations() {
     };
 
     loadMessages();
-  }, [selectedContactId]);
+  }, [selectedContactId, activePhoneNumber, phoneNumbers]);
 
   const handleSelectContact = async (contactId: string) => {
     setSelectedContactId(contactId);
@@ -296,8 +316,12 @@ export default function Conversations() {
   };
 
   const handleLogout = () => {
-    ApiService.logout();
-    navigate("/");
+    // Clear authentication immediately
+    localStorage.removeItem("authToken");
+    localStorage.clear();
+
+    // Force navigate to home page
+    window.location.href = "/";
   };
 
   const selectedContact =

@@ -22,8 +22,13 @@ export const getContacts = async (req: any, res: Response) => {
 
     // Build query
     const query: any = { userId };
-    if (phoneNumber && contactIds.length > 0) {
-      query._id = { $in: contactIds };
+    if (phoneNumber) {
+      if (contactIds.length > 0) {
+        query._id = { $in: contactIds };
+      } else {
+        // If no messages found for this phone number, return empty array
+        return res.json([]);
+      }
     }
 
     const contacts = await Contact.find(query).sort({ updatedAt: -1 });
