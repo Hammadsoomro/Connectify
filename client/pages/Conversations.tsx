@@ -97,7 +97,13 @@ export default function Conversations() {
                 phoneNumbersData[0].number,
               );
               setActivePhoneNumber(phoneNumbersData[0].id);
-              await ApiService.setActiveNumber(phoneNumbersData[0].id);
+
+              // Try to set active number, but don't fail if it doesn't work
+              try {
+                await ApiService.setActiveNumber(phoneNumbersData[0].id);
+              } catch (setActiveError) {
+                console.log("Could not set active number, continuing anyway");
+              }
             }
             break; // Success, exit retry loop
           }
@@ -107,11 +113,26 @@ export default function Conversations() {
             phoneError.message,
           );
 
-          if (attempts === maxAttempts) {
+          // Handle network errors gracefully
+          if (
+            phoneError.message?.includes("Unable to connect") ||
+            phoneError.message?.includes("Failed to fetch")
+          ) {
+            console.log(
+              "Network error loading phone numbers, will continue with empty state",
+            );
+            if (attempts === maxAttempts) {
+              setPhoneNumbers([]);
+              setActivePhoneNumber(null);
+              break;
+            }
+          } else if (attempts === maxAttempts) {
             console.log("All phone number loading attempts failed");
             setPhoneNumbers([]);
             setActivePhoneNumber(null);
-          } else {
+          }
+
+          if (attempts < maxAttempts) {
             // Wait before retry
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
@@ -149,12 +170,30 @@ export default function Conversations() {
 
       console.log(`Loading contacts for phone number: ${phoneNumber}`);
 
-      // Load contacts filtered by active phone number
-      const contactsData = await ApiService.getContacts(phoneNumber);
-      console.log(`Loaded ${contactsData.length} contacts`);
-      setContacts(contactsData);
-    } catch (error) {
-      console.error("Error loading contacts:", error);
+      // Load contacts filtered by active phone number with error handling
+      try {
+        const contactsData = await ApiService.getContacts(phoneNumber);
+        console.log(`Loaded ${contactsData.length} contacts`);
+        setContacts(contactsData);
+      } catch (apiError: any) {
+        console.error("API error loading contacts:", apiError.message);
+
+        // Handle specific error types
+        if (apiError.message?.includes("Unable to connect")) {
+          console.log("Network connectivity issue - setting empty contacts");
+          setContacts([]);
+          // Don't show error to user, just gracefully handle
+        } else if (apiError.message?.includes("timeout")) {
+          console.log("Request timeout - setting empty contacts");
+          setContacts([]);
+        } else {
+          // Other API errors
+          console.log("Other API error - setting empty contacts");
+          setContacts([]);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error loading contacts:", error.message);
       setContacts([]); // Clear contacts on error
     } finally {
       setIsLoadingContacts(false);
@@ -163,20 +202,32 @@ export default function Conversations() {
 
   // Load contacts when active phone number changes
   useEffect(() => {
-    if (activePhoneNumber && phoneNumbers.length > 0) {
-      // Immediately clear everything when changing numbers
-      setSelectedContactId(null);
-      setMessages([]);
-      setContacts([]);
+    const loadContactsSafely = async () => {
+      try {
+        if (activePhoneNumber && phoneNumbers.length > 0) {
+          // Immediately clear everything when changing numbers
+          setSelectedContactId(null);
+          setMessages([]);
+          setContacts([]);
 
-      // Then load new data for the selected number
-      loadContacts();
-    } else if (phoneNumbers.length === 0) {
-      // No phone numbers available - clear everything
-      setSelectedContactId(null);
-      setMessages([]);
-      setContacts([]);
-    }
+          // Then load new data for the selected number
+          await loadContacts();
+        } else if (phoneNumbers.length === 0) {
+          // No phone numbers available - clear everything
+          setSelectedContactId(null);
+          setMessages([]);
+          setContacts([]);
+        }
+      } catch (error) {
+        console.error("Error in loadContactsSafely:", error);
+        // Ensure UI doesn't break
+        setContacts([]);
+        setSelectedContactId(null);
+        setMessages([]);
+      }
+    };
+
+    loadContactsSafely();
   }, [activePhoneNumber, phoneNumbers]);
 
   // Load messages when contact is selected
