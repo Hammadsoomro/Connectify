@@ -92,10 +92,37 @@ export default function Conversations() {
       }
     }, 2000); // Real-time 2-second polling for smoothness
 
+    // Additional super-fast polling for new message notifications (every 1 second)
+    const notificationPolling = setInterval(() => {
+      if (activePhoneNumber && !selectedContactId) {
+        const activeNumber = phoneNumbers.find(
+          (phone) => phone.id === activePhoneNumber,
+        );
+        const phoneNumber = activeNumber?.number;
+
+        if (phoneNumber) {
+          // Quick contact check for new messages when no conversation is open
+          ApiService.getContacts(phoneNumber)
+            .then((contactsData) => {
+              if (contactsData && Array.isArray(contactsData)) {
+                const hasNewMessages = contactsData.some(
+                  (contact) => contact.unreadCount > 0,
+                );
+                if (hasNewMessages || contactsData.length !== contacts.length) {
+                  setContacts(contactsData);
+                }
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    }, 1000); // Super-fast 1-second polling for new message notifications
+
     return () => {
       clearInterval(messagePolling);
+      clearInterval(notificationPolling);
     };
-  }, [selectedContactId, messages.length]);
+  }, [selectedContactId, messages.length, contacts.length]);
 
   const loadInitialData = async () => {
     try {
