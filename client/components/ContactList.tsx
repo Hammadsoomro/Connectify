@@ -109,99 +109,112 @@ export default function ContactList({
       {/* Contact List */}
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
-          {filteredContacts.map((contact) => (
-            <div
-              key={contact.id}
-              className={`relative p-3 rounded-lg cursor-pointer transition-colors group ${
-                selectedContactId === contact.id
-                  ? "bg-primary/10 border border-primary/20"
-                  : "hover:bg-accent hover:text-accent-foreground"
-              }`}
-              onClick={() => onSelectContact(contact.id)}
-            >
-              <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div className="relative">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={contact.avatar} alt={contact.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {getInitials(contact.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {contact.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
-                  )}
-                </div>
+          {filteredContacts
+            .sort((a, b) => {
+              // Sort by unread count first (unread contacts at top)
+              if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
+              if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
 
-                {/* Contact Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-foreground truncate">
-                      {contact.name}
-                    </h3>
-                    {contact.lastMessageTime && (
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(contact.lastMessageTime)}
-                      </span>
+              // Then keep original order
+              return 0;
+            })
+            .map((contact) => (
+              <div
+                key={contact.id}
+                className={`relative p-3 rounded-lg cursor-pointer transition-colors group ${
+                  selectedContactId === contact.id
+                    ? "bg-primary/10 border border-primary/20"
+                    : "hover:bg-accent hover:text-accent-foreground"
+                } ${
+                  contact.unreadCount > 0
+                    ? "bg-blue-50 border border-blue-200 shadow-sm"
+                    : ""
+                }`}
+                onClick={() => onSelectContact(contact.id)}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  <div className="relative">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={contact.avatar} alt={contact.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {getInitials(contact.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {contact.isOnline && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 mt-1">
-                    <Phone className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground font-mono">
-                      {contact.phoneNumber}
-                    </span>
+                  {/* Contact Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-foreground truncate">
+                        {contact.name}
+                      </h3>
+                      {contact.lastMessageTime && (
+                        <span className="text-xs text-muted-foreground">
+                          {formatTime(contact.lastMessageTime)}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-1">
+                      <Phone className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-mono">
+                        {contact.phoneNumber}
+                      </span>
+                    </div>
+
+                    {contact.lastMessage && (
+                      <p className="text-sm text-muted-foreground truncate mt-1">
+                        {contact.lastMessage}
+                      </p>
+                    )}
                   </div>
 
-                  {contact.lastMessage && (
-                    <p className="text-sm text-muted-foreground truncate mt-1">
-                      {contact.lastMessage}
-                    </p>
-                  )}
-                </div>
+                  {/* Unread badge and menu */}
+                  <div className="flex flex-col items-end gap-2">
+                    {contact.unreadCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="h-5 min-w-5 text-xs"
+                      >
+                        {contact.unreadCount > 99 ? "99+" : contact.unreadCount}
+                      </Badge>
+                    )}
 
-                {/* Unread badge and menu */}
-                <div className="flex flex-col items-end gap-2">
-                  {contact.unreadCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="h-5 min-w-5 text-xs"
-                    >
-                      {contact.unreadCount > 99 ? "99+" : contact.unreadCount}
-                    </Badge>
-                  )}
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical className="w-3 h-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => onEditContact(contact.id)}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Contact
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onDeleteContact(contact.id)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Contact
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => onEditContact(contact.id)}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Contact
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onDeleteContact(contact.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Contact
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           {filteredContacts.length === 0 && (
             <div className="text-center py-8">
