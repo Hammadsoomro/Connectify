@@ -44,7 +44,6 @@ export default function Conversations() {
 
         if (phoneNumber) {
           // Always update contacts for new messages
-          setIsRealTimeUpdate(true);
           ApiService.getContacts(phoneNumber)
             .then((contactsData) => {
               if (contactsData && Array.isArray(contactsData)) {
