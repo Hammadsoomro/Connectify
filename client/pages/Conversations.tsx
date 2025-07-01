@@ -79,8 +79,11 @@ export default function Conversations() {
                   }
                 }
               }
+              setIsRealTimeUpdate(false);
             })
-            .catch(() => {});
+            .catch(() => {
+              setIsRealTimeUpdate(false);
+            });
 
           // If a conversation is selected, update messages
           if (selectedContactId) {
