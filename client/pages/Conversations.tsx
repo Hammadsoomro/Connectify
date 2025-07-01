@@ -73,12 +73,7 @@ export default function Conversations() {
       while (attempts < maxAttempts && phoneNumbersData.length === 0) {
         try {
           attempts++;
-          console.log(
-            `Attempting to load phone numbers (attempt ${attempts})...`,
-          );
-
           phoneNumbersData = await ApiService.getPhoneNumbers();
-          console.log(`Loaded ${phoneNumbersData.length} phone numbers`);
 
           if (phoneNumbersData.length > 0) {
             setPhoneNumbers(phoneNumbersData);
