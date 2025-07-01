@@ -314,8 +314,16 @@ export default function Conversations() {
       setSelectedContactId(null);
       setMessages([]);
       setContacts([]);
+      setAllPhoneNumberContacts({});
     }
   }, [activePhoneNumber]);
+
+  // Load all phone number contacts when phone numbers change
+  useEffect(() => {
+    if (phoneNumbers.length > 0) {
+      loadAllPhoneNumberContacts();
+    }
+  }, [phoneNumbers]);
 
   // Messages are now loaded immediately in handleSelectContact for instant opening
 
