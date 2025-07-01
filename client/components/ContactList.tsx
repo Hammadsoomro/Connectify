@@ -200,9 +200,9 @@ export default function ContactList({
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <Phone className="w-3 h-3 text-muted-foreground" />
+                      <Phone className="w-3 h-3 text-muted-foreground flex-shrink-0" />
                       <span
-                        className={`text-xs font-mono ${
+                        className={`text-xs font-mono truncate ${
                           contact.unreadCount > 0
                             ? "text-blue-700 font-medium"
                             : "text-muted-foreground"
