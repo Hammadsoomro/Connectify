@@ -81,15 +81,10 @@ export default function Conversations() {
           );
 
           phoneNumbersData = await ApiService.getPhoneNumbers();
-          console.log(
-            `Loaded ${phoneNumbersData.length} phone numbers:`,
-            phoneNumbersData,
-          );
-          console.log("Setting phoneNumbers state to:", phoneNumbersData);
+          console.log(`Loaded ${phoneNumbersData.length} phone numbers`);
 
           if (phoneNumbersData.length > 0) {
             setPhoneNumbers(phoneNumbersData);
-            console.log("phoneNumbers state updated successfully");
 
             // Set first phone number as active if none is active
             const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
