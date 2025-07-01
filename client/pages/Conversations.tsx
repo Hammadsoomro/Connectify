@@ -76,7 +76,7 @@ export default function Conversations() {
 
                   // Show subtle notification for new messages
                   if (hasNewUnreadMessages && document.hasFocus()) {
-                    console.log("📱 New message received!");
+                    console.log("���� New message received!");
                   }
                 }
               }
@@ -112,9 +112,9 @@ export default function Conversations() {
           }
         }
       }
-    }, 2000); // Real-time 2-second polling for smoothness
+    }, 3000); // Smooth 3-second polling
 
-    // Additional super-fast polling for new message notifications (every 1 second)
+    // Background polling for new message notifications (every 5 seconds)
     const notificationPolling = setInterval(() => {
       if (activePhoneNumber && !selectedContactId) {
         const activeNumber = phoneNumbers.find(
@@ -123,7 +123,7 @@ export default function Conversations() {
         const phoneNumber = activeNumber?.number;
 
         if (phoneNumber) {
-          // Quick contact check for new messages when no conversation is open
+          // Background contact check for new messages
           ApiService.getContacts(phoneNumber)
             .then((contactsData) => {
               if (contactsData && Array.isArray(contactsData)) {
@@ -138,7 +138,7 @@ export default function Conversations() {
             .catch(() => {});
         }
       }
-    }, 1000); // Super-fast 1-second polling for new message notifications
+    }, 5000); // Background 5-second polling for new notifications
 
     return () => {
       clearInterval(messagePolling);
