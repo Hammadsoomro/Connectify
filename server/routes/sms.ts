@@ -58,7 +58,7 @@ export const sendSMS = async (req: any, res: Response) => {
     if (user.role === "admin") {
       // Admin can use any of their purchased numbers
       phoneNumber = await PhoneNumber.findOne({
-        userId,
+        userId: lookupUserId,
         number: fromNumber,
         status: "active",
       });
