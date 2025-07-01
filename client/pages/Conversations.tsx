@@ -265,46 +265,7 @@ export default function Conversations() {
     }
   }, [activePhoneNumber]);
 
-  // Load messages when contact is selected
-  useEffect(() => {
-    const loadMessages = async () => {
-      if (selectedContactId && activePhoneNumber) {
-        try {
-          // Get the active phone number to filter messages
-          const activeNumber = phoneNumbers.find(
-            (phone) => phone.id === activePhoneNumber,
-          );
-
-          if (!activeNumber?.number) {
-            console.log("No active phone number found for message loading");
-            return;
-          }
-
-          const messagesData = await ApiService.getMessages(
-            selectedContactId,
-            activeNumber.number,
-          );
-          setMessages(messagesData);
-
-          // Mark messages as read
-          await ApiService.markAsRead(selectedContactId);
-
-          // Update local contact state
-          setContacts((prev) =>
-            prev.map((contact) =>
-              contact.id === selectedContactId
-                ? { ...contact, unreadCount: 0 }
-                : contact,
-            ),
-          );
-        } catch (error) {
-          console.error("Error loading messages:", error);
-        }
-      }
-    };
-
-    loadMessages();
-  }, [selectedContactId, activePhoneNumber, phoneNumbers]);
+  // Messages are now loaded immediately in handleSelectContact for instant opening
 
   const handleSelectContact = async (contactId: string) => {
     // Don't reload if same contact is selected
