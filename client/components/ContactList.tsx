@@ -80,7 +80,7 @@ export default function ContactList({
   };
 
   return (
-    <div className="w-80 border-r border-border bg-background flex flex-col h-full">
+    <div className="w-96 border-r border-border bg-background flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
