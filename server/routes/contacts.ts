@@ -95,17 +95,30 @@ export const getContacts = async (req: any, res: Response) => {
 export const addContact = async (req: any, res: Response) => {
   try {
     const { name, phoneNumber } = req.body;
-    const userId = req.user._id;
+    const user = req.user;
+
+    // For sub-accounts, use admin's userId for contact creation
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+
+    console.log(
+      `Adding contact for user: ${user.email} (${user.role}), using userId: ${lookupUserId}`,
+    );
 
     // Check if contact already exists
-    const existingContact = await Contact.findOne({ userId, phoneNumber });
+    const existingContact = await Contact.findOne({
+      userId: lookupUserId,
+      phoneNumber,
+    });
     if (existingContact) {
+      console.log(
+        `Contact already exists: ${phoneNumber} for userId ${lookupUserId}`,
+      );
       return res.status(400).json({ message: "Contact already exists" });
     }
 
     // Create new contact
     const contact = new Contact({
-      userId,
+      userId: lookupUserId,
       name,
       phoneNumber,
       isOnline: false,
