@@ -114,9 +114,9 @@ export default function Conversations() {
           }
         }
       }
-    }, 5000); // Reduced to 5-second polling for stability
+    }, 10000); // Reduced to 10-second polling for stability
 
-    // Background polling for new message notifications (every 10 seconds)
+    // Background polling for new message notifications (every 15 seconds)
     const notificationPolling = setInterval(() => {
       if (activePhoneNumber && !selectedContactId) {
         const activeNumber = phoneNumbers.find(
