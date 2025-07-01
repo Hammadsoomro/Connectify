@@ -51,7 +51,7 @@ interface SMSNavbarProps {
   phoneNumbers: PhoneNumber[];
   activeNumber: string | null;
   profile: Profile;
-  phoneNumberUnreadCounts: { [phoneNumber: string]: number };
+  phoneNumberUnreadCounts?: { [phoneNumber: string]: number };
   onSelectNumber: (numberId: string) => void;
   onBuyNewNumber: () => void;
   onUpdateProfile: (profile: Profile) => void;
