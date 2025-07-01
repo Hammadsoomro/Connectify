@@ -43,15 +43,17 @@ export default function Conversations() {
         const phoneNumber = activeNumber?.number;
 
         if (phoneNumber) {
-          // Always update contacts for new messages
+          // Always update contacts for new messages - but preserve existing contacts
           ApiService.getContacts(phoneNumber)
             .then((contactsData) => {
               if (contactsData && Array.isArray(contactsData)) {
-                // Check for any changes in contacts or unread counts
+                // Only update if there are actual changes to prevent unnecessary re-renders
                 const contactsChanged =
                   contactsData.length !== contacts.length ||
-                  contactsData.some((newContact, index) => {
-                    const oldContact = contacts[index];
+                  contactsData.some((newContact) => {
+                    const oldContact = contacts.find(
+                      (c) => c.id === newContact.id,
+                    );
                     return (
                       !oldContact ||
                       oldContact.unreadCount !== newContact.unreadCount ||
@@ -112,9 +114,9 @@ export default function Conversations() {
           }
         }
       }
-    }, 3000); // Smooth 3-second polling
+    }, 5000); // Reduced to 5-second polling for stability
 
-    // Background polling for new message notifications (every 5 seconds)
+    // Background polling for new message notifications (every 10 seconds)
     const notificationPolling = setInterval(() => {
       if (activePhoneNumber && !selectedContactId) {
         const activeNumber = phoneNumbers.find(
@@ -456,7 +458,21 @@ export default function Conversations() {
   const handleAddContact = async (name: string, phoneNumber: string) => {
     try {
       const newContact = await ApiService.addContact(name, phoneNumber);
+
+      // Add contact to current list
       setContacts((prev) => [newContact, ...prev]);
+
+      // Also refresh contacts from server to ensure persistence
+      setTimeout(() => {
+        if (activePhoneNumber) {
+          const activeNumber = phoneNumbers.find(
+            (p) => p.id === activePhoneNumber,
+          );
+          if (activeNumber?.number) {
+            loadContacts();
+          }
+        }
+      }, 500);
     } catch (error) {
       console.error("Error adding contact:", error);
     }
@@ -484,9 +500,10 @@ export default function Conversations() {
       const phoneNumber = phoneNumbers.find((p) => p.id === numberId)?.number;
       console.log(`🔄 Switching to phone number: ${phoneNumber} (${numberId})`);
 
-      // Immediately clear everything to prevent old data showing
+      // Immediately clear everything to ensure complete isolation
       setSelectedContactId(null);
       setMessages([]);
+      setContacts([]); // Clear contacts immediately
       setContacts([]);
 
       // Update the active number
