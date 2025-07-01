@@ -476,6 +476,10 @@ export default function Conversations() {
         ) : (
           <>
             {/* Contact List Sidebar */}
+            {console.log(
+              "Rendering ContactList with contacts:",
+              contacts.length,
+            )}
             <ContactList
               contacts={contacts}
               selectedContactId={selectedContactId}
