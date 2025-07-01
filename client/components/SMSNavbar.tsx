@@ -194,7 +194,7 @@ export default function SMSNavbar({
               <SelectValue placeholder="Select a number..." />
             </SelectTrigger>
             <SelectContent>
-              {phoneNumbers.map((phone) => {
+              {phoneNumbers?.map((phone) => {
                 const unreadForThisNumber =
                   phoneNumberUnreadCounts?.[phone.number] || 0;
                 return (
