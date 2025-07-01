@@ -490,7 +490,8 @@ export default function Conversations() {
           );
           console.log("Render check - phoneNumbers:", phoneNumbers);
           console.log("Render check - isLoadingContacts:", isLoadingContacts);
-          return phoneNumbers.length === 0;
+          console.log("Render check - isInitialLoading:", isInitialLoading);
+          return phoneNumbers.length === 0 && !isInitialLoading;
         })() ? (
           /* No Phone Numbers Message */
           <div className="flex-1 flex items-center justify-center">
