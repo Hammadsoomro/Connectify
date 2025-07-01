@@ -61,9 +61,10 @@ class TwilioService {
         `Sending SMS from ${from} to ${to}: ${body.substring(0, 50)}...`,
       );
 
+      // Use Messaging Service for better delivery and webhook handling
       const message = await client.messages.create({
         body,
-        from,
+        messagingServiceSid: MESSAGING_SERVICE_SID,
         to,
       });
 
