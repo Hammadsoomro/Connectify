@@ -194,22 +194,46 @@ export default function SMSNavbar({
               <SelectValue placeholder="Select a number..." />
             </SelectTrigger>
             <SelectContent>
-              {phoneNumbers.map((phone) => (
-                <SelectItem
-                  key={phone.id}
-                  value={phone.id}
-                  className="font-mono"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span>{phone.number}</span>
-                    {phone.isActive && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
-                        Active
-                      </Badge>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
+              {phoneNumbers.map((phone) => {
+                const unreadForThisNumber =
+                  phoneNumberUnreadCounts[phone.number] || 0;
+                return (
+                  <SelectItem
+                    key={phone.id}
+                    value={phone.id}
+                    className="font-mono"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span
+                        className={
+                          unreadForThisNumber > 0
+                            ? "font-bold text-blue-600"
+                            : ""
+                        }
+                      >
+                        {phone.number}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {unreadForThisNumber > 0 && (
+                          <Badge
+                            variant="destructive"
+                            className="h-4 w-4 rounded-full p-0 text-xs"
+                          >
+                            {unreadForThisNumber > 9
+                              ? "9+"
+                              : unreadForThisNumber}
+                          </Badge>
+                        )}
+                        {phone.isActive && (
+                          <Badge variant="secondary" className="ml-1 text-xs">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 
