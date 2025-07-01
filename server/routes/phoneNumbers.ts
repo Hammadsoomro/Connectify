@@ -138,6 +138,10 @@ export const setActiveNumber = async (req: any, res: Response) => {
       return res.status(404).json({ message: "Phone number not found" });
     }
 
+    console.log(
+      `Successfully set phone number ${phoneNumber.number} as active for user ${user.email}`,
+    );
+
     res.json({
       id: phoneNumber._id,
       number: phoneNumber.number,
