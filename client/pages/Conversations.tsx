@@ -141,10 +141,16 @@ export default function Conversations() {
           }
         }
       }
+
+      console.log("=== COMPLETED loadInitialData ===");
+      console.log("Final phoneNumbers state will be:", phoneNumbersData);
     } catch (error) {
       console.error("Error loading initial data:", error);
     } finally {
       setIsLoadingContacts(false);
+      console.log(
+        "=== loadInitialData FINISHED, isLoadingContacts set to false ===",
+      );
     }
   };
 
