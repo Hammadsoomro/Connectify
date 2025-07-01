@@ -2,26 +2,54 @@ import { Request, Response } from "express";
 import Contact from "../models/Contact.js";
 import Message from "../models/Message.js";
 
-// Get all contacts for user
+// Get all contacts for user, optionally filtered by phone number
 export const getContacts = async (req: any, res: Response) => {
   try {
     const userId = req.user._id;
+    const { phoneNumber } = req.query;
 
-    const contacts = await Contact.find({ userId }).sort({ updatedAt: -1 });
+    let contactIds = [];
+
+    // If phoneNumber is provided, filter contacts that have messages with that number
+    if (phoneNumber) {
+      const messages = await Message.find({
+        userId,
+        $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
+      }).distinct("contactId");
+
+      contactIds = messages;
+    }
+
+    // Build query
+    const query: any = { userId };
+    if (phoneNumber && contactIds.length > 0) {
+      query._id = { $in: contactIds };
+    }
+
+    const contacts = await Contact.find(query).sort({ updatedAt: -1 });
 
     // Get last message and unread count for each contact
     const contactsWithDetails = await Promise.all(
       contacts.map(async (contact) => {
-        const lastMessage = await Message.findOne({
+        // Filter messages by phone number if provided
+        const messageQuery: any = {
           userId,
           contactId: contact._id,
-        })
+        };
+
+        if (phoneNumber) {
+          messageQuery.$or = [
+            { fromNumber: phoneNumber },
+            { toNumber: phoneNumber },
+          ];
+        }
+
+        const lastMessage = await Message.findOne(messageQuery)
           .sort({ createdAt: -1 })
           .limit(1);
 
         const unreadCount = await Message.countDocuments({
-          userId,
-          contactId: contact._id,
+          ...messageQuery,
           isOutgoing: false,
           status: { $ne: "read" },
         });
