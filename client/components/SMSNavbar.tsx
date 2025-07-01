@@ -88,6 +88,13 @@ export default function SMSNavbar({
   }, [profile.role]);
 
   const loadTwilioBalance = async () => {
+    // Only load balance for admin users
+    if (profile.role !== "admin") {
+      console.log("Skipping Twilio balance for non-admin user");
+      setTwilioBalance(null);
+      return;
+    }
+
     try {
       setTwilioBalance("Loading...");
 
@@ -108,6 +115,13 @@ export default function SMSNavbar({
       }
     } catch (error: any) {
       console.error("Error loading Twilio balance:", error);
+
+      // Handle specific error cases for sub-accounts
+      if (error.message?.includes("Only admins can view")) {
+        console.log("User is not admin, hiding balance");
+        setTwilioBalance(null);
+        return;
+      }
 
       // Try fallback to debug endpoint (no auth required)
       try {
