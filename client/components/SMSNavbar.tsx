@@ -82,10 +82,17 @@ export default function SMSNavbar({
         loadTwilioBalance();
       }, 2000);
     } else {
-      // Sub-accounts don't need to see balance
+      // Sub-accounts should never see balance
       setTwilioBalance(null);
     }
   }, [profile.role]);
+
+  // Additional safety check to prevent balance loading for sub-accounts
+  useEffect(() => {
+    if (profile.role !== "admin" && twilioBalance !== null) {
+      setTwilioBalance(null);
+    }
+  }, [profile.role, twilioBalance]);
 
   const loadTwilioBalance = async () => {
     // Strictly block balance loading for non-admin users
