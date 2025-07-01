@@ -7,6 +7,10 @@ export const getPhoneNumbers = async (req: any, res: Response) => {
     const userId = req.user._id;
     const user = req.user;
 
+    console.log(
+      `Getting phone numbers for user: ${user.email}, role: ${user.role}`,
+    );
+
     let phoneNumbers = [];
 
     if (user.role === "admin") {
@@ -21,7 +25,11 @@ export const getPhoneNumbers = async (req: any, res: Response) => {
         status: num.status,
         isOwned: true,
       }));
+      console.log(`Admin found ${phoneNumbers.length} phone numbers`);
     } else if (user.role === "sub-account") {
+      console.log("Sub-account assigned numbers:", user.assignedNumbers);
+      console.log("Sub-account admin ID:", user.adminId);
+
       // Sub-account sees only assigned numbers
       if (user.assignedNumbers && user.assignedNumbers.length > 0) {
         const assignedNumbers = await PhoneNumber.find({
@@ -40,9 +48,24 @@ export const getPhoneNumbers = async (req: any, res: Response) => {
           isOwned: false,
           isAssigned: true,
         }));
+        console.log(
+          `Sub-account found ${phoneNumbers.length} assigned phone numbers`,
+        );
+      } else {
+        console.log("No assigned numbers found for sub-account");
       }
     }
 
+    if (phoneNumbers.length === 0) {
+      const message =
+        user.role === "admin"
+          ? "No phone numbers purchased yet"
+          : "No phone numbers assigned to this account";
+      console.log(message);
+      return res.status(404).json({ message });
+    }
+
+    console.log(`Returning ${phoneNumbers.length} formatted phone numbers`);
     res.json(phoneNumbers);
   } catch (error) {
     console.error("Get phone numbers error:", error);
