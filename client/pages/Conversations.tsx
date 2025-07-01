@@ -315,6 +315,39 @@ export default function Conversations() {
 
     // Clear messages to prevent showing old messages from different contact
     setMessages([]);
+
+    // Immediately load messages for instant conversation opening
+    if (activePhoneNumber) {
+      const activeNumber = phoneNumbers.find(
+        (phone) => phone.id === activePhoneNumber,
+      );
+
+      if (activeNumber?.number) {
+        try {
+          const messagesData = await ApiService.getMessages(
+            contactId,
+            activeNumber.number,
+          );
+          if (messagesData && Array.isArray(messagesData)) {
+            setMessages(messagesData);
+          }
+
+          // Mark as read immediately
+          await ApiService.markAsRead(contactId);
+
+          // Update contact list to reflect read status
+          setContacts((prev) =>
+            prev.map((contact) =>
+              contact.id === contactId
+                ? { ...contact, unreadCount: 0 }
+                : contact,
+            ),
+          );
+        } catch (error) {
+          console.log("Error immediately loading messages:", error);
+        }
+      }
+    }
   };
 
   const handleSendMessage = async (content: string) => {
