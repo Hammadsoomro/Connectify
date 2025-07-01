@@ -111,21 +111,22 @@ export default function ContactList({
         <div className="p-2 space-y-1">
           {filteredContacts
             .sort((a, b) => {
-              // Sort by unread count first (unread contacts at top)
+              // Primary sort: Unread messages first
               if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
               if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
 
-              // Then sort by last message time (newest first) - only for messages, not clicks
+              // Secondary sort: Most recent message time (for conversations with activity)
               if (a.lastMessageTime && b.lastMessageTime) {
-                return (
-                  new Date(b.lastMessageTime).getTime() -
-                  new Date(a.lastMessageTime).getTime()
-                );
+                const timeA = new Date(a.lastMessageTime).getTime();
+                const timeB = new Date(b.lastMessageTime).getTime();
+                return timeB - timeA; // Newest first
               }
+
+              // Tertiary sort: Contacts with messages before contacts without
               if (a.lastMessageTime && !b.lastMessageTime) return -1;
               if (!a.lastMessageTime && b.lastMessageTime) return 1;
 
-              // If no message times, keep alphabetical order
+              // Final sort: Alphabetical order for contacts without recent activity
               return a.name.localeCompare(b.name);
             })
             .map((contact) => (
