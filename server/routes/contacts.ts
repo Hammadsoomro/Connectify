@@ -218,17 +218,11 @@ export const markAsRead = async (req: any, res: Response) => {
       { status: "read" },
     );
 
-    // Reset unread count for the contact without updating updatedAt
+    // Reset unread count for the contact
     await Contact.findByIdAndUpdate(
       contactId,
-      {
-        unreadCount: 0,
-        updatedAt: undefined, // Don't update the updatedAt field
-      },
-      {
-        new: true,
-        timestamps: false, // Disable automatic timestamp updates for this operation
-      },
+      { unreadCount: 0 },
+      { new: true },
     );
 
     console.log(
