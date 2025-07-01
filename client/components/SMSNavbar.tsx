@@ -88,9 +88,8 @@ export default function SMSNavbar({
   }, [profile.role]);
 
   const loadTwilioBalance = async () => {
-    // Only load balance for admin users
+    // Strictly block balance loading for non-admin users
     if (profile.role !== "admin") {
-      console.log("Skipping Twilio balance for non-admin user");
       setTwilioBalance(null);
       return;
     }
