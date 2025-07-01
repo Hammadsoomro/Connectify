@@ -153,9 +153,10 @@ export default function Conversations() {
         return;
       }
 
-      console.log(`Loading contacts for phone: ${activeNumber.number}`);
       const contactsData = await ApiService.getContacts(activeNumber.number);
-      console.log(`Loaded ${contactsData.length} contacts`);
+      console.log(
+        `Loaded ${contactsData.length} contacts for ${activeNumber.number}`,
+      );
       setContacts(contactsData);
     } catch (error: any) {
       console.error("Failed to load contacts:", error.message);
