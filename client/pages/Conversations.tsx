@@ -150,6 +150,7 @@ export default function Conversations() {
       console.error("Error loading initial data:", error);
     } finally {
       setIsLoadingContacts(false);
+      setIsInitialLoading(false);
       console.log(
         "=== loadInitialData FINISHED, isLoadingContacts set to false ===",
       );
