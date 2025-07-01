@@ -196,7 +196,7 @@ export default function SMSNavbar({
             <SelectContent>
               {phoneNumbers.map((phone) => {
                 const unreadForThisNumber =
-                  phoneNumberUnreadCounts[phone.number] || 0;
+                  phoneNumberUnreadCounts?.[phone.number] || 0;
                 return (
                   <SelectItem
                     key={phone.id}
