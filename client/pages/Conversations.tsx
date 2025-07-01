@@ -60,6 +60,7 @@ export default function Conversations() {
   const loadInitialData = async () => {
     try {
       setIsLoadingContacts(true);
+      setIsInitialLoading(true);
       console.log("=== STARTING loadInitialData ===");
 
       console.log("Loading user profile...");
