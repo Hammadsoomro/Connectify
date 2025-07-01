@@ -115,8 +115,18 @@ export default function ContactList({
               if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
               if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
 
-              // Then keep original order
-              return 0;
+              // Then sort by last message time (newest first) - only for messages, not clicks
+              if (a.lastMessageTime && b.lastMessageTime) {
+                return (
+                  new Date(b.lastMessageTime).getTime() -
+                  new Date(a.lastMessageTime).getTime()
+                );
+              }
+              if (a.lastMessageTime && !b.lastMessageTime) return -1;
+              if (!a.lastMessageTime && b.lastMessageTime) return 1;
+
+              // If no message times, keep alphabetical order
+              return a.name.localeCompare(b.name);
             })
             .map((contact) => (
               <div
