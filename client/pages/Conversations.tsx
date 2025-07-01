@@ -188,55 +188,32 @@ export default function Conversations() {
   };
 
   const loadContacts = async () => {
+    if (!activePhoneNumber || phoneNumbers.length === 0) {
+      setContacts([]);
+      return;
+    }
+
     try {
       setIsLoadingContacts(true);
-
-      // Check if user has any phone numbers
-      if (phoneNumbers.length === 0) {
-        console.log("No phone numbers available for this user");
-        setContacts([]);
-        return;
-      }
 
       // Get the active phone number
       const activeNumber = phoneNumbers.find(
         (phone) => phone.id === activePhoneNumber,
       );
-      const phoneNumber = activeNumber?.number;
 
-      if (!phoneNumber) {
-        console.log("No active phone number selected");
+      if (!activeNumber?.number) {
+        console.log("Active phone number not found");
         setContacts([]);
         return;
       }
 
-      console.log(`Loading contacts for phone number: ${phoneNumber}`);
-
-      // Load contacts filtered by active phone number with error handling
-      try {
-        const contactsData = await ApiService.getContacts(phoneNumber);
-        console.log(`Loaded ${contactsData.length} contacts`);
-        setContacts(contactsData);
-      } catch (apiError: any) {
-        console.error("API error loading contacts:", apiError.message);
-
-        // Handle specific error types
-        if (apiError.message?.includes("Unable to connect")) {
-          console.log("Network connectivity issue - setting empty contacts");
-          setContacts([]);
-          // Don't show error to user, just gracefully handle
-        } else if (apiError.message?.includes("timeout")) {
-          console.log("Request timeout - setting empty contacts");
-          setContacts([]);
-        } else {
-          // Other API errors
-          console.log("Other API error - setting empty contacts");
-          setContacts([]);
-        }
-      }
+      console.log(`Loading contacts for phone: ${activeNumber.number}`);
+      const contactsData = await ApiService.getContacts(activeNumber.number);
+      console.log(`Loaded ${contactsData.length} contacts`);
+      setContacts(contactsData);
     } catch (error: any) {
-      console.error("Error loading contacts:", error.message);
-      setContacts([]); // Clear contacts on error
+      console.error("Failed to load contacts:", error.message);
+      setContacts([]);
     } finally {
       setIsLoadingContacts(false);
     }
