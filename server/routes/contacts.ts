@@ -160,17 +160,28 @@ export const updateContact = async (req: any, res: Response) => {
 export const deleteContact = async (req: any, res: Response) => {
   try {
     const { contactId } = req.params;
-    const userId = req.user._id;
+    const user = req.user;
 
-    const contact = await Contact.findOne({ _id: contactId, userId });
+    // For sub-accounts, use admin's userId for contact lookup
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+
+    console.log(
+      `Deleting contact ${contactId} for user ${user.email} (role: ${user.role}), using userId: ${lookupUserId}`,
+    );
+
+    const contact = await Contact.findOne({
+      _id: contactId,
+      userId: lookupUserId,
+    });
     if (!contact) {
+      console.log(`Contact ${contactId} not found for userId ${lookupUserId}`);
       return res.status(404).json({ message: "Contact not found" });
     }
 
-    // Delete contact and associated messages
+    // Delete contact and associated messages (use admin's userId for messages)
     await Promise.all([
       Contact.deleteOne({ _id: contactId }),
-      Message.deleteMany({ contactId }),
+      Message.deleteMany({ contactId, userId: lookupUserId }),
     ]);
 
     res.json({ message: "Contact deleted successfully" });
