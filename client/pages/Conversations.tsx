@@ -22,6 +22,9 @@ export default function Conversations() {
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRealTimeUpdate, setIsRealTimeUpdate] = useState(false);
+  const [allPhoneNumberContacts, setAllPhoneNumberContacts] = useState<{
+    [phoneNumber: string]: Contact[];
+  }>({});
   const [profile, setProfile] = useState({
     name: "",
     email: "",
