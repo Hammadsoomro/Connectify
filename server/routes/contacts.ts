@@ -201,11 +201,14 @@ export const deleteContact = async (req: any, res: Response) => {
 export const markAsRead = async (req: any, res: Response) => {
   try {
     const { contactId } = req.params;
-    const userId = req.user._id;
+    const user = req.user;
+
+    // For sub-accounts, use admin's userId for message lookup
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
 
     await Message.updateMany(
       {
-        userId,
+        userId: lookupUserId,
         contactId,
         isOutgoing: false,
         status: { $ne: "read" },
