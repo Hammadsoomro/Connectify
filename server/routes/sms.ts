@@ -38,6 +38,15 @@ export const sendSMS = async (req: any, res: Response) => {
 
     console.log(`Found contact: ${contact.name} (${contact.phoneNumber})`);
 
+    // Prevent sending message to the same number (self-messaging)
+    if (contact.phoneNumber === fromNumber) {
+      return res.status(400).json({
+        message:
+          "Cannot send message to the same phone number you're sending from",
+        code: "SELF_MESSAGE_NOT_ALLOWED",
+      });
+    }
+
     let canUseNumber = false;
     let phoneNumber = null;
 
