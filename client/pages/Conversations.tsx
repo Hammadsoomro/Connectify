@@ -536,10 +536,30 @@ export default function Conversations() {
     0,
   );
 
+  // Calculate unread counts for each phone number
+  const phoneNumberUnreadCounts = phoneNumbers.reduce(
+    (acc, phone) => {
+      const phoneContacts = allPhoneNumberContacts[phone.number] || [];
+      const unreadCount = phoneContacts.reduce(
+        (total, contact) => total + contact.unreadCount,
+        0,
+      );
+      acc[phone.number] = unreadCount;
+      return acc;
+    },
+    {} as { [phoneNumber: string]: number },
+  );
+
+  // Calculate total unread across all phone numbers
+  const totalUnreadAllNumbers = Object.values(phoneNumberUnreadCounts).reduce(
+    (total, count) => total + count,
+    0,
+  );
+
   // Update page title with unread count for real-time awareness
   useEffect(() => {
-    if (totalUnreadCount > 0) {
-      document.title = `(${totalUnreadCount}) Connectify - Messages`;
+    if (totalUnreadAllNumbers > 0) {
+      document.title = `(${totalUnreadAllNumbers}) Connectify - Messages`;
     } else {
       document.title = "Connectify - Messages";
     }
@@ -548,7 +568,7 @@ export default function Conversations() {
     return () => {
       document.title = "Connectify";
     };
-  }, [totalUnreadCount]);
+  }, [totalUnreadAllNumbers]);
 
   // Only log if there are issues
   if (phoneNumbers.length === 0 && !isInitialLoading) {
