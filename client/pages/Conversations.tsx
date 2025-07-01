@@ -100,22 +100,37 @@ export default function Conversations() {
 
             // Set first phone number as active if none is active
             const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
+            console.log("Found active number in data:", activeNumber);
+
             if (activeNumber) {
-              console.log("Setting active number:", activeNumber.number);
+              console.log(
+                "Setting active number from data:",
+                activeNumber.number,
+              );
               setActivePhoneNumber(activeNumber.id);
             } else if (phoneNumbersData.length > 0) {
               console.log(
-                "Setting first number as active:",
+                "No active number found, setting first number as active:",
                 phoneNumbersData[0].number,
+                "ID:",
+                phoneNumbersData[0].id,
               );
               setActivePhoneNumber(phoneNumbersData[0].id);
 
               // Try to set active number, but don't fail if it doesn't work
               try {
+                console.log("Calling API to set active number...");
                 await ApiService.setActiveNumber(phoneNumbersData[0].id);
+                console.log("Successfully set active number via API");
               } catch (setActiveError) {
-                console.log("Could not set active number, continuing anyway");
+                console.log(
+                  "Could not set active number via API:",
+                  setActiveError,
+                );
+                console.log("Continuing anyway with local state");
               }
+            } else {
+              console.log("No phone numbers to set as active");
             }
             break; // Success, exit retry loop
           }
