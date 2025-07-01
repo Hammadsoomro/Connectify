@@ -136,7 +136,11 @@ export default function ContactList({
                   console.log(
                     `Contact clicked: ${contact.id} - ${contact.name}`,
                   );
-                  onSelectContact(contact.id);
+
+                  // Add small delay to ensure UI responsiveness
+                  setTimeout(() => {
+                    onSelectContact(contact.id);
+                  }, 50);
                 }}
               >
                 <div className="flex items-center gap-3">

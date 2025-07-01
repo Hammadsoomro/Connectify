@@ -30,62 +30,97 @@ export default function Conversations() {
   useEffect(() => {
     loadInitialData();
 
-    // Set up real-time polling for new messages
+    // Reduced polling to prevent app hanging
     const messagePolling = setInterval(() => {
-      if (selectedContactId && activePhoneNumber) {
-        // Get the active phone number to filter messages
+      // Only poll if user is actively viewing a conversation
+      if (selectedContactId && activePhoneNumber && document.hasFocus()) {
         const activeNumber = phoneNumbers.find(
           (phone) => phone.id === activePhoneNumber,
         );
         const phoneNumber = activeNumber?.number;
 
-        // Reload messages with phone number filter
-        ApiService.getMessages(selectedContactId, phoneNumber)
-          .then((messagesData) => setMessages(messagesData))
-          .catch((error) => console.error("Error polling messages:", error));
+        if (phoneNumber) {
+          ApiService.getMessages(selectedContactId, phoneNumber)
+            .then((messagesData) => {
+              if (messagesData.length !== messages.length) {
+                setMessages(messagesData);
+              }
+            })
+            .catch((error) => console.error("Error polling messages:", error));
+        }
       }
-      // Refresh contacts to get unread counts
-      if (activePhoneNumber) {
-        loadContacts();
-      }
-    }, 3000); // Poll every 3 seconds
+    }, 10000); // Reduced to every 10 seconds to prevent hanging
 
     return () => {
       clearInterval(messagePolling);
     };
-  }, [selectedContactId]);
+  }, [selectedContactId, messages.length]);
 
   const loadInitialData = async () => {
     try {
+      setIsLoadingContacts(true);
+
+      console.log("Loading user profile...");
       const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
+      console.log("Profile loaded:", userProfile.email, userProfile.role);
 
-      // Try to load phone numbers
-      try {
-        const phoneNumbersData = await ApiService.getPhoneNumbers();
-        setPhoneNumbers(phoneNumbersData);
+      // Try to load phone numbers with retry logic
+      let phoneNumbersData = [];
+      let attempts = 0;
+      const maxAttempts = 3;
 
-        // Set first phone number as active if none is active
-        const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
-        if (activeNumber) {
-          setActivePhoneNumber(activeNumber.id);
-        } else if (phoneNumbersData.length > 0) {
-          setActivePhoneNumber(phoneNumbersData[0].id);
-          await ApiService.setActiveNumber(phoneNumbersData[0].id);
-        }
-      } catch (phoneError: any) {
-        console.log("Phone numbers not available:", phoneError.message);
-        // Sub-accounts might not have phone numbers assigned
-        setPhoneNumbers([]);
-        setActivePhoneNumber(null);
+      while (attempts < maxAttempts && phoneNumbersData.length === 0) {
+        try {
+          attempts++;
+          console.log(
+            `Attempting to load phone numbers (attempt ${attempts})...`,
+          );
 
-        // Show a message to the user
-        if (phoneError.message?.includes("Phone number not found")) {
-          console.log("No phone numbers assigned to this account");
+          phoneNumbersData = await ApiService.getPhoneNumbers();
+          console.log(
+            `Loaded ${phoneNumbersData.length} phone numbers:`,
+            phoneNumbersData,
+          );
+
+          if (phoneNumbersData.length > 0) {
+            setPhoneNumbers(phoneNumbersData);
+
+            // Set first phone number as active if none is active
+            const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
+            if (activeNumber) {
+              console.log("Setting active number:", activeNumber.number);
+              setActivePhoneNumber(activeNumber.id);
+            } else if (phoneNumbersData.length > 0) {
+              console.log(
+                "Setting first number as active:",
+                phoneNumbersData[0].number,
+              );
+              setActivePhoneNumber(phoneNumbersData[0].id);
+              await ApiService.setActiveNumber(phoneNumbersData[0].id);
+            }
+            break; // Success, exit retry loop
+          }
+        } catch (phoneError: any) {
+          console.error(
+            `Phone number loading attempt ${attempts} failed:`,
+            phoneError.message,
+          );
+
+          if (attempts === maxAttempts) {
+            console.log("All phone number loading attempts failed");
+            setPhoneNumbers([]);
+            setActivePhoneNumber(null);
+          } else {
+            // Wait before retry
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
         }
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
+    } finally {
+      setIsLoadingContacts(false);
     }
   };
 
