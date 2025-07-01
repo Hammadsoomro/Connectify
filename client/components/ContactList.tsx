@@ -149,25 +149,55 @@ export default function ContactList({
                   {/* Contact Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-foreground truncate">
+                      <h3
+                        className={`truncate ${
+                          contact.unreadCount > 0
+                            ? "font-bold text-blue-900"
+                            : "font-medium text-foreground"
+                        }`}
+                      >
                         {contact.name}
                       </h3>
-                      {contact.lastMessageTime && (
-                        <span className="text-xs text-muted-foreground">
-                          {formatTime(contact.lastMessageTime)}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {contact.lastMessageTime && (
+                          <span className="text-xs text-muted-foreground">
+                            {formatTime(contact.lastMessageTime)}
+                          </span>
+                        )}
+                        {contact.unreadCount > 0 && (
+                          <Badge
+                            variant="destructive"
+                            className="h-5 w-5 rounded-full p-0 text-xs font-bold animate-pulse"
+                          >
+                            {contact.unreadCount > 99
+                              ? "99+"
+                              : contact.unreadCount}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
                       <Phone className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground font-mono">
+                      <span
+                        className={`text-xs font-mono ${
+                          contact.unreadCount > 0
+                            ? "text-blue-700 font-medium"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         {contact.phoneNumber}
                       </span>
                     </div>
 
                     {contact.lastMessage && (
-                      <p className="text-sm text-muted-foreground truncate mt-1">
+                      <p
+                        className={`text-sm truncate mt-1 ${
+                          contact.unreadCount > 0
+                            ? "text-blue-700 font-medium"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         {contact.lastMessage}
                       </p>
                     )}
