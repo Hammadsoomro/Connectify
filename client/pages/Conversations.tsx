@@ -29,6 +29,13 @@ export default function Conversations() {
   });
 
   useEffect(() => {
+    console.log("=== CONVERSATIONS COMPONENT MOUNTED ===");
+    console.log("Initial state:");
+    console.log("- phoneNumbers:", phoneNumbers);
+    console.log("- activePhoneNumber:", activePhoneNumber);
+    console.log("- isInitialLoading:", isInitialLoading);
+    console.log("- isLoadingContacts:", isLoadingContacts);
+
     loadInitialData();
 
     // Reduced polling to prevent app hanging
