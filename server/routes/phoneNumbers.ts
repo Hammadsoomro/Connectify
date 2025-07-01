@@ -77,19 +77,64 @@ export const getPhoneNumbers = async (req: any, res: Response) => {
 export const setActiveNumber = async (req: any, res: Response) => {
   try {
     const { numberId } = req.params;
-    const userId = req.user._id;
+    const user = req.user;
 
-    // Set all numbers to inactive
-    await PhoneNumber.updateMany({ userId }, { isActive: false });
-
-    // Set selected number to active
-    const phoneNumber = await PhoneNumber.findOneAndUpdate(
-      { _id: numberId, userId },
-      { isActive: true },
-      { new: true },
+    console.log(
+      `Setting active number for user: ${user.email}, role: ${user.role}, numberId: ${numberId}`,
     );
 
+    let phoneNumber;
+
+    if (user.role === "admin") {
+      // Admin can activate their own numbers
+      await PhoneNumber.updateMany({ userId: user._id }, { isActive: false });
+
+      phoneNumber = await PhoneNumber.findOneAndUpdate(
+        { _id: numberId, userId: user._id },
+        { isActive: true },
+        { new: true },
+      );
+    } else if (user.role === "sub-account") {
+      // Sub-account can only activate numbers assigned to them
+      console.log("Sub-account assigned numbers:", user.assignedNumbers);
+
+      // First, find the phone number to check if it's assigned to this sub-account
+      const targetNumber = await PhoneNumber.findOne({
+        _id: numberId,
+        userId: user.adminId,
+      });
+
+      if (!targetNumber) {
+        console.log("Phone number not found or not owned by admin");
+        return res.status(404).json({ message: "Phone number not found" });
+      }
+
+      if (
+        !user.assignedNumbers ||
+        !user.assignedNumbers.includes(targetNumber.number)
+      ) {
+        console.log("Phone number not assigned to this sub-account");
+        return res
+          .status(403)
+          .json({ message: "Phone number not assigned to your account" });
+      }
+
+      // Set all admin's numbers to inactive (for this specific sub-account usage)
+      await PhoneNumber.updateMany(
+        { userId: user.adminId },
+        { isActive: false },
+      );
+
+      // Set the specific number to active
+      phoneNumber = await PhoneNumber.findOneAndUpdate(
+        { _id: numberId, userId: user.adminId },
+        { isActive: true },
+        { new: true },
+      );
+    }
+
     if (!phoneNumber) {
+      console.log("Failed to update phone number active status");
       return res.status(404).json({ message: "Phone number not found" });
     }
 
