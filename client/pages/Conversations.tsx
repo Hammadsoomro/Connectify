@@ -61,12 +61,9 @@ export default function Conversations() {
     try {
       setIsLoadingContacts(true);
       setIsInitialLoading(true);
-      console.log("=== STARTING loadInitialData ===");
 
-      console.log("Loading user profile...");
       const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
-      console.log("Profile loaded:", userProfile.email, userProfile.role);
 
       // Try to load phone numbers with retry logic
       let phoneNumbersData = [];
