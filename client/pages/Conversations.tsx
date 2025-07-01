@@ -587,7 +587,7 @@ export default function Conversations() {
         phoneNumbers={phoneNumbers}
         activeNumber={activePhoneNumber}
         profile={profile}
-        phoneNumberUnreadCounts={phoneNumberUnreadCounts}
+        phoneNumberUnreadCounts={phoneNumberUnreadCounts || {}}
         onSelectNumber={handleSelectPhoneNumber}
         onBuyNewNumber={handleBuyNewNumber}
         onUpdateProfile={handleUpdateProfile}
