@@ -131,6 +131,12 @@ class ApiService {
     });
   }
 
+  async markAsRead(contactId: string) {
+    return this.request(`/contacts/${contactId}/read`, {
+      method: "PUT",
+    });
+  }
+
   // Message methods
   async getMessages(contactId: string) {
     return this.request(`/sms/messages/${contactId}`);
