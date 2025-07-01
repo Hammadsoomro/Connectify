@@ -114,16 +114,17 @@ export const sendSMS = async (req: any, res: Response) => {
 
     // Check wallet balance for admin users (SMS cost: $0.01 per message)
     const smsPrice = 0.01;
-    if (user.role === "admin") {
-      const hasBalance = await checkBalance(userId, smsPrice);
-      if (!hasBalance) {
-        return res.status(400).json({
-          message:
-            "Insufficient wallet balance. Please add funds to continue sending SMS.",
-          code: "INSUFFICIENT_BALANCE",
-          requiredAmount: smsPrice,
-        });
-      }
+    const billingUserId = user.role === "sub-account" ? user.adminId : user._id;
+
+    // Always check admin's balance for billing (admin pays for sub-account usage)
+    const hasBalance = await checkBalance(billingUserId, smsPrice);
+    if (!hasBalance) {
+      return res.status(400).json({
+        message:
+          "Insufficient wallet balance. Please add funds to continue sending SMS.",
+        code: "INSUFFICIENT_BALANCE",
+        requiredAmount: smsPrice,
+      });
     }
 
     // Send via Twilio
