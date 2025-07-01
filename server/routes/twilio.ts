@@ -11,18 +11,18 @@ export const getTwilioBalance = async (req: any, res: Response) => {
     console.log("Is admin:", req.user?.role === "admin");
     console.log("=== END AUTH CHECK ===");
 
-    // Check if user is admin
+    // Check if user is authenticated
     if (!req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    if (req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Only admins can view Twilio balance. Your role: " + req.user.role,
-        });
+    // Allow both admin and sub-account users to view balance
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
+      return res.status(403).json({
+        message:
+          "Only admin and sub-account users can view Twilio balance. Your role: " +
+          req.user.role,
+      });
     }
 
     // Validate Twilio credentials

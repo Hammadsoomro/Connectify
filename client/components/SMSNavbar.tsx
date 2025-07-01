@@ -73,10 +73,10 @@ export default function SMSNavbar({
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
   const [twilioBalance, setTwilioBalance] = useState<string | null>(null);
 
-  // Load Twilio balance for admin users only
+  // Load Twilio balance for admin and sub-account users
   useEffect(() => {
-    if (profile.role === "admin") {
-      // Show placeholder for admin users
+    if (profile.role === "admin" || profile.role === "sub-account") {
+      // Show placeholder for authenticated users
       setTwilioBalance("Loading...");
 
       // Load real balance after delay
@@ -84,21 +84,29 @@ export default function SMSNavbar({
         loadTwilioBalance();
       }, 2000);
     } else {
-      // Sub-accounts should never see balance
+      // Other users should not see balance
       setTwilioBalance(null);
     }
   }, [profile.role]);
 
-  // Additional safety check to prevent balance loading for sub-accounts
+  // Additional safety check to prevent balance loading for unauthorized users
   useEffect(() => {
-    if (profile.role !== "admin" && twilioBalance !== null) {
+    if (
+      profile.role !== "admin" &&
+      profile.role !== "sub-account" &&
+      twilioBalance !== null
+    ) {
       setTwilioBalance(null);
     }
   }, [profile.role, twilioBalance]);
 
   const loadTwilioBalance = async () => {
-    // Multiple safety checks to prevent sub-account access
-    if (!profile || !profile.role || profile.role !== "admin") {
+    // Safety checks - allow admin and sub-account users
+    if (
+      !profile ||
+      !profile.role ||
+      (profile.role !== "admin" && profile.role !== "sub-account")
+    ) {
       setTwilioBalance(null);
       return;
     }
