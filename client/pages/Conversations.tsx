@@ -133,9 +133,6 @@ export default function Conversations() {
           }
         }
       }
-
-      console.log("=== COMPLETED loadInitialData ===");
-      console.log("Final phoneNumbers state will be:", phoneNumbersData);
     } catch (error) {
       console.error("Error loading initial data:", error);
     } finally {
