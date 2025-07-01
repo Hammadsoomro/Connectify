@@ -214,7 +214,6 @@ export default function Conversations() {
     } catch (error) {
       console.error("Error loading initial data:", error);
     } finally {
-      setIsLoadingContacts(false);
       setIsInitialLoading(false);
     }
   };
