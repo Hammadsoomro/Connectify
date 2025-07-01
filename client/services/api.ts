@@ -11,43 +11,67 @@ class ApiService {
     options: RequestInit = {},
   ): Promise<any> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const maxRetries = 3;
 
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        // Create abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    const config: RequestInit = {
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-        ...options.headers,
-      },
-      signal: controller.signal,
-      ...options,
-    };
+        const config: RequestInit = {
+          headers: {
+            "Content-Type": "application/json",
+            ...this.getAuthHeader(),
+            ...options.headers,
+          },
+          signal: controller.signal,
+          ...options,
+        };
 
-    try {
-      const response = await fetch(url, config);
-      clearTimeout(timeoutId);
+        console.log(`API Request (attempt ${attempt + 1}): ${url}`);
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          message: "Something went wrong",
-        }));
-        throw new Error(error.message || "API request failed");
-      }
+        const response = await fetch(url, config);
+        clearTimeout(timeoutId);
 
-      return response.json();
-    } catch (error: any) {
-      clearTimeout(timeoutId);
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({
+            message: `HTTP ${response.status}: ${response.statusText}`,
+          }));
+          throw new Error(error.message || "API request failed");
+        }
 
-      if (error.name === "AbortError") {
-        throw new Error(
-          "Request timeout. Please check your internet connection.",
+        const data = await response.json();
+        console.log(`API Success: ${url}`);
+        return data;
+      } catch (error: any) {
+        console.error(
+          `API Error (attempt ${attempt + 1}) for ${url}:`,
+          error.message,
         );
-      }
 
-      throw error;
+        // If this is the last attempt, throw a user-friendly error
+        if (attempt === maxRetries) {
+          if (error.name === "AbortError") {
+            throw new Error(
+              "Request timeout. Please check your internet connection.",
+            );
+          }
+
+          if (error.message === "Failed to fetch") {
+            throw new Error(
+              "Unable to connect to server. Please check your internet connection.",
+            );
+          }
+
+          throw error;
+        }
+
+        // Wait before retrying with exponential backoff
+        const waitTime = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+        console.log(`Waiting ${waitTime}ms before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      }
     }
   }
 
