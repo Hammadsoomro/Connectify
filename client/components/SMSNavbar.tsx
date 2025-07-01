@@ -74,15 +74,15 @@ export default function SMSNavbar({
   // Load Twilio balance for admin users only
   useEffect(() => {
     if (profile.role === "admin") {
-      // Show known balance for admin users
-      setTwilioBalance("$6.48");
+      // Show placeholder for admin users
+      setTwilioBalance("Loading...");
 
-      // Try to load real balance
+      // Load real balance after delay
       setTimeout(() => {
         loadTwilioBalance();
       }, 2000);
     } else {
-      // Clear balance for non-admin users
+      // Sub-accounts don't need to see balance
       setTwilioBalance(null);
     }
   }, [profile.role]);
