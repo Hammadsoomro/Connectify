@@ -48,7 +48,7 @@ export const getContacts = async (req: any, res: Response) => {
       contacts.map(async (contact) => {
         // Filter messages by phone number if provided
         const messageQuery: any = {
-          userId,
+          userId: lookupUserId,
           contactId: contact._id,
         };
 
