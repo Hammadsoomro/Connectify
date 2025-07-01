@@ -149,8 +149,7 @@ export const sendSMS = async (req: any, res: Response) => {
 
     await message.save();
 
-    // Deduct SMS cost from admin's wallet (always use admin for billing)
-    const billingUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Deduct SMS cost from admin's wallet (billingUserId already defined above)
     try {
       await deductFunds(
         billingUserId,
