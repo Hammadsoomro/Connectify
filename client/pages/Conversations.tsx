@@ -497,14 +497,10 @@ export default function Conversations() {
     0,
   );
 
-  // Debug logging before render
-  console.log("=== RENDER DEBUG ===");
-  console.log("phoneNumbers being passed to SMSNavbar:", phoneNumbers);
-  console.log(
-    "activePhoneNumber being passed to SMSNavbar:",
-    activePhoneNumber,
-  );
-  console.log("profile being passed to SMSNavbar:", profile);
+  // Only log if there are issues
+  if (phoneNumbers.length === 0 && !isInitialLoading) {
+    console.log("No phone numbers available");
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background">
