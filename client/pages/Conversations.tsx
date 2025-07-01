@@ -153,21 +153,15 @@ export default function Conversations() {
   }, [selectedContactId, activePhoneNumber, phoneNumbers]);
 
   const handleSelectContact = async (contactId: string) => {
+    console.log(`Selecting contact: ${contactId}`);
+
+    // Clear messages first to prevent showing old messages
+    setMessages([]);
+
+    // Set the selected contact
     setSelectedContactId(contactId);
 
-    // Mark messages as read when contact is selected
-    try {
-      await ApiService.markAsRead(contactId);
-
-      // Update local state to remove unread count
-      setContacts((prev) =>
-        prev.map((contact) =>
-          contact.id === contactId ? { ...contact, unreadCount: 0 } : contact,
-        ),
-      );
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
-    }
+    // Messages will be loaded by the useEffect
   };
 
   const handleSendMessage = async (content: string) => {
