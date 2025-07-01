@@ -226,15 +226,14 @@ export default function Conversations() {
   }, [selectedContactId, activePhoneNumber, phoneNumbers]);
 
   const handleSelectContact = async (contactId: string) => {
-    console.log(`Selecting contact: ${contactId}`);
+    // Don't reload if same contact is selected
+    if (selectedContactId === contactId) return;
 
-    // Clear messages first to prevent showing old messages
-    setMessages([]);
-
-    // Set the selected contact
+    // Set the selected contact immediately
     setSelectedContactId(contactId);
 
-    // Messages will be loaded by the useEffect
+    // Clear messages to prevent showing old messages from different contact
+    setMessages([]);
   };
 
   const handleSendMessage = async (content: string) => {
