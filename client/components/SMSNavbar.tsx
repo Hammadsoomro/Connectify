@@ -95,8 +95,8 @@ export default function SMSNavbar({
   }, [profile.role, twilioBalance]);
 
   const loadTwilioBalance = async () => {
-    // Strictly block balance loading for non-admin users
-    if (profile.role !== "admin") {
+    // Multiple safety checks to prevent sub-account access
+    if (!profile || !profile.role || profile.role !== "admin") {
       setTwilioBalance(null);
       return;
     }
