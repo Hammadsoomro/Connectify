@@ -170,9 +170,9 @@ export default function ContactList({
 
                   {/* Contact Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <h3
-                        className={`truncate ${
+                        className={`truncate flex-1 ${
                           contact.unreadCount > 0
                             ? "font-bold text-blue-900"
                             : "font-medium text-foreground"
@@ -180,16 +180,16 @@ export default function ContactList({
                       >
                         {contact.name}
                       </h3>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {contact.lastMessageTime && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {formatTime(contact.lastMessageTime)}
                           </span>
                         )}
                         {contact.unreadCount > 0 && (
                           <Badge
                             variant="destructive"
-                            className="h-5 w-5 rounded-full p-0 text-xs font-bold flex items-center justify-center"
+                            className="h-5 w-5 rounded-full p-0 text-xs font-bold flex items-center justify-center ml-1"
                           >
                             {contact.unreadCount > 99
                               ? "99+"
