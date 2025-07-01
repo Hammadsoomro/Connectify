@@ -111,9 +111,34 @@ export const addContact = async (req: any, res: Response) => {
     });
     if (existingContact) {
       console.log(
-        `Contact already exists: ${phoneNumber} for userId ${lookupUserId}`,
+        `Contact already exists: ${phoneNumber} for userId ${lookupUserId}, returning existing contact`,
       );
-      return res.status(400).json({ message: "Contact already exists" });
+
+      // Get additional details for the existing contact
+      const lastMessage = await Message.findOne({
+        userId: lookupUserId,
+        contactId: existingContact._id,
+      })
+        .sort({ createdAt: -1 })
+        .limit(1);
+
+      const unreadCount = await Message.countDocuments({
+        userId: lookupUserId,
+        contactId: existingContact._id,
+        isOutgoing: false,
+        status: { $ne: "read" },
+      });
+
+      return res.status(200).json({
+        id: existingContact._id,
+        name: existingContact.name,
+        phoneNumber: existingContact.phoneNumber,
+        avatar: existingContact.avatar,
+        lastMessage: lastMessage?.content,
+        lastMessageTime: lastMessage?.createdAt?.toISOString(),
+        unreadCount,
+        isOnline: existingContact.isOnline,
+      });
     }
 
     // Create new contact
