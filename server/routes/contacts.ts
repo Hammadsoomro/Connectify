@@ -126,6 +126,10 @@ export const addContact = async (req: any, res: Response) => {
 
     await contact.save();
 
+    console.log(
+      `Contact created successfully: ${name} (${phoneNumber}) for userId ${lookupUserId}`,
+    );
+
     res.status(201).json({
       id: contact._id,
       name: contact.name,
