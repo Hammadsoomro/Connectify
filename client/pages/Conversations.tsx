@@ -130,9 +130,6 @@ export default function Conversations() {
     } finally {
       setIsLoadingContacts(false);
       setIsInitialLoading(false);
-      console.log(
-        "=== loadInitialData FINISHED, isLoadingContacts set to false ===",
-      );
     }
   };
 
