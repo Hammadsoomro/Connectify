@@ -271,6 +271,17 @@ export const handleIncomingSMS = async (req: Request, res: Response) => {
 
     await message.save();
 
+    // Increment unread count for the contact
+    await Contact.findByIdAndUpdate(
+      contact._id,
+      { $inc: { unreadCount: 1 } },
+      { new: true },
+    );
+
+    console.log(
+      `Incoming SMS saved and unread count incremented for contact: ${contact.name}`,
+    );
+
     // Respond to Twilio
     res.status(200).send("OK");
   } catch (error) {

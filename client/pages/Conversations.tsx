@@ -83,8 +83,22 @@ export default function Conversations() {
     loadMessages();
   }, [selectedContactId]);
 
-  const handleSelectContact = (contactId: string) => {
+  const handleSelectContact = async (contactId: string) => {
     setSelectedContactId(contactId);
+
+    // Mark messages as read when contact is selected
+    try {
+      await ApiService.markAsRead(contactId);
+
+      // Update local state to remove unread count
+      setContacts((prev) =>
+        prev.map((contact) =>
+          contact.id === contactId ? { ...contact, unreadCount: 0 } : contact,
+        ),
+      );
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
   };
 
   const handleSendMessage = async (content: string) => {
