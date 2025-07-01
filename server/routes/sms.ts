@@ -22,17 +22,22 @@ const getCountryFromRegion = (region: string): string => {
 export const sendSMS = async (req: any, res: Response) => {
   try {
     const { contactId, content, fromNumber } = req.body;
-    const userId = req.user._id;
     const user = req.user;
 
+    // For sub-accounts, use admin's userId for contact lookup
+    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+
     console.log(
-      `SMS Request - User: ${user.email}, Contact: ${contactId}, From: ${fromNumber}`,
+      `SMS Request - User: ${user.email} (${user.role}), Contact: ${contactId}, From: ${fromNumber}, LookupUserId: ${lookupUserId}`,
     );
 
-    // Get contact
-    const contact = await Contact.findOne({ _id: contactId, userId });
+    // Get contact using appropriate userId
+    const contact = await Contact.findOne({
+      _id: contactId,
+      userId: lookupUserId,
+    });
     if (!contact) {
-      console.log(`Contact not found: ${contactId} for user ${userId}`);
+      console.log(`Contact not found: ${contactId} for userId ${lookupUserId}`);
       return res.status(404).json({ message: "Contact not found" });
     }
 
