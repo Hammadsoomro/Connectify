@@ -225,8 +225,6 @@ export default function Conversations() {
     }
 
     try {
-      setIsLoadingContacts(true);
-
       // Get the active phone number
       const activeNumber = phoneNumbers.find(
         (phone) => phone.id === activePhoneNumber,
