@@ -122,22 +122,26 @@ export default function Conversations() {
 
   const loadInitialData = async (selectedPhoneNumberId?: string | null) => {
     try {
+      console.log("🔄 Starting loadInitialData...");
       const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
+      console.log("✅ Profile loaded:", userProfile);
 
       // Try to load phone numbers with retry logic
       let phoneNumbersData = [];
       let attempts = 0;
       const maxAttempts = 3;
 
-      while (attempts < maxAttempts && phoneNumbersData.length === 0) {
+      while (attempts < maxAttempts) {
         try {
           attempts++;
+          console.log(`📞 Loading phone numbers (attempt ${attempts})...`);
           phoneNumbersData = await ApiService.getPhoneNumbers();
+          console.log(`✅ Phone numbers loaded:`, phoneNumbersData);
+
+          setPhoneNumbers(phoneNumbersData);
 
           if (phoneNumbersData.length > 0) {
-            setPhoneNumbers(phoneNumbersData);
-
             // Set active phone number based on URL parameter or default logic
             let targetPhoneNumberId = selectedPhoneNumberId;
 
@@ -175,35 +179,24 @@ export default function Conversations() {
             }
             break; // Success, exit retry loop
           }
+          break; // Success, exit retry loop
         } catch (phoneError: any) {
           console.error(
-            `Phone number loading attempt ${attempts} failed:`,
+            `❌ Phone number loading attempt ${attempts} failed:`,
             phoneError.message,
           );
 
-          // Handle network errors gracefully
-          if (
-            phoneError.message?.includes("Unable to connect") ||
-            phoneError.message?.includes("Failed to fetch")
-          ) {
+          if (attempts === maxAttempts) {
             console.log(
-              "Network error loading phone numbers, will continue with empty state",
+              "⚠️ All phone number loading attempts failed, using empty state",
             );
-            if (attempts === maxAttempts) {
-              setPhoneNumbers([]);
-              setActivePhoneNumber(null);
-              break;
-            }
-          } else if (attempts === maxAttempts) {
-            console.log("All phone number loading attempts failed");
             setPhoneNumbers([]);
             setActivePhoneNumber(null);
+            break;
           }
 
-          if (attempts < maxAttempts) {
-            // Wait before retry
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
+          // Wait before retry
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
     } catch (error) {
