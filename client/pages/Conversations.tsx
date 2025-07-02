@@ -205,6 +205,9 @@ export default function Conversations() {
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
+      // Set default state even on error
+      setPhoneNumbers([]);
+      setActivePhoneNumber(null);
     } finally {
       setIsInitialLoading(false);
     }
@@ -558,6 +561,40 @@ export default function Conversations() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if no phone numbers available
+  if (!isInitialLoading && phoneNumbers.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SMSNavbar
+          unreadCount={0}
+          phoneNumbers={[]}
+          activeNumber={null}
+          profile={profile}
+          phoneNumberUnreadCounts={{}}
+          onSelectNumber={() => {}}
+          onBuyNewNumber={() => navigate("/buy-numbers")}
+          onUpdateProfile={() => {}}
+          onLogout={() => {
+            localStorage.removeItem("authToken");
+            socketService.disconnect();
+            window.location.href = "/";
+          }}
+        />
+        <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">No Phone Numbers</h2>
+            <p className="text-muted-foreground mb-6">
+              You need to purchase a phone number to start messaging.
+            </p>
+            <Button onClick={() => navigate("/buy-numbers")}>
+              Buy Phone Number
+            </Button>
+          </div>
         </div>
       </div>
     );
