@@ -407,6 +407,16 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Advertisement Section */}
+        <div className="text-center py-8 bg-muted/20">
+          <div className="text-center mb-4">
+            <span className="text-xs text-muted-foreground">Advertisement</span>
+          </div>
+          <div className="flex justify-center">
+            <AdBanner width={728} height={90} />
+          </div>
+        </div>
       </div>
 
       {/* Phone Number Selection Modal */}
