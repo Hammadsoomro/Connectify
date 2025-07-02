@@ -6,6 +6,7 @@ import ChatArea, { Message } from "@/components/ChatArea";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import ApiService from "@/services/api";
+import socketService from "@/services/socketService";
 
 export default function Conversations() {
   const navigate = useNavigate();
