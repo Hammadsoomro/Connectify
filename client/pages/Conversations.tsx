@@ -34,12 +34,14 @@ export default function Conversations() {
     role: "admin",
   });
 
-  // Initialize Socket.IO and load data
+  // Initialize data loading
   useEffect(() => {
     const phoneNumberFromUrl = searchParams.get("phoneNumber");
     loadInitialData(phoneNumberFromUrl);
+  }, []);
 
-    // Initialize Socket.IO connection for real-time messaging
+  // Initialize Socket.IO separately (don't block loading)
+  useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
       socketService.connect(token);
@@ -103,7 +105,7 @@ export default function Conversations() {
         socketService.off("messageStatusUpdate", handleMessageStatusUpdate);
       };
     }
-  }, []);
+  }, [activePhoneNumber, selectedContactId]);
 
   // Join/leave phone number rooms when active number changes
   useEffect(() => {
