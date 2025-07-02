@@ -13,16 +13,34 @@ export const getContacts = async (req: any, res: Response) => {
 
     let contactIds = [];
 
-    // Build query using the correct userId - show all contacts for this user
-    const query: any = { userId: lookupUserId };
-
     console.log(
       `Loading contacts for userId: ${lookupUserId}, userRole: ${user.role}, phoneNumber: ${phoneNumber || "all"}`,
     );
 
-    // Don't sort by updatedAt since it changes when messages are marked as read
-    // Let client-side handle sorting based on message times
-    const contacts = await Contact.find(query).sort({ createdAt: -1 });
+    let contacts;
+
+    if (phoneNumber) {
+      // For phone number isolation: only show contacts that have messages with this phone number
+      const messagesWithContacts = await Message.find({
+        userId: lookupUserId,
+        $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
+      }).distinct("contactId");
+
+      console.log(
+        `Found ${messagesWithContacts.length} contacts with messages for phone ${phoneNumber}`,
+      );
+
+      // Get contacts that have messages with this phone number
+      contacts = await Contact.find({
+        userId: lookupUserId,
+        _id: { $in: messagesWithContacts },
+      }).sort({ createdAt: -1 });
+    } else {
+      // No phone number filter - show all contacts
+      contacts = await Contact.find({ userId: lookupUserId }).sort({
+        createdAt: -1,
+      });
+    }
 
     // Get last message and unread count for each contact
     const contactsWithDetails = await Promise.all(
