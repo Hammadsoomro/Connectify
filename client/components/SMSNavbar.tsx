@@ -188,16 +188,17 @@ export default function SMSNavbar({
           <h1 className="text-lg font-semibold text-foreground">Connectify</h1>
         </div>
 
-        {/* Phone Numbers */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              Active Number:
-            </span>
-          </div>
+        {/* Phone Numbers - Hidden for admin on conversations page */}
+        {!(profile.role === "admin" && window.location.pathname === "/conversations") && (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Active Number:
+              </span>
+            </div>
 
-          <Select value={activeNumber || ""} onValueChange={onSelectNumber}>
+            <Select value={activeNumber || ""} onValueChange={onSelectNumber}>
             <SelectTrigger className="w-48 h-9 font-mono text-sm">
               <SelectValue placeholder="Select a number..." />
             </SelectTrigger>
