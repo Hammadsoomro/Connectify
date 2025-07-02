@@ -148,10 +148,14 @@ class ApiService {
     return this.request(`/contacts${params}`);
   }
 
-  async addContact(name: string, phoneNumber: string) {
+  async addContact(
+    name: string,
+    phoneNumber: string,
+    activePhoneNumber?: string,
+  ) {
     return this.request("/contacts", {
       method: "POST",
-      body: JSON.stringify({ name, phoneNumber }),
+      body: JSON.stringify({ name, phoneNumber, activePhoneNumber }),
     });
   }
 
