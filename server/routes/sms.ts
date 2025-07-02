@@ -24,8 +24,11 @@ export const sendSMS = async (req: any, res: Response) => {
     const { contactId, content, fromNumber } = req.body;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for contact lookup
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user uses their own userId for contact lookup (data isolation)
+    const lookupUserId = user._id;
+
+    // But billing still uses admin for sub-accounts
+    const billingUserId = user.role === "sub-account" ? user.adminId : user._id;
 
     console.log(
       `SMS Request - User: ${user.email} (${user.role}), Contact: ${contactId}, From: ${fromNumber}, LookupUserId: ${lookupUserId}`,
