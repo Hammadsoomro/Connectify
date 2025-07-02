@@ -220,7 +220,7 @@ export default function Home() {
           {/* Conversations Card */}
           <Card
             className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
-            onClick={() => navigate("/conversations")}
+            onClick={handleConversationsClick}
           >
             <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-lg overflow-hidden">
               <img
