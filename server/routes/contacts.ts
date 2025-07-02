@@ -150,6 +150,38 @@ export const addContact = async (req: any, res: Response) => {
       `Contact created successfully: ${name} (${phoneNumber}) for userId ${lookupUserId}`,
     );
 
+    // If phoneNumber is provided in the request (from frontend), create a placeholder message
+    // to associate this contact with the current active phone number
+    const { activePhoneNumber } = req.body;
+    if (activePhoneNumber) {
+      const { default: Message } = await import("../models/Message.js");
+
+      // Create a system placeholder message to link contact with phone number
+      const placeholderMessage = new Message({
+        userId: lookupUserId,
+        contactId: contact._id,
+        content: `Contact added: ${name}`,
+        isOutgoing: false,
+        fromNumber: activePhoneNumber,
+        toNumber: phoneNumber,
+        status: "delivered",
+        type: "text",
+        // Mark as system message
+        twilioSid: `SYSTEM_${Date.now()}`,
+      });
+
+      try {
+        await placeholderMessage.save();
+        console.log(
+          `📝 Created association message for contact ${name} with phone ${activePhoneNumber}`,
+        );
+      } catch (msgError) {
+        console.log(
+          "Could not create association message, contact will appear in all inboxes",
+        );
+      }
+    }
+
     res.status(201).json({
       id: contact._id,
       name: contact.name,
