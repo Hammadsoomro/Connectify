@@ -53,6 +53,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
   // Development helper to create admin user
   const createAdminUser = async () => {
     try {
+      console.log("Creating admin user...");
       const response = await fetch("/api/dev/create-admin", {
         method: "POST",
         headers: {
@@ -66,19 +67,51 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
       });
 
       const data = await response.json();
+      console.log("Admin creation response:", data);
 
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         onLoginSuccess();
         alert(
-          "Admin user created! Email: admin@connectify.com, Password: admin123",
+          "✅ Admin user created successfully!\n\nLogin details:\nEmail: admin@connectify.com\nPassword: admin123",
         );
       } else {
         alert(data.message || "Failed to create admin user");
       }
     } catch (error) {
       console.error("Failed to create admin:", error);
-      alert("Failed to create admin user");
+      // Try alternative registration method
+      try {
+        console.log("Trying alternative registration...");
+        const regResponse = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: "admin@connectify.com",
+            password: "admin123",
+            name: "Admin User",
+          }),
+        });
+
+        const regData = await regResponse.json();
+
+        if (regData.token) {
+          localStorage.setItem("authToken", regData.token);
+          onLoginSuccess();
+          alert(
+            "✅ Admin user registered successfully!\n\nLogin details:\nEmail: admin@connectify.com\nPassword: admin123",
+          );
+        } else {
+          alert("Registration failed: " + (regData.message || "Unknown error"));
+        }
+      } catch (regError) {
+        console.error("Registration also failed:", regError);
+        alert(
+          "❌ Failed to create admin user. Please try manual registration.",
+        );
+      }
     }
   };
   const [currentQuote, setCurrentQuote] = useState(0);
