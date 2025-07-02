@@ -73,6 +73,47 @@ export const getPhoneNumbers = async (req: any, res: Response) => {
   }
 };
 
+// Activate phone number (alias for setActiveNumber)
+export const activatePhoneNumber = async (req: any, res: Response) => {
+  try {
+    const { numberId } = req.params;
+    const user = req.user;
+
+    console.log(`Activating phone number ${numberId} for user ${user.email}`);
+
+    // Find the phone number
+    const phoneNumber = await PhoneNumber.findOne({
+      _id: numberId,
+      userId: user._id,
+    });
+
+    if (!phoneNumber) {
+      return res.status(404).json({ message: "Phone number not found" });
+    }
+
+    // Deactivate all other numbers for this user
+    await PhoneNumber.updateMany({ userId: user._id }, { isActive: false });
+
+    // Activate the selected number
+    phoneNumber.isActive = true;
+    await phoneNumber.save();
+
+    console.log(`Phone number ${phoneNumber.number} activated successfully`);
+
+    res.json({
+      message: "Phone number activated successfully",
+      phoneNumber: {
+        id: phoneNumber._id,
+        number: phoneNumber.number,
+        isActive: phoneNumber.isActive,
+      },
+    });
+  } catch (error) {
+    console.error("Activate phone number error:", error);
+    res.status(500).json({ message: "Failed to activate phone number" });
+  }
+};
+
 // Set active phone number
 export const setActiveNumber = async (req: any, res: Response) => {
   try {
