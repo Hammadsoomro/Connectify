@@ -193,30 +193,6 @@ export function createApp() {
 
   app.get("/api/demo", handleDemo);
 
-  // Auth routes
-  app.post("/api/auth/register", register);
-  app.post("/api/auth/login", login);
-  app.get("/api/auth/me", auth, getMe);
-  app.put("/api/auth/profile", auth, updateProfile);
-
-  // Contact routes
-  app.get("/api/contacts", auth, getContacts);
-  app.post("/api/contacts", auth, addContact);
-  app.put("/api/contacts/:contactId", auth, updateContact);
-  app.delete("/api/contacts/:contactId", auth, deleteContact);
-  app.put("/api/contacts/:contactId/read", auth, markAsRead);
-
-  // SMS routes
-  app.post("/api/sms/send", auth, sendSMS);
-  app.get("/api/sms/messages/:contactId", auth, getMessages);
-  app.post("/api/twilio/webhook", handleIncomingSMS); // Twilio webhook (no auth)
-
-  // Phone number routes
-  app.get("/api/phone-numbers", auth, getPhoneNumbers);
-  app.post("/api/phone-numbers/set-active", auth, setActiveNumber);
-  app.post("/api/phone-numbers/:numberId/activate", auth, activatePhoneNumber);
-  app.delete("/api/phone-numbers/:numberId/release", auth, releaseNumber);
-
   // SMS purchasing routes
   app.get("/api/sms/available-numbers", auth, getAvailableNumbers);
   app.post("/api/sms/purchase-number", auth, purchaseNumber);
