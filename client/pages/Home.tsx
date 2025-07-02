@@ -22,6 +22,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
 import PhoneNumberSelectionModal from "@/components/PhoneNumberSelectionModal";
+import AdBanner from "@/components/AdBanner";
 import ApiService from "@/services/api";
 
 const messagingQuotes = [
