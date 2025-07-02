@@ -217,8 +217,8 @@ export const getMessages = async (req: any, res: Response) => {
     const { phoneNumber } = req.query;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for message lookup
-    const messageUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user uses their own userId for message lookup (data isolation)
+    const messageUserId = user._id;
 
     // Build query to filter by contact and phone number (MUST include phone number for isolation)
     if (!phoneNumber) {
