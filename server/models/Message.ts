@@ -36,7 +36,6 @@ const MessageSchema: Schema = new Schema(
     },
     twilioSid: {
       type: String,
-      sparse: true, // Allow null values but ensure uniqueness when present
     },
     status: {
       type: String,
