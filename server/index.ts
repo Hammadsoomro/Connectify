@@ -26,6 +26,7 @@ import {
 import {
   getPhoneNumbers,
   setActiveNumber,
+  activatePhoneNumber,
   releaseNumber,
 } from "./routes/phoneNumbers.js";
 import {
@@ -213,6 +214,7 @@ export function createApp() {
   // Phone number routes
   app.get("/api/phone-numbers", auth, getPhoneNumbers);
   app.post("/api/phone-numbers/set-active", auth, setActiveNumber);
+  app.post("/api/phone-numbers/:numberId/activate", auth, activatePhoneNumber);
   app.delete("/api/phone-numbers/:numberId/release", auth, releaseNumber);
 
   // SMS purchasing routes
