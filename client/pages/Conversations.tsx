@@ -4,6 +4,7 @@ import SMSNavbar from "@/components/SMSNavbar";
 import ContactList, { Contact } from "@/components/ContactList";
 import ChatArea, { Message } from "@/components/ChatArea";
 import AdBanner from "@/components/AdBanner";
+import MobileAdBanner from "@/components/MobileAdBanner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Phone } from "lucide-react";
 import ApiService from "@/services/api";
@@ -699,6 +700,13 @@ export default function Conversations() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Mobile Ad Banner - Fixed at bottom */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+          <div className="flex justify-center py-2">
+            <MobileAdBanner />
+          </div>
         </div>
       </div>
     </div>
