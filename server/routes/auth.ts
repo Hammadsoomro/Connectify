@@ -28,7 +28,7 @@ export const register = async (req: Request, res: Response) => {
       name,
       email,
       password: hashedPassword,
-      role: shouldBeAdmin ? "admin" : "admin", // Default to admin for now, can be changed later
+      role: "admin", // All users are admin by default
     });
 
     await user.save();
