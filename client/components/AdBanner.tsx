@@ -16,8 +16,8 @@ export default function AdBanner({
   useEffect(() => {
     // Only load ads in production or when specifically enabled
     if (
-      process.env.NODE_ENV === "development" &&
-      !process.env.REACT_APP_ENABLE_ADS
+      import.meta.env.MODE === "development" &&
+      !import.meta.env.VITE_ENABLE_ADS
     ) {
       return;
     }
@@ -61,8 +61,8 @@ export default function AdBanner({
 
   // Show placeholder in development
   if (
-    process.env.NODE_ENV === "development" &&
-    !process.env.REACT_APP_ENABLE_ADS
+    import.meta.env.MODE === "development" &&
+    !import.meta.env.VITE_ENABLE_ADS
   ) {
     return (
       <div
