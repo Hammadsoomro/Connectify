@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
+import PhoneNumberSelectionModal from "@/components/PhoneNumberSelectionModal";
 import ApiService from "@/services/api";
 
 const messagingQuotes = [
@@ -57,6 +58,10 @@ export default function Home() {
     phoneNumbers: 0,
     unreadMessages: 0,
   });
+  const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false);
+  const [phoneNumberUnreadCounts, setPhoneNumberUnreadCounts] = useState<{
+    [phoneNumber: string]: number;
+  }>({});
 
   // Rotate quotes every 5 seconds
   useEffect(() => {
