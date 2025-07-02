@@ -23,6 +23,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Login from "./Login";
+import AdBanner from "@/components/AdBanner";
 
 interface LandingProps {
   onLoginSuccess: () => void;
