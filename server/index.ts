@@ -162,9 +162,9 @@ export function createServer() {
     });
   });
 
-  // Note: WebSocket server disabled for now to avoid import issues during development
-  // In production, you can enable it by setting ENABLE_WEBSOCKET=true
-  console.log("WebSocket server disabled during development");
+  // Initialize Socket.IO for real-time communication
+  socketService.init(server);
+  console.log("Socket.IO service initialized for real-time messaging");
 
   return server;
 }
