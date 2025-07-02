@@ -5,8 +5,6 @@ export interface IContact extends Document {
   name: string;
   phoneNumber: string;
   avatar?: string;
-  isOnline: boolean;
-  lastSeen?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,11 +29,6 @@ const ContactSchema: Schema = new Schema(
     avatar: {
       type: String,
       default: "",
-    },
-
-    lastSeen: {
-      type: Date,
-      default: Date.now,
     },
     unreadCount: {
       type: Number,
