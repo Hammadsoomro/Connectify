@@ -307,14 +307,30 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
             Join thousands of businesses using Connectify for their SMS
             communication needs. Start your free account today.
           </p>
-          <Button
-            size="lg"
-            className="text-lg px-8 py-6"
-            onClick={() => setShowLogin(true)}
-          >
-            Start Free Trial
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
+          <div className="space-y-4">
+            <Button
+              size="lg"
+              className="text-lg px-8 py-6"
+              onClick={() => setShowLogin(true)}
+            >
+              Start Free Trial
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+
+            {/* Development Helper Button */}
+            {process.env.NODE_ENV === "development" && (
+              <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={createAdminUser}
+                  className="ml-4"
+                >
+                  Create Admin User (Dev)
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
