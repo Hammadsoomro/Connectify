@@ -1,567 +1,386 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import SMSNavbar from "@/components/SMSNavbar";
-import ContactList, { Contact } from "@/components/ContactList";
-import ChatArea, { Message } from "@/components/ChatArea";
-import AdBanner from "@/components/AdBanner";
-import MobileAdBanner from "@/components/MobileAdBanner";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  Send,
+  Plus,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Phone,
+  DollarSign,
+  Sun,
+  Moon,
+  Settings,
+  User,
+  Search,
+  Bell,
+  BellOff,
+} from "lucide-react";
+import { format } from "date-fns";
 import ApiService from "@/services/api";
 import socketService from "@/services/socketService";
+import AdBanner from "@/components/AdBanner";
+
+interface Contact {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  avatar?: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
+  unreadCount: number;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  isOutgoing: boolean;
+  createdAt: string;
+  status: "sent" | "delivered" | "read";
+}
+
+interface PhoneNumber {
+  id: string;
+  number: string;
+  isActive: boolean;
+  unreadCount: number;
+}
 
 export default function Conversations() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // State management
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     null,
   );
   const [activePhoneNumber, setActivePhoneNumber] = useState<string | null>(
     null,
   );
-  const [phoneNumbers, setPhoneNumbers] = useState<any[]>([]);
+  const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [allPhoneNumberContacts, setAllPhoneNumberContacts] = useState<{
-    [phoneNumber: string]: Contact[];
-  }>({});
+  const [newMessage, setNewMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [twilioBalance, setTwilioBalance] = useState<number>(0);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+
+  // Profile and modals
   const [profile, setProfile] = useState({
     name: "",
     email: "",
     avatar: "",
     role: "admin",
   });
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactPhone, setNewContactPhone] = useState("");
 
-  // Initialize data loading
+  // Initialize data
   useEffect(() => {
-    const phoneNumberFromUrl = searchParams.get("phoneNumber");
-    loadInitialData(phoneNumberFromUrl);
+    loadInitialData();
+    initializeSocketIO();
+
+    // Set theme
+    document.documentElement.classList.toggle("dark", isDarkMode);
   }, []);
 
-  // Initialize Socket.IO separately (don't block loading)
+  // Handle phone number changes
   useEffect(() => {
+    const phoneNumberFromUrl = searchParams.get("phoneNumber");
+    if (phoneNumberFromUrl && phoneNumbers.length > 0) {
+      const foundPhone = phoneNumbers.find(
+        (p) => p.number === phoneNumberFromUrl,
+      );
+      if (foundPhone) {
+        setActivePhoneNumber(foundPhone.number);
+        loadContactsForPhoneNumber(foundPhone.number);
+      }
+    } else if (phoneNumbers.length > 0 && !activePhoneNumber) {
+      const activePhone =
+        phoneNumbers.find((p) => p.isActive) || phoneNumbers[0];
+      setActivePhoneNumber(activePhone.number);
+      loadContactsForPhoneNumber(activePhone.number);
+    }
+  }, [phoneNumbers, searchParams]);
+
+  // Load contacts when active phone number changes
+  useEffect(() => {
+    if (activePhoneNumber) {
+      loadContactsForPhoneNumber(activePhoneNumber);
+      socketService.joinPhoneNumber(activePhoneNumber);
+    }
+  }, [activePhoneNumber]);
+
+  // Load messages when contact is selected
+  useEffect(() => {
+    if (selectedContactId) {
+      loadMessages(selectedContactId);
+      markMessagesAsRead(selectedContactId);
+    }
+  }, [selectedContactId]);
+
+  const loadInitialData = async () => {
+    try {
+      setIsLoading(true);
+      const [userProfile, phoneNumbersData, balance] = await Promise.all([
+        ApiService.getProfile(),
+        ApiService.getPhoneNumbers(),
+        ApiService.getTwilioBalance().catch(() => 0),
+      ]);
+
+      setProfile(userProfile);
+      setPhoneNumbers(phoneNumbersData);
+      setTwilioBalance(balance);
+    } catch (error) {
+      console.error("Error loading initial data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initializeSocketIO = () => {
     const token = localStorage.getItem("authToken");
     if (token) {
       socketService.connect(token);
 
-      // Set up Socket.IO event listeners
-      const handleNewMessage = (data: any) => {
-        console.log("📱 New message received via Socket.IO:", data);
+      socketService.on("newMessage", (data: any) => {
+        console.log("📱 New message received:", data);
 
         // Reload contacts to update last message and unread counts
         if (activePhoneNumber) {
-          loadContacts();
+          loadContactsForPhoneNumber(activePhoneNumber);
         }
 
-        // If the message is for the currently selected contact, reload messages
+        // If message is for selected contact, reload messages
         if (selectedContactId === data.contactId) {
-          loadMessages();
+          loadMessages(selectedContactId);
         }
 
-        // Update page title with unread count
-        const totalUnread = contacts.reduce(
-          (sum, contact) => sum + (contact.unreadCount || 0),
-          0,
-        );
-        if (totalUnread > 0) {
-          document.title = `(${totalUnread + 1}) Connectify - Messages`;
-        } else {
-          document.title = "Connectify - Messages";
+        // Show notification if enabled
+        if (notifications && !data.isOutgoing) {
+          showNotification("New Message", data.content);
         }
-      };
+      });
 
-      const handleContactsUpdated = (data: any) => {
-        console.log("👥 Contacts updated via Socket.IO:", data);
-        if (activePhoneNumber === data.phoneNumberId) {
-          setContacts(data.contacts);
-        }
-      };
-
-      const handleUnreadUpdated = (data: any) => {
-        console.log("🔔 Unread counts updated via Socket.IO:", data);
-        loadAllPhoneNumberContacts();
-      };
-
-      const handleMessageStatusUpdate = (data: any) => {
-        console.log("✓ Message status updated via Socket.IO:", data);
+      socketService.on("messageStatusUpdate", (data: any) => {
         if (selectedContactId) {
-          loadMessages();
+          loadMessages(selectedContactId);
         }
-      };
-
-      // Register event listeners
-      socketService.on("newMessage", handleNewMessage);
-      socketService.on("contactsUpdated", handleContactsUpdated);
-      socketService.on("unreadUpdated", handleUnreadUpdated);
-      socketService.on("messageStatusUpdate", handleMessageStatusUpdate);
-
-      // Cleanup function
-      return () => {
-        socketService.off("newMessage", handleNewMessage);
-        socketService.off("contactsUpdated", handleContactsUpdated);
-        socketService.off("unreadUpdated", handleUnreadUpdated);
-        socketService.off("messageStatusUpdate", handleMessageStatusUpdate);
-      };
-    }
-  }, [activePhoneNumber, selectedContactId]);
-
-  // Join/leave phone number rooms when active number changes
-  useEffect(() => {
-    if (activePhoneNumber) {
-      socketService.joinPhoneNumber(activePhoneNumber);
-      loadContacts();
-
-      return () => {
-        socketService.leavePhoneNumber(activePhoneNumber);
-      };
-    }
-  }, [activePhoneNumber]);
-
-  const loadInitialData = async (selectedPhoneNumberId?: string | null) => {
-    try {
-      console.log("🔄 Starting loadInitialData...");
-      const userProfile = await ApiService.getProfile();
-      setProfile(userProfile);
-      console.log("✅ Profile loaded:", userProfile);
-
-      // Try to load phone numbers with retry logic
-      let phoneNumbersData = [];
-      let attempts = 0;
-      const maxAttempts = 3;
-
-      while (attempts < maxAttempts) {
-        try {
-          attempts++;
-          console.log(`📞 Loading phone numbers (attempt ${attempts})...`);
-          phoneNumbersData = await ApiService.getPhoneNumbers();
-          console.log(`✅ Phone numbers loaded:`, phoneNumbersData);
-
-          setPhoneNumbers(phoneNumbersData);
-
-          if (phoneNumbersData.length > 0) {
-            // Set active phone number based on URL parameter or default logic
-            let targetPhoneNumberId = selectedPhoneNumberId;
-
-            if (selectedPhoneNumberId) {
-              // Use phone number from URL
-              const phoneFromUrl = phoneNumbersData.find(
-                (p: any) => p.id === selectedPhoneNumberId,
-              );
-              if (phoneFromUrl) {
-                targetPhoneNumberId = phoneFromUrl.id;
-              }
-            }
-
-            if (!targetPhoneNumberId) {
-              // Fall back to active number or first number
-              const activeNumber = phoneNumbersData.find(
-                (p: any) => p.isActive,
-              );
-              if (activeNumber) {
-                targetPhoneNumberId = activeNumber.id;
-              } else if (phoneNumbersData.length > 0) {
-                targetPhoneNumberId = phoneNumbersData[0].id;
-              }
-            }
-
-            if (targetPhoneNumberId) {
-              setActivePhoneNumber(targetPhoneNumberId);
-
-              // Try to set active number via API
-              try {
-                await ApiService.setActiveNumber(targetPhoneNumberId);
-              } catch (setActiveError) {
-                console.log("Could not set active number, continuing anyway");
-              }
-            }
-            break; // Success, exit retry loop
-          }
-          break; // Success, exit retry loop
-        } catch (phoneError: any) {
-          console.error(
-            `❌ Phone number loading attempt ${attempts} failed:`,
-            phoneError.message,
-          );
-
-          if (attempts === maxAttempts) {
-            console.log(
-              "⚠️ All phone number loading attempts failed, using empty state",
-            );
-            setPhoneNumbers([]);
-            setActivePhoneNumber(null);
-            break;
-          }
-
-          // Wait before retry
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-      }
-    } catch (error) {
-      console.error("Error loading initial data:", error);
-      // Set default state even on error
-      setPhoneNumbers([]);
-      setActivePhoneNumber(null);
-    } finally {
-      setIsInitialLoading(false);
+      });
     }
   };
 
-  const loadContacts = async () => {
-    if (!activePhoneNumber) {
-      console.log("No active phone number for contact loading");
-      return;
-    }
-
+  const loadContactsForPhoneNumber = async (phoneNumber: string) => {
     try {
-      setIsLoadingContacts(true);
-      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-      const phoneNumber = activeNumber?.number;
-
-      if (!phoneNumber) {
-        console.log("No phone number found for contact loading");
-        setContacts([]);
-        return;
-      }
-
-      console.log(`Loading contacts for phone number: ${phoneNumber}`);
       const contactsData = await ApiService.getContacts(phoneNumber);
-
-      // Ensure we have valid data before setting
-      if (Array.isArray(contactsData)) {
-        console.log(`✅ Loaded ${contactsData.length} contacts`);
-        setContacts(contactsData);
-      } else {
-        console.log("Invalid contacts data received:", contactsData);
-        setContacts([]);
-      }
-    } catch (error: any) {
-      console.error("Failed to load contacts:", error.message);
-
-      // Handle different error types gracefully
-      if (error.message?.includes("Failed to fetch")) {
-        console.log("Network error - server may be temporarily unavailable");
-      } else if (
-        error.message?.includes("403") ||
-        error.message?.includes("401")
-      ) {
-        console.log("Authentication error - please login again");
-        // Clear auth and redirect to login
-        localStorage.removeItem("authToken");
-        window.location.href = "/";
-      }
-
-      setContacts([]);
-    } finally {
-      setIsLoadingContacts(false);
-    }
-  };
-
-  const loadAllPhoneNumberContacts = async () => {
-    if (phoneNumbers.length === 0) return;
-
-    try {
-      const allContacts: { [phoneNumber: string]: Contact[] } = {};
-
-      for (const phone of phoneNumbers) {
-        try {
-          const contactsData = await ApiService.getContacts(phone.number);
-          if (Array.isArray(contactsData)) {
-            allContacts[phone.number] = contactsData;
-          }
-        } catch (error) {
-          console.log(`Failed to load contacts for ${phone.number}`);
-          allContacts[phone.number] = [];
-        }
-      }
-
-      setAllPhoneNumberContacts(allContacts);
+      setContacts(contactsData);
     } catch (error) {
-      console.error("Failed to load all phone number contacts:", error);
+      console.error("Error loading contacts:", error);
     }
   };
 
-  const loadMessages = async () => {
-    if (!selectedContactId || !activePhoneNumber) return;
-
+  const loadMessages = async (contactId: string) => {
     try {
-      setIsLoading(true);
-      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-      const phoneNumber = activeNumber?.number;
-
-      if (!phoneNumber) {
-        setMessages([]);
-        return;
-      }
-
-      const messagesData = await ApiService.getMessages(
-        selectedContactId,
-        phoneNumber,
-      );
-
-      if (Array.isArray(messagesData)) {
-        setMessages(messagesData);
-      } else {
-        setMessages([]);
-      }
+      const messagesData = await ApiService.getMessages(contactId);
+      setMessages(messagesData);
     } catch (error) {
       console.error("Error loading messages:", error);
-      setMessages([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Load contacts when active phone number changes
-  useEffect(() => {
-    if (activePhoneNumber && phoneNumbers.length > 0) {
-      // Clear selected contact and messages when changing numbers
-      setSelectedContactId(null);
-      setMessages([]);
-
-      // Load contacts for the new number
-      loadContacts();
-    } else if (phoneNumbers.length === 0) {
-      // No phone numbers available - clear everything
-      setSelectedContactId(null);
-      setMessages([]);
-      setContacts([]);
-      setAllPhoneNumberContacts({});
-    }
-  }, [activePhoneNumber]);
-
-  // Load all phone number contacts when phone numbers change
-  useEffect(() => {
-    if (phoneNumbers.length > 0) {
-      loadAllPhoneNumberContacts();
-    }
-  }, [phoneNumbers]);
-
-  const handleSelectContact = async (contactId: string) => {
-    // Don't reload if same contact is selected
-    if (selectedContactId === contactId) return;
-
-    setSelectedContactId(contactId);
-
-    // Immediately load messages for instant UI feedback
-    const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-    if (activeNumber?.number) {
-      try {
-        setIsLoading(true);
-        const messagesData = await ApiService.getMessages(
-          contactId,
-          activeNumber.number,
-        );
-        if (Array.isArray(messagesData)) {
-          setMessages(messagesData);
-        }
-
-        // Mark messages as read
-        await ApiService.markAsRead(contactId);
-
-        // Reload contacts to update unread count
-        setTimeout(loadContacts, 500);
-      } catch (error) {
-        console.error("Error loading messages:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleSendMessage = async (content: string) => {
-    if (!selectedContactId || !activePhoneNumber || isLoading) return;
-
-    const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-    if (!activeNumber) return;
-
-    // Find the selected contact
-    const selectedContact = contacts.find((c) => c.id === selectedContactId);
-    if (!selectedContact) return;
-
-    // Prevent sending to the same number (self-messaging)
-    if (selectedContact.phoneNumber === activeNumber.number) {
-      alert(
-        "You cannot send messages to the same phone number you're sending from. Please select a different contact or phone number.",
-      );
-      return;
-    }
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      timestamp: new Date().toISOString(),
-      isOutgoing: true,
-      status: "sending",
-      type: "text",
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setIsLoading(true);
-
+  const markMessagesAsRead = async (contactId: string) => {
     try {
-      const sentMessage = await ApiService.sendSMS(
-        selectedContactId,
-        content,
-        activeNumber.number,
-      );
-
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id
-            ? { ...msg, id: sentMessage.id, status: "sent" as const }
-            : msg,
-        ),
-      );
-
-      // Update last message in contact list
+      await ApiService.markAsRead(contactId);
+      // Update contact unread count in UI
       setContacts((prev) =>
         prev.map((contact) =>
-          contact.id === selectedContactId
-            ? {
-                ...contact,
-                lastMessage: content,
-                lastMessageTime: new Date().toISOString(),
-              }
-            : contact,
+          contact.id === contactId ? { ...contact, unreadCount: 0 } : contact,
         ),
       );
-    } catch (error: any) {
-      console.error("Error sending message:", error);
-
-      let errorMessage = "Failed to send message";
-      if (error.message.includes("NO_PHONE_NUMBER")) {
-        errorMessage = "Please buy a phone number first to send SMS messages";
-      } else if (error.message.includes("NO_ASSIGNED_NUMBER")) {
-        errorMessage =
-          "No phone number assigned to your account. Contact your admin to assign a number.";
-      } else if (error.message.includes("INVALID_NUMBER")) {
-        errorMessage = "Invalid phone number selected";
-      } else if (error.message.includes("INSUFFICIENT_BALANCE")) {
-        errorMessage =
-          "Insufficient wallet balance. Please add funds to continue.";
-      } else {
-        errorMessage = error.message || "Failed to send message";
-      }
-
-      alert(errorMessage);
-
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id
-            ? { ...msg, status: "failed" as const }
-            : msg,
-        ),
-      );
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
     }
   };
 
-  const handleAddContact = async (name: string, phoneNumber: string) => {
+  const sendMessage = async () => {
+    if (
+      !newMessage.trim() ||
+      !selectedContactId ||
+      !activePhoneNumber ||
+      isSending
+    )
+      return;
+
     try {
-      // Get active phone number for association
-      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
-      const activePhoneNumberValue = activeNumber?.number;
+      setIsSending(true);
+      const selectedContact = contacts.find((c) => c.id === selectedContactId);
 
-      const newContact = await ApiService.addContact(
-        name,
-        phoneNumber,
-        activePhoneNumberValue,
-      );
+      await ApiService.sendSMS({
+        to: selectedContact?.phoneNumber || "",
+        message: newMessage,
+        fromNumber: activePhoneNumber,
+        contactId: selectedContactId,
+      });
 
-      // Add contact to current list
-      setContacts((prev) => [newContact, ...prev]);
+      setNewMessage("");
+      // Reload messages to show the sent message
+      loadMessages(selectedContactId);
+      // Reload contacts to update last message
+      loadContactsForPhoneNumber(activePhoneNumber);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
-      // Also refresh contacts from server to ensure persistence
-      setTimeout(() => {
-        if (activePhoneNumber) {
-          const activeNumber = phoneNumbers.find(
-            (p) => p.id === activePhoneNumber,
-          );
-          if (activeNumber?.number) {
-            loadContacts();
-          }
-        }
-      }, 500);
+  const addContact = async () => {
+    if (!newContactName.trim() || !newContactPhone.trim() || !activePhoneNumber)
+      return;
+
+    try {
+      await ApiService.addContact({
+        name: newContactName,
+        phoneNumber: newContactPhone,
+        activePhoneNumber,
+      });
+
+      setNewContactName("");
+      setNewContactPhone("");
+      setShowAddContact(false);
+      loadContactsForPhoneNumber(activePhoneNumber);
     } catch (error) {
       console.error("Error adding contact:", error);
+      alert("Failed to add contact. Please try again.");
     }
   };
 
-  const handleEditContact = (contactId: string) => {
-    // TODO: Implement edit contact modal
-    console.log("Edit contact:", contactId);
+  const editContact = async () => {
+    if (!editingContact || !newContactName.trim()) return;
+
+    try {
+      await ApiService.updateContact(editingContact.id, {
+        name: newContactName,
+      });
+
+      setNewContactName("");
+      setShowEditContact(false);
+      setEditingContact(null);
+      loadContactsForPhoneNumber(activePhoneNumber!);
+    } catch (error) {
+      console.error("Error editing contact:", error);
+      alert("Failed to edit contact. Please try again.");
+    }
   };
 
-  const handleDeleteContact = async (contactId: string) => {
+  const deleteContact = async (contactId: string) => {
+    if (
+      !confirm("Are you sure you want to delete this contact and all messages?")
+    )
+      return;
+
     try {
       await ApiService.deleteContact(contactId);
-      setContacts((prev) => prev.filter((contact) => contact.id !== contactId));
+
+      // Clear selection if deleted contact was selected
       if (selectedContactId === contactId) {
         setSelectedContactId(null);
+        setMessages([]);
       }
+
+      loadContactsForPhoneNumber(activePhoneNumber!);
     } catch (error) {
       console.error("Error deleting contact:", error);
+      alert("Failed to delete contact. Please try again.");
     }
   };
 
-  const handleSelectPhoneNumber = async (numberId: string) => {
+  const switchPhoneNumber = async (phoneNumber: string) => {
     try {
-      const phoneNumber = phoneNumbers.find((p) => p.id === numberId)?.number;
-      console.log(`🔄 Switching to phone number: ${phoneNumber} (${numberId})`);
+      const phoneNumberObj = phoneNumbers.find((p) => p.number === phoneNumber);
+      if (phoneNumberObj) {
+        await ApiService.setActiveNumber(phoneNumberObj.id);
+        setActivePhoneNumber(phoneNumber);
+        setSelectedContactId(null);
+        setMessages([]);
 
-      // Immediately clear everything to ensure complete isolation
-      setSelectedContactId(null);
-      setMessages([]);
-      setContacts([]); // Clear contacts immediately
-
-      // Leave current phone number room
-      if (activePhoneNumber) {
-        socketService.leavePhoneNumber(activePhoneNumber);
+        // Leave old room and join new room
+        if (activePhoneNumber) {
+          socketService.leavePhoneNumber(activePhoneNumber);
+        }
+        socketService.joinPhoneNumber(phoneNumber);
       }
-
-      // Set new active phone number
-      setActivePhoneNumber(numberId);
-
-      // Join new phone number room
-      socketService.joinPhoneNumber(numberId);
-
-      // Update active number on server
-      try {
-        await ApiService.setActiveNumber(numberId);
-      } catch (setActiveError) {
-        console.log("Could not set active number on server:", setActiveError);
-      }
-
-      console.log(`✅ Successfully switched to phone number: ${phoneNumber}`);
     } catch (error) {
       console.error("Error switching phone number:", error);
     }
   };
 
-  // Calculate phone number unread counts
-  const phoneNumberUnreadCounts = Object.entries(allPhoneNumberContacts).reduce(
-    (acc, [phoneNumber, contacts]) => {
-      acc[phoneNumber] = contacts.reduce(
-        (sum, contact) => sum + (contact.unreadCount || 0),
-        0,
-      );
-      return acc;
-    },
-    {} as { [phoneNumber: string]: number },
+  const showNotification = (title: string, body: string) => {
+    if (Notification.permission === "granted") {
+      new Notification(title, { body, icon: "/favicon.ico" });
+    }
+  };
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark", !isDarkMode);
+  };
+
+  const toggleNotifications = async () => {
+    if (!notifications && Notification.permission !== "granted") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        setNotifications(true);
+      }
+    } else {
+      setNotifications(!notifications);
+    }
+  };
+
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.phoneNumber.includes(searchTerm),
   );
 
-  const totalUnreadCount = Object.values(phoneNumberUnreadCounts).reduce(
-    (sum, count) => sum + count,
+  const selectedContact = contacts.find((c) => c.id === selectedContactId);
+  const totalUnreadCount = contacts.reduce(
+    (sum, contact) => sum + contact.unreadCount,
     0,
   );
 
-  if (isInitialLoading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading conversations...</p>
@@ -570,65 +389,13 @@ export default function Conversations() {
     );
   }
 
-  // Show message if no phone numbers available
-  if (!isInitialLoading && phoneNumbers.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <SMSNavbar
-          unreadCount={0}
-          phoneNumbers={[]}
-          activeNumber={null}
-          profile={profile}
-          phoneNumberUnreadCounts={{}}
-          onSelectNumber={() => {}}
-          onBuyNewNumber={() => navigate("/buy-numbers")}
-          onUpdateProfile={() => {}}
-          onLogout={() => {
-            localStorage.removeItem("authToken");
-            socketService.disconnect();
-            window.location.href = "/";
-          }}
-        />
-        <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">No Phone Numbers</h2>
-            <p className="text-muted-foreground mb-6">
-              You need to purchase a phone number to start messaging.
-            </p>
-            <Button onClick={() => navigate("/buy-numbers")}>
-              Buy Phone Number
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedContact = contacts.find((c) => c.id === selectedContactId);
-
   return (
-    <div className="min-h-screen bg-background">
-      <SMSNavbar
-        unreadCount={totalUnreadCount}
-        phoneNumbers={phoneNumbers}
-        activeNumber={activePhoneNumber}
-        profile={profile}
-        phoneNumberUnreadCounts={phoneNumberUnreadCounts}
-        onSelectNumber={handleSelectPhoneNumber}
-        onBuyNewNumber={() => navigate("/buy-numbers")}
-        onUpdateProfile={() => {}}
-        onLogout={() => {
-          localStorage.removeItem("authToken");
-          socketService.disconnect();
-          window.location.href = "/";
-        }}
-      />
-
-      {/* Header with Back Button and Active Phone Number */}
-      <div className="border-b bg-muted/30 p-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {/* Back Button - Always Visible */}
+    <div className={`min-h-screen flex ${isDarkMode ? "dark" : ""}`}>
+      {/* Left Sidebar - Contact List */}
+      <div className="w-80 bg-background border-r border-border flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
               size="sm"
@@ -639,82 +406,420 @@ export default function Conversations() {
               Back to Home
             </Button>
 
-            {/* Active Phone Number */}
-            {activePhoneNumber && (
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-primary" />
-                <span className="font-medium">Active Number:</span>
-                <span className="font-mono text-primary">
-                  {phoneNumbers.find((p) => p.id === activePhoneNumber)?.number}
-                </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleNotifications}
+                className="p-2"
+              >
+                {notifications ? (
+                  <Bell className="w-4 h-4" />
+                ) : (
+                  <BellOff className="w-4 h-4" />
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="p-2"
+              >
+                {isDarkMode ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/")}>
+                    <User className="w-4 h-4 mr-2" />
+                    Admin Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/buy-numbers")}>
+                    <Phone className="w-4 h-4 mr-2" />
+                    Buy Numbers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Balance: ${twilioBalance.toFixed(2)}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {/* Active Phone Number */}
+          <div className="mb-3">
+            <Label className="text-sm text-muted-foreground">
+              Active Number:
+            </Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between mt-1"
+                >
+                  <span className="font-mono">{activePhoneNumber}</span>
+                  {totalUnreadCount > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {totalUnreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                {phoneNumbers.map((phone) => (
+                  <DropdownMenuItem
+                    key={phone.id}
+                    onClick={() => switchPhoneNumber(phone.number)}
+                    className="font-mono"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>{phone.number}</span>
+                      {phone.unreadCount > 0 && (
+                        <Badge variant="destructive" className="ml-2">
+                          {phone.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search contacts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Add Contact Button */}
+        <div className="p-3 border-b border-border">
+          <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+            <DialogTrigger asChild>
+              <Button className="w-full" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Contact
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Contact</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="contactName">Name</Label>
+                  <Input
+                    id="contactName"
+                    value={newContactName}
+                    onChange={(e) => setNewContactName(e.target.value)}
+                    placeholder="Enter contact name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="contactPhone">Phone Number</Label>
+                  <Input
+                    id="contactPhone"
+                    value={newContactPhone}
+                    onChange={(e) => setNewContactPhone(e.target.value)}
+                    placeholder="+1234567890"
+                  />
+                </div>
+                <Button onClick={addContact} className="w-full">
+                  Add Contact
+                </Button>
               </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Contacts List */}
+        <ScrollArea className="flex-1">
+          <div className="p-2">
+            {filteredContacts.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No contacts found</p>
+                <p className="text-sm">Add a contact to start messaging</p>
+              </div>
+            ) : (
+              filteredContacts.map((contact) => (
+                <Card
+                  key={contact.id}
+                  className={`mb-2 cursor-pointer transition-colors ${
+                    selectedContactId === contact.id
+                      ? "bg-primary/10 border-primary"
+                      : "hover:bg-muted/50"
+                  }`}
+                  onClick={() => setSelectedContactId(contact.id)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={contact.avatar} />
+                          <AvatarFallback>
+                            {contact.name.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium truncate">
+                              {contact.name}
+                            </h4>
+                            {contact.lastMessageTime && (
+                              <span className="text-xs text-muted-foreground">
+                                {format(
+                                  new Date(contact.lastMessageTime),
+                                  "HH:mm",
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground font-mono">
+                            {contact.phoneNumber}
+                          </p>
+                          {contact.lastMessage && (
+                            <p className="text-sm text-muted-foreground truncate">
+                              {contact.lastMessage}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        {contact.unreadCount > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            {contact.unreadCount}
+                          </Badge>
+                        )}
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="p-1 h-auto"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingContact(contact);
+                                setNewContactName(contact.name);
+                                setShowEditContact(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteContact(contact.id);
+                              }}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </div>
+        </ScrollArea>
+
+        {/* Ad Banner */}
+        <div className="p-3 border-t border-border">
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Advertisement</span>
+          </div>
+          <AdBanner width={300} height={100} />
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-8rem)]">
-        {/* Sidebar with Contact List and Ad */}
-        <div className="w-96 border-r bg-card flex flex-col">
-          {/* Contact List */}
-          <div className="flex-1">
-            <ContactList
-              contacts={contacts}
-              selectedContactId={selectedContactId}
-              onSelectContact={handleSelectContact}
-              onAddContact={handleAddContact}
-              onEditContact={handleEditContact}
-              onDeleteContact={handleDeleteContact}
-              isLoading={isLoadingContacts}
-            />
-          </div>
-
-          {/* Ad Banner */}
-          <div className="p-4 border-t bg-muted/30">
-            <div className="text-center mb-2">
-              <span className="text-xs text-muted-foreground">
-                Advertisement
-              </span>
-            </div>
-            <div className="flex justify-center">
-              <AdBanner width={300} height={250} />
-            </div>
-          </div>
-        </div>
-
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
-          {selectedContact ? (
-            <ChatArea
-              contact={selectedContact}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              isLoading={isLoading}
-            />
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <div className="text-lg mb-2">Select a conversation</div>
-                <div className="text-sm">
-                  Choose a contact from the list to start messaging
-                </div>
-                {contacts.length === 0 && (
-                  <div className="mt-4 text-xs">
-                    No contacts found. Add a contact to get started.
+      {/* Right Side - Chat Area */}
+      <div className="flex-1 flex flex-col bg-background">
+        {selectedContact ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b border-border bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={selectedContact.avatar} />
+                    <AvatarFallback>
+                      {selectedContact.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">{selectedContact.name}</h3>
+                    <p className="text-sm text-muted-foreground font-mono">
+                      {selectedContact.phoneNumber}
+                    </p>
                   </div>
-                )}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-xs">
+                    Via {activePhoneNumber}
+                  </Badge>
+                </div>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Mobile Ad Banner - Fixed at bottom */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
-          <div className="flex justify-center py-2">
-            <MobileAdBanner />
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-4">
+                {messages.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No messages yet</p>
+                    <p className="text-sm">
+                      Send a message to start the conversation
+                    </p>
+                  </div>
+                ) : (
+                  messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.isOutgoing ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.isOutgoing
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs opacity-70">
+                            {format(new Date(message.createdAt), "HH:mm")}
+                          </span>
+                          {message.isOutgoing && (
+                            <span className="text-xs opacity-70">
+                              {message.status === "read"
+                                ? "✓✓"
+                                : message.status === "delivered"
+                                  ? "✓"
+                                  : "⏳"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+
+            {/* Message Input */}
+            <div className="p-4 border-t border-border bg-muted/20">
+              <div className="flex space-x-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && !e.shiftKey && sendMessage()
+                  }
+                  disabled={isSending}
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!newMessage.trim() || isSending}
+                  size="sm"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Welcome Screen */
+          <div className="flex-1 flex items-center justify-center bg-muted/10">
+            <div className="text-center space-y-4">
+              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <Phone className="w-12 h-12 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">Welcome to Connectify</h2>
+              <p className="text-muted-foreground max-w-md">
+                Select a contact from the sidebar to start messaging, or add a
+                new contact to begin.
+              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Active Number:{" "}
+                  <span className="font-mono">{activePhoneNumber}</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Twilio Balance:{" "}
+                  <span className="font-semibold">
+                    ${twilioBalance.toFixed(2)}
+                  </span>
+                </p>
+              </div>
+
+              {/* Large Ad Banner */}
+              <div className="mt-8">
+                <div className="text-center mb-4">
+                  <span className="text-xs text-muted-foreground">
+                    Advertisement
+                  </span>
+                </div>
+                <AdBanner width={728} height={90} />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Edit Contact Dialog */}
+      <Dialog open={showEditContact} onOpenChange={setShowEditContact}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Contact</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="editContactName">Name</Label>
+              <Input
+                id="editContactName"
+                value={newContactName}
+                onChange={(e) => setNewContactName(e.target.value)}
+                placeholder="Enter contact name"
+              />
+            </div>
+            <Button onClick={editContact} className="w-full">
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
