@@ -462,7 +462,15 @@ export default function Conversations() {
 
   const handleAddContact = async (name: string, phoneNumber: string) => {
     try {
-      const newContact = await ApiService.addContact(name, phoneNumber);
+      // Get active phone number for association
+      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
+      const activePhoneNumberValue = activeNumber?.number;
+
+      const newContact = await ApiService.addContact(
+        name,
+        phoneNumber,
+        activePhoneNumberValue,
+      );
 
       // Add contact to current list
       setContacts((prev) => [newContact, ...prev]);
