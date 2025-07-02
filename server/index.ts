@@ -204,7 +204,7 @@ export function createApp() {
   app.post("/api/contacts", auth, addContact);
   app.put("/api/contacts/:contactId", auth, updateContact);
   app.delete("/api/contacts/:contactId", auth, deleteContact);
-  app.post("/api/contacts/:contactId/read", auth, markAsRead);
+  app.put("/api/contacts/:contactId/read", auth, markAsRead);
 
   // SMS routes
   app.post("/api/sms/send", auth, sendSMS);
