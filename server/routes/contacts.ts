@@ -8,8 +8,8 @@ export const getContacts = async (req: any, res: Response) => {
     const user = req.user;
     const { phoneNumber } = req.query;
 
-    // For sub-accounts, use admin's userId for message/contact lookup
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user (admin and sub-account) uses their own userId for data isolation
+    const lookupUserId = user._id;
 
     let contactIds = [];
 
@@ -97,8 +97,8 @@ export const addContact = async (req: any, res: Response) => {
     const { name, phoneNumber } = req.body;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for contact creation
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user (admin and sub-account) uses their own userId for data isolation
+    const lookupUserId = user._id;
 
     console.log(
       `Adding contact for user: ${user.email} (${user.role}), using userId: ${lookupUserId}`,
@@ -247,8 +247,8 @@ export const markAsRead = async (req: any, res: Response) => {
     const { contactId } = req.params;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for message lookup
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user (admin and sub-account) uses their own userId for data isolation
+    const lookupUserId = user._id;
 
     await Message.updateMany(
       {
