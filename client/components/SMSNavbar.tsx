@@ -189,7 +189,10 @@ export default function SMSNavbar({
         </div>
 
         {/* Phone Numbers - Hidden for admin on conversations page */}
-        {!(profile.role === "admin" && window.location.pathname === "/conversations") && (
+        {!(
+          profile.role === "admin" &&
+          window.location.pathname === "/conversations"
+        ) && (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground" />
@@ -199,65 +202,66 @@ export default function SMSNavbar({
             </div>
 
             <Select value={activeNumber || ""} onValueChange={onSelectNumber}>
-            <SelectTrigger className="w-48 h-9 font-mono text-sm">
-              <SelectValue placeholder="Select a number..." />
-            </SelectTrigger>
-            <SelectContent>
-              {phoneNumbers?.map((phone) => {
-                const unreadForThisNumber =
-                  phoneNumberUnreadCounts?.[phone.number] || 0;
-                return (
-                  <SelectItem
-                    key={phone.id}
-                    value={phone.id}
-                    className="font-mono"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span
-                        className={
-                          unreadForThisNumber > 0
-                            ? "font-bold text-blue-600"
-                            : ""
-                        }
-                      >
-                        {phone.number}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {unreadForThisNumber > 0 && (
-                          <Badge
-                            variant="destructive"
-                            className="h-4 w-4 rounded-full p-0 text-xs"
-                          >
-                            {unreadForThisNumber > 9
-                              ? "9+"
-                              : unreadForThisNumber}
-                          </Badge>
-                        )}
-                        {phone.isActive && (
-                          <Badge variant="secondary" className="ml-1 text-xs">
-                            Active
-                          </Badge>
-                        )}
+              <SelectTrigger className="w-48 h-9 font-mono text-sm">
+                <SelectValue placeholder="Select a number..." />
+              </SelectTrigger>
+              <SelectContent>
+                {phoneNumbers?.map((phone) => {
+                  const unreadForThisNumber =
+                    phoneNumberUnreadCounts?.[phone.number] || 0;
+                  return (
+                    <SelectItem
+                      key={phone.id}
+                      value={phone.id}
+                      className="font-mono"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span
+                          className={
+                            unreadForThisNumber > 0
+                              ? "font-bold text-blue-600"
+                              : ""
+                          }
+                        >
+                          {phone.number}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {unreadForThisNumber > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="h-4 w-4 rounded-full p-0 text-xs"
+                            >
+                              {unreadForThisNumber > 9
+                                ? "9+"
+                                : unreadForThisNumber}
+                            </Badge>
+                          )}
+                          {phone.isActive && (
+                            <Badge variant="secondary" className="ml-1 text-xs">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
 
-          {isAdmin && (
-            <Button
-              onClick={onBuyNewNumber}
-              size="sm"
-              variant="ghost"
-              className="text-primary hover:text-primary/80"
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Buy New
-            </Button>
-          )}
-        </div>
+            {isAdmin && (
+              <Button
+                onClick={onBuyNewNumber}
+                size="sm"
+                variant="ghost"
+                className="text-primary hover:text-primary/80"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Buy New
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Right side actions */}
         <div className="flex items-center gap-3">
