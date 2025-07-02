@@ -15,7 +15,12 @@ class SocketService {
       auth: {
         token,
       },
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"], // Try polling first, then websocket
+      timeout: 10000, // 10 second timeout
+      forceNew: true,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 3,
     });
 
     this.socket.on("connect", () => {
