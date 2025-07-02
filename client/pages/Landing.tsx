@@ -49,6 +49,38 @@ const messagingQuotes = [
 
 export default function Landing({ onLoginSuccess }: LandingProps) {
   const [showLogin, setShowLogin] = useState(false);
+
+  // Development helper to create admin user
+  const createAdminUser = async () => {
+    try {
+      const response = await fetch("/api/dev/create-admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "admin@connectify.com",
+          password: "admin123",
+          name: "Admin User",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+        onLoginSuccess();
+        alert(
+          "Admin user created! Email: admin@connectify.com, Password: admin123",
+        );
+      } else {
+        alert(data.message || "Failed to create admin user");
+      }
+    } catch (error) {
+      console.error("Failed to create admin:", error);
+      alert("Failed to create admin user");
+    }
+  };
   const [currentQuote, setCurrentQuote] = useState(0);
 
   // Rotate quotes every 5 seconds
