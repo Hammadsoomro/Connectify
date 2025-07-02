@@ -13,33 +13,12 @@ export const getContacts = async (req: any, res: Response) => {
 
     let contactIds = [];
 
-    // If phoneNumber is provided, filter contacts that have messages with that number
-    if (phoneNumber) {
-      console.log(
-        `Looking up contacts for phone ${phoneNumber}, userId: ${lookupUserId}, userRole: ${user.role}`,
-      );
-
-      const messages = await Message.find({
-        userId: lookupUserId,
-        $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
-      }).distinct("contactId");
-
-      contactIds = messages;
-      console.log(
-        `Found ${contactIds.length} contact IDs with messages for phone ${phoneNumber}`,
-      );
-    }
-
-    // Build query using the correct userId
+    // Build query using the correct userId - show all contacts for this user
     const query: any = { userId: lookupUserId };
-    if (phoneNumber) {
-      if (contactIds.length > 0) {
-        query._id = { $in: contactIds };
-      } else {
-        // If no messages found for this phone number, return empty array
-        return res.json([]);
-      }
-    }
+
+    console.log(
+      `Loading contacts for userId: ${lookupUserId}, userRole: ${user.role}, phoneNumber: ${phoneNumber || "all"}`,
+    );
 
     // Don't sort by updatedAt since it changes when messages are marked as read
     // Let client-side handle sorting based on message times
