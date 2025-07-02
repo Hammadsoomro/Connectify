@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createServer as createHttpServer } from "http";
 import connectDB from "./db/connection.js";
+import socketService from "./services/socketService.js";
 import { auth } from "./middleware/auth.js";
 
 // Route imports
