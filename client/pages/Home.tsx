@@ -407,6 +407,15 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Phone Number Selection Modal */}
+      <PhoneNumberSelectionModal
+        isOpen={isPhoneNumberModalOpen}
+        onClose={() => setIsPhoneNumberModalOpen(false)}
+        phoneNumbers={phoneNumbers}
+        phoneNumberUnreadCounts={phoneNumberUnreadCounts}
+        onSelectPhoneNumber={handlePhoneNumberSelected}
+      />
     </div>
   );
 }
