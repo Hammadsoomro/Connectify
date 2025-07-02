@@ -27,7 +27,7 @@ export default function AdBanner({
         // Clear any existing content
         adRef.current.innerHTML = "";
 
-        // Create the ad script elements
+        // Create the Adsterra ad script elements
         const configScript = document.createElement("script");
         configScript.type = "text/javascript";
         configScript.innerHTML = `
@@ -44,6 +44,7 @@ export default function AdBanner({
         adScript.type = "text/javascript";
         adScript.src =
           "//www.highperformanceformat.com/13f9d755ea8b8ee3ce69a63352887dc2/invoke.js";
+        adScript.async = true;
 
         // Append scripts to the ad container
         adRef.current.appendChild(configScript);
