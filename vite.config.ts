@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => ({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
+  appType: "spa", // Ensure SPA mode for proper client-side routing
 }));
 
 function expressPlugin(): Plugin {
