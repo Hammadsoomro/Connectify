@@ -150,7 +150,7 @@ export default function Conversations() {
     };
   }, [selectedContactId, messages.length, contacts.length]);
 
-  const loadInitialData = async () => {
+  const loadInitialData = async (selectedPhoneNumberId?: string | null) => {
     try {
       const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
@@ -168,12 +168,33 @@ export default function Conversations() {
           if (phoneNumbersData.length > 0) {
             setPhoneNumbers(phoneNumbersData);
 
-            // Set first phone number as active if none is active
-            const activeNumber = phoneNumbersData.find((p: any) => p.isActive);
-            if (activeNumber) {
-              setActivePhoneNumber(activeNumber.id);
-            } else if (phoneNumbersData.length > 0) {
-              setActivePhoneNumber(phoneNumbersData[0].id);
+            // Set active phone number based on URL parameter or default logic
+            let targetPhoneNumberId = selectedPhoneNumberId;
+
+            if (selectedPhoneNumberId) {
+              // Use phone number from URL
+              const phoneFromUrl = phoneNumbersData.find(
+                (p: any) => p.id === selectedPhoneNumberId,
+              );
+              if (phoneFromUrl) {
+                targetPhoneNumberId = phoneFromUrl.id;
+              }
+            }
+
+            if (!targetPhoneNumberId) {
+              // Fall back to active number or first number
+              const activeNumber = phoneNumbersData.find(
+                (p: any) => p.isActive,
+              );
+              if (activeNumber) {
+                targetPhoneNumberId = activeNumber.id;
+              } else if (phoneNumbersData.length > 0) {
+                targetPhoneNumberId = phoneNumbersData[0].id;
+              }
+            }
+
+            if (targetPhoneNumberId) {
+              setActivePhoneNumber(targetPhoneNumberId);
 
               // Try to set active number via API
               try {
