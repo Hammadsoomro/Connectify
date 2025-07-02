@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
 import ContactList, { Contact } from "@/components/ContactList";
 import ChatArea, { Message } from "@/components/ChatArea";
@@ -9,6 +9,7 @@ import ApiService from "@/services/api";
 
 export default function Conversations() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     null,
   );
@@ -32,7 +33,8 @@ export default function Conversations() {
   });
 
   useEffect(() => {
-    loadInitialData();
+    const phoneNumberFromUrl = searchParams.get("phoneNumber");
+    loadInitialData(phoneNumberFromUrl);
 
     // Real-time polling every 2 seconds for smooth updates
     const messagePolling = setInterval(() => {
