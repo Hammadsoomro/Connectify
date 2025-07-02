@@ -5,6 +5,7 @@ export interface IContact extends Document {
   name: string;
   phoneNumber: string;
   avatar?: string;
+  associatedPhoneNumbers: string[]; // Array of phone numbers this contact is associated with
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +30,10 @@ const ContactSchema: Schema = new Schema(
     avatar: {
       type: String,
       default: "",
+    },
+    associatedPhoneNumbers: {
+      type: [String],
+      default: [],
     },
     unreadCount: {
       type: Number,
