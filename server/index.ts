@@ -267,5 +267,57 @@ export function createApp() {
     });
   });
 
+  // Temporary endpoint to add phone numbers for admin
+  app.post("/api/temp/add-numbers", async (req, res) => {
+    try {
+      const { default: User } = await import("./models/User.js");
+      const { default: PhoneNumber } = await import("./models/PhoneNumber.js");
+
+      const adminUser = await User.findOne({ email: "admin@connectify.com" });
+      if (!adminUser) {
+        return res.status(404).json({ message: "Admin user not found" });
+      }
+
+      const phoneNumbers = ["+16138017161", "+15878573620", "+19032705603"];
+      const addedNumbers = [];
+
+      for (let i = 0; i < phoneNumbers.length; i++) {
+        const phoneNumber = phoneNumbers[i];
+
+        const existingPhone = await PhoneNumber.findOne({
+          number: phoneNumber,
+        });
+        if (existingPhone) {
+          continue;
+        }
+
+        const newPhoneNumber = new PhoneNumber({
+          userId: adminUser._id,
+          number: phoneNumber,
+          twilioSid: `PN${Date.now()}${i}`,
+          isActive: i === 0,
+          location: "North America",
+          country: "United States",
+          type: "local",
+          price: "$1.00",
+          status: "active",
+          purchasedAt: new Date(),
+        });
+
+        await newPhoneNumber.save();
+        addedNumbers.push(phoneNumber);
+      }
+
+      res.json({
+        message: "Phone numbers added successfully",
+        addedNumbers,
+        totalNumbers: addedNumbers.length,
+      });
+    } catch (error) {
+      console.error("Add phone numbers error:", error);
+      res.status(500).json({ message: "Failed to add phone numbers" });
+    }
+  });
+
   return app;
 }
