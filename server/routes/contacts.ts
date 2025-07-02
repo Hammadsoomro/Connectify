@@ -58,7 +58,6 @@ export const getContacts = async (req: any, res: Response) => {
           lastMessage: lastMessage?.content,
           lastMessageTime: lastMessage?.createdAt?.toISOString(),
           unreadCount,
-          isOnline: contact.isOnline,
         };
       }),
     );
@@ -125,7 +124,6 @@ export const addContact = async (req: any, res: Response) => {
       userId: lookupUserId,
       name,
       phoneNumber,
-      isOnline: false,
     });
 
     await contact.save();
@@ -142,7 +140,6 @@ export const addContact = async (req: any, res: Response) => {
       lastMessage: undefined,
       lastMessageTime: undefined,
       unreadCount: 0,
-      isOnline: false,
     });
   } catch (error) {
     console.error("Add contact error:", error);
