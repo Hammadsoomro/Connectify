@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import PhoneNumber from "../models/PhoneNumber.js";
 import { generateToken } from "../middleware/auth.js";
 
 // Development helper to create admin user
@@ -91,5 +92,66 @@ export const resetDatabase = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Reset database error:", error);
     res.status(500).json({ message: "Failed to reset database" });
+  }
+};
+
+// Development helper to add phone numbers to admin
+export const addPhoneNumbers = async (req: Request, res: Response) => {
+  try {
+    // Only allow in development
+    if (process.env.NODE_ENV === "production") {
+      return res.status(403).json({ message: "Not available in production" });
+    }
+
+    const phoneNumbers = ["+16138017161", "+15878573620", "+19032705603"];
+
+    // Find admin user
+    const adminUser = await User.findOne({ email: "admin@connectify.com" });
+    if (!adminUser) {
+      return res.status(404).json({ message: "Admin user not found" });
+    }
+
+    console.log(`Found admin user: ${adminUser.email} (ID: ${adminUser._id})`);
+
+    const addedNumbers = [];
+
+    // Add phone numbers
+    for (let i = 0; i < phoneNumbers.length; i++) {
+      const phoneNumber = phoneNumbers[i];
+
+      // Check if phone number already exists
+      const existingPhone = await PhoneNumber.findOne({ number: phoneNumber });
+      if (existingPhone) {
+        console.log(`Phone number ${phoneNumber} already exists, skipping...`);
+        continue;
+      }
+
+      // Create new phone number
+      const newPhoneNumber = new PhoneNumber({
+        userId: adminUser._id,
+        number: phoneNumber,
+        twilioSid: `PN${Date.now()}${i}`, // Generate fake Twilio SID
+        isActive: i === 0, // Make first number active
+        location: "North America",
+        country: "United States",
+        type: "local",
+        price: "$1.00",
+        status: "active",
+        purchasedAt: new Date(),
+      });
+
+      await newPhoneNumber.save();
+      addedNumbers.push(phoneNumber);
+      console.log(`✅ Added phone number: ${phoneNumber} (Active: ${i === 0})`);
+    }
+
+    res.json({
+      message: "Phone numbers added successfully",
+      addedNumbers,
+      totalNumbers: addedNumbers.length,
+    });
+  } catch (error) {
+    console.error("Add phone numbers error:", error);
+    res.status(500).json({ message: "Failed to add phone numbers" });
   }
 };
