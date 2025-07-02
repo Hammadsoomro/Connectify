@@ -101,6 +101,26 @@ export default function Home() {
     }
   };
 
+  const handleConversationsClick = () => {
+    if (profile.role === "admin" && phoneNumbers.length > 1) {
+      // Show phone number selection modal for admin with multiple numbers
+      setIsPhoneNumberModalOpen(true);
+    } else if (phoneNumbers.length === 1) {
+      // Direct navigation if only one number
+      navigate(`/conversations?phoneNumber=${phoneNumbers[0].id}`);
+    } else if (phoneNumbers.length === 0) {
+      // No phone numbers available
+      alert("Please purchase a phone number first to access conversations");
+    } else {
+      // Sub-account or single number - direct navigation
+      navigate("/conversations");
+    }
+  };
+
+  const handlePhoneNumberSelected = (phoneNumber: any) => {
+    navigate(`/conversations?phoneNumber=${phoneNumber.id}`);
+  };
+
   const handleLogout = () => {
     ApiService.logout();
     window.location.reload();
@@ -123,7 +143,7 @@ export default function Home() {
       <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-center gap-4 px-6 py-4">
           <Button
-            onClick={() => navigate("/conversations")}
+            onClick={handleConversationsClick}
             variant="default"
             className="flex items-center gap-2"
           >
