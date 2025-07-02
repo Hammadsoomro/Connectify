@@ -145,6 +145,12 @@ export function createServer() {
   app.post("/api/debug/update-webhooks", auth, updateWebhookUrls);
   app.get("/api/debug/env", debugEnvironment);
 
+  // Development routes (only in development)
+  if (process.env.NODE_ENV !== "production") {
+    app.post("/api/dev/create-admin", createAdminUser);
+    app.post("/api/dev/reset-db", resetDatabase);
+  }
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
