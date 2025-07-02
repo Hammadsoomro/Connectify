@@ -178,8 +178,8 @@ export const updateContact = async (req: any, res: Response) => {
     const { name, avatar } = req.body;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for contact lookup
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user (admin and sub-account) uses their own userId for data isolation
+    const lookupUserId = user._id;
 
     const contact = await Contact.findOne({
       _id: contactId,
@@ -212,8 +212,8 @@ export const deleteContact = async (req: any, res: Response) => {
     const { contactId } = req.params;
     const user = req.user;
 
-    // For sub-accounts, use admin's userId for contact lookup
-    const lookupUserId = user.role === "sub-account" ? user.adminId : user._id;
+    // Each user (admin and sub-account) uses their own userId for data isolation
+    const lookupUserId = user._id;
 
     console.log(
       `Deleting contact ${contactId} for user ${user.email} (role: ${user.role}), using userId: ${lookupUserId}`,
