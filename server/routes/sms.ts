@@ -153,6 +153,16 @@ export const sendSMS = async (req: any, res: Response) => {
 
     await message.save();
 
+    // Send real-time notification via Socket.IO
+    socketService.notifyNewMessage(lookupUserId, contactId, {
+      id: message._id,
+      content: message.content,
+      isOutgoing: message.isOutgoing,
+      timestamp: message.createdAt,
+      status: message.status,
+      type: message.type,
+    });
+
     // Deduct SMS cost from admin's wallet (billingUserId already defined above)
     try {
       await deductFunds(
