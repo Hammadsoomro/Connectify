@@ -312,6 +312,16 @@ export const handleIncomingSMS = async (req: Request, res: Response) => {
 
     await message.save();
 
+    // Send real-time notification via Socket.IO
+    socketService.notifyNewMessage(phoneNumber.userId, contact._id.toString(), {
+      id: message._id,
+      content: message.content,
+      isOutgoing: message.isOutgoing,
+      timestamp: message.createdAt,
+      status: message.status,
+      type: message.type,
+    });
+
     // Increment unread count for the contact
     await Contact.findByIdAndUpdate(
       contact._id,
