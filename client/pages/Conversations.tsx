@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
 import ContactList, { Contact } from "@/components/ContactList";
 import ChatArea, { Message } from "@/components/ChatArea";
+import AdBanner from "@/components/AdBanner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import ApiService from "@/services/api";
@@ -33,123 +34,88 @@ export default function Conversations() {
     role: "admin",
   });
 
+  // Initialize Socket.IO and load data
   useEffect(() => {
     const phoneNumberFromUrl = searchParams.get("phoneNumber");
     loadInitialData(phoneNumberFromUrl);
 
-    // Real-time polling every 2 seconds for smooth updates
-    const messagePolling = setInterval(() => {
-      if (activePhoneNumber && document.hasFocus()) {
-        const activeNumber = phoneNumbers.find(
-          (phone) => phone.id === activePhoneNumber,
-        );
-        const phoneNumber = activeNumber?.number;
+    // Initialize Socket.IO connection for real-time messaging
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      socketService.connect(token);
 
-        if (phoneNumber) {
-          // Always update contacts for new messages - but preserve existing contacts
-          ApiService.getContacts(phoneNumber)
-            .then((contactsData) => {
-              if (contactsData && Array.isArray(contactsData)) {
-                // Only update if there are actual changes to prevent unnecessary re-renders
-                const contactsChanged =
-                  contactsData.length !== contacts.length ||
-                  contactsData.some((newContact) => {
-                    const oldContact = contacts.find(
-                      (c) => c.id === newContact.id,
-                    );
-                    return (
-                      !oldContact ||
-                      oldContact.unreadCount !== newContact.unreadCount ||
-                      oldContact.lastMessage !== newContact.lastMessage ||
-                      oldContact.lastMessageTime !== newContact.lastMessageTime
-                    );
-                  });
+      // Set up Socket.IO event listeners
+      const handleNewMessage = (data: any) => {
+        console.log("📱 New message received via Socket.IO:", data);
 
-                // Check for new unread messages for notification
-                const hasNewUnreadMessages = contactsData.some((newContact) => {
-                  const oldContact = contacts.find(
-                    (c) => c.id === newContact.id,
-                  );
-                  return (
-                    oldContact &&
-                    newContact.unreadCount > oldContact.unreadCount
-                  );
-                });
-
-                if (contactsChanged) {
-                  setContacts(contactsData);
-
-                  // Show subtle notification for new messages
-                  if (hasNewUnreadMessages && document.hasFocus()) {
-                    console.log("���� New message received!");
-                  }
-                }
-              }
-            })
-            .catch(() => {});
-
-          // Also update all phone number contacts for dropdown indicators
-          loadAllPhoneNumberContacts();
-
-          // If a conversation is selected, update messages
-          if (selectedContactId) {
-            ApiService.getMessages(selectedContactId, phoneNumber)
-              .then((messagesData) => {
-                if (messagesData && Array.isArray(messagesData)) {
-                  // Check for new messages or status changes
-                  const messagesChanged =
-                    messagesData.length !== messages.length ||
-                    messagesData.some((newMsg, index) => {
-                      const oldMsg = messages[index];
-                      return (
-                        !oldMsg ||
-                        oldMsg.status !== newMsg.status ||
-                        oldMsg.content !== newMsg.content
-                      );
-                    });
-
-                  if (messagesChanged) {
-                    setMessages(messagesData);
-                  }
-                }
-              })
-              .catch(() => {});
-          }
+        // Reload contacts to update last message and unread counts
+        if (activePhoneNumber) {
+          loadContacts();
         }
-      }
-    }, 10000); // Reduced to 10-second polling for stability
 
-    // Background polling for new message notifications (every 15 seconds)
-    const notificationPolling = setInterval(() => {
-      if (activePhoneNumber && !selectedContactId) {
-        const activeNumber = phoneNumbers.find(
-          (phone) => phone.id === activePhoneNumber,
-        );
-        const phoneNumber = activeNumber?.number;
-
-        if (phoneNumber) {
-          // Background contact check for new messages
-          ApiService.getContacts(phoneNumber)
-            .then((contactsData) => {
-              if (contactsData && Array.isArray(contactsData)) {
-                const hasNewMessages = contactsData.some(
-                  (contact) => contact.unreadCount > 0,
-                );
-                if (hasNewMessages || contactsData.length !== contacts.length) {
-                  setContacts(contactsData);
-                }
-              }
-            })
-            .catch(() => {});
+        // If the message is for the currently selected contact, reload messages
+        if (selectedContactId === data.contactId) {
+          loadMessages();
         }
-      }
-    }, 5000); // Background 5-second polling for new notifications
 
-    return () => {
-      clearInterval(messagePolling);
-      clearInterval(notificationPolling);
-    };
-  }, [selectedContactId, messages.length, contacts.length]);
+        // Update page title with unread count
+        const totalUnread = contacts.reduce(
+          (sum, contact) => sum + (contact.unreadCount || 0),
+          0,
+        );
+        if (totalUnread > 0) {
+          document.title = `(${totalUnread + 1}) Connectify - Messages`;
+        } else {
+          document.title = "Connectify - Messages";
+        }
+      };
+
+      const handleContactsUpdated = (data: any) => {
+        console.log("👥 Contacts updated via Socket.IO:", data);
+        if (activePhoneNumber === data.phoneNumberId) {
+          setContacts(data.contacts);
+        }
+      };
+
+      const handleUnreadUpdated = (data: any) => {
+        console.log("🔔 Unread counts updated via Socket.IO:", data);
+        loadAllPhoneNumberContacts();
+      };
+
+      const handleMessageStatusUpdate = (data: any) => {
+        console.log("✓ Message status updated via Socket.IO:", data);
+        if (selectedContactId) {
+          loadMessages();
+        }
+      };
+
+      // Register event listeners
+      socketService.on("newMessage", handleNewMessage);
+      socketService.on("contactsUpdated", handleContactsUpdated);
+      socketService.on("unreadUpdated", handleUnreadUpdated);
+      socketService.on("messageStatusUpdate", handleMessageStatusUpdate);
+
+      // Cleanup function
+      return () => {
+        socketService.off("newMessage", handleNewMessage);
+        socketService.off("contactsUpdated", handleContactsUpdated);
+        socketService.off("unreadUpdated", handleUnreadUpdated);
+        socketService.off("messageStatusUpdate", handleMessageStatusUpdate);
+      };
+    }
+  }, []);
+
+  // Join/leave phone number rooms when active number changes
+  useEffect(() => {
+    if (activePhoneNumber) {
+      socketService.joinPhoneNumber(activePhoneNumber);
+      loadContacts();
+
+      return () => {
+        socketService.leavePhoneNumber(activePhoneNumber);
+      };
+    }
+  }, [activePhoneNumber]);
 
   const loadInitialData = async (selectedPhoneNumberId?: string | null) => {
     try {
@@ -199,9 +165,9 @@ export default function Conversations() {
 
               // Try to set active number via API
               try {
-                await ApiService.setActiveNumber(phoneNumbersData[0].id);
+                await ApiService.setActiveNumber(targetPhoneNumberId);
               } catch (setActiveError) {
-                console.log("Could not set active number via API, continuing");
+                console.log("Could not set active number, continuing anyway");
               }
             }
             break; // Success, exit retry loop
@@ -245,30 +211,31 @@ export default function Conversations() {
   };
 
   const loadContacts = async () => {
-    if (!activePhoneNumber || phoneNumbers.length === 0) {
-      setContacts([]);
+    if (!activePhoneNumber) {
+      console.log("No active phone number for contact loading");
       return;
     }
 
     try {
-      // Get the active phone number
-      const activeNumber = phoneNumbers.find(
-        (phone) => phone.id === activePhoneNumber,
-      );
+      setIsLoadingContacts(true);
+      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
+      const phoneNumber = activeNumber?.number;
 
-      if (!activeNumber?.number) {
-        console.log("Active phone number not found");
+      if (!phoneNumber) {
+        console.log("No phone number found for contact loading");
         setContacts([]);
         return;
       }
 
-      const contactsData = await ApiService.getContacts(activeNumber.number);
+      console.log(`Loading contacts for phone number: ${phoneNumber}`);
+      const contactsData = await ApiService.getContacts(phoneNumber);
 
       // Ensure we have valid data before setting
       if (Array.isArray(contactsData)) {
+        console.log(`✅ Loaded ${contactsData.length} contacts`);
         setContacts(contactsData);
       } else {
-        console.log("Invalid contacts data received");
+        console.log("Invalid contacts data received:", contactsData);
         setContacts([]);
       }
     } catch (error: any) {
@@ -282,13 +249,17 @@ export default function Conversations() {
         error.message?.includes("401")
       ) {
         console.log("Authentication error - please login again");
+        // Clear auth and redirect to login
+        localStorage.removeItem("authToken");
+        window.location.href = "/";
       }
 
       setContacts([]);
+    } finally {
+      setIsLoadingContacts(false);
     }
   };
 
-  // Load contacts for all phone numbers to calculate unread counts
   const loadAllPhoneNumberContacts = async () => {
     if (phoneNumbers.length === 0) return;
 
@@ -310,6 +281,37 @@ export default function Conversations() {
       setAllPhoneNumberContacts(allContacts);
     } catch (error) {
       console.error("Failed to load all phone number contacts:", error);
+    }
+  };
+
+  const loadMessages = async () => {
+    if (!selectedContactId || !activePhoneNumber) return;
+
+    try {
+      setIsLoading(true);
+      const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
+      const phoneNumber = activeNumber?.number;
+
+      if (!phoneNumber) {
+        setMessages([]);
+        return;
+      }
+
+      const messagesData = await ApiService.getMessages(
+        selectedContactId,
+        phoneNumber,
+      );
+
+      if (Array.isArray(messagesData)) {
+        setMessages(messagesData);
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("Error loading messages:", error);
+      setMessages([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -338,48 +340,34 @@ export default function Conversations() {
     }
   }, [phoneNumbers]);
 
-  // Messages are now loaded immediately in handleSelectContact for instant opening
-
   const handleSelectContact = async (contactId: string) => {
     // Don't reload if same contact is selected
     if (selectedContactId === contactId) return;
 
-    // Set the selected contact immediately
     setSelectedContactId(contactId);
 
-    // Clear messages to prevent showing old messages from different contact
-    setMessages([]);
-
-    // Immediately load messages for instant conversation opening
-    if (activePhoneNumber) {
-      const activeNumber = phoneNumbers.find(
-        (phone) => phone.id === activePhoneNumber,
-      );
-
-      if (activeNumber?.number) {
-        try {
-          const messagesData = await ApiService.getMessages(
-            contactId,
-            activeNumber.number,
-          );
-          if (messagesData && Array.isArray(messagesData)) {
-            setMessages(messagesData);
-          }
-
-          // Mark as read immediately
-          await ApiService.markAsRead(contactId);
-
-          // Update contact list to reflect read status
-          setContacts((prev) =>
-            prev.map((contact) =>
-              contact.id === contactId
-                ? { ...contact, unreadCount: 0 }
-                : contact,
-            ),
-          );
-        } catch (error) {
-          console.log("Error immediately loading messages:", error);
+    // Immediately load messages for instant UI feedback
+    const activeNumber = phoneNumbers.find((p) => p.id === activePhoneNumber);
+    if (activeNumber?.number) {
+      try {
+        setIsLoading(true);
+        const messagesData = await ApiService.getMessages(
+          contactId,
+          activeNumber.number,
+        );
+        if (Array.isArray(messagesData)) {
+          setMessages(messagesData);
         }
+
+        // Mark messages as read
+        await ApiService.markAsRead(contactId);
+
+        // Reload contacts to update unread count
+        setTimeout(loadContacts, 500);
+      } catch (error) {
+        console.error("Error loading messages:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -459,13 +447,7 @@ export default function Conversations() {
         errorMessage = error.message || "Failed to send message";
       }
 
-      // Show more detailed error in development
-      const detailedError =
-        process.env.NODE_ENV === "development"
-          ? `\n\nDetails: ${error.message}\nStack: ${error.stack || "No stack trace"}`
-          : "";
-
-      alert(`${errorMessage}${detailedError}`);
+      alert(errorMessage);
 
       setMessages((prev) =>
         prev.map((msg) =>
@@ -528,140 +510,96 @@ export default function Conversations() {
       setSelectedContactId(null);
       setMessages([]);
       setContacts([]); // Clear contacts immediately
-      setContacts([]);
 
-      // Update the active number
-      await ApiService.setActiveNumber(numberId);
+      // Leave current phone number room
+      if (activePhoneNumber) {
+        socketService.leavePhoneNumber(activePhoneNumber);
+      }
+
+      // Set new active phone number
       setActivePhoneNumber(numberId);
 
-      console.log(`✅ Phone number switched successfully to: ${phoneNumber}`);
+      // Join new phone number room
+      socketService.joinPhoneNumber(numberId);
 
-      // Update active state for all phone numbers
-      setPhoneNumbers((prev) =>
-        prev.map((phone) => ({
-          ...phone,
-          isActive: phone.id === numberId,
-        })),
+      // Update active number on server
+      try {
+        await ApiService.setActiveNumber(numberId);
+      } catch (setActiveError) {
+        console.log("Could not set active number on server:", setActiveError);
+      }
+
+      console.log(`✅ Successfully switched to phone number: ${phoneNumber}`);
+    } catch (error) {
+      console.error("Error switching phone number:", error);
+    }
+  };
+
+  // Calculate phone number unread counts
+  const phoneNumberUnreadCounts = Object.entries(allPhoneNumberContacts).reduce(
+    (acc, [phoneNumber, contacts]) => {
+      acc[phoneNumber] = contacts.reduce(
+        (sum, contact) => sum + (contact.unreadCount || 0),
+        0,
       );
+      return acc;
+    },
+    {} as { [phoneNumber: string]: number },
+  );
 
-      // Load contacts for the new number will happen in useEffect
-    } catch (error) {
-      console.error("Error setting active number:", error);
-    }
-  };
-
-  const handleBuyNewNumber = () => {
-    navigate("/buy-numbers");
-  };
-
-  const handleUpdateProfile = async (newProfile: typeof profile) => {
-    try {
-      const updatedProfile = await ApiService.updateProfile(newProfile);
-      setProfile(updatedProfile);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
-
-  const handleLogout = () => {
-    // Clear authentication immediately
-    localStorage.removeItem("authToken");
-    localStorage.clear();
-
-    // Force navigate to home page
-    window.location.href = "/";
-  };
-
-  const selectedContact =
-    contacts.find((contact) => contact.id === selectedContactId) || null;
-
-  const totalUnreadCount = contacts.reduce(
-    (total, contact) => total + contact.unreadCount,
+  const totalUnreadCount = Object.values(phoneNumberUnreadCounts).reduce(
+    (sum, count) => sum + count,
     0,
   );
 
-  // Calculate unread counts for each phone number with fallback
-  const phoneNumberUnreadCounts =
-    phoneNumbers.reduce(
-      (acc, phone) => {
-        const phoneContacts = allPhoneNumberContacts[phone.number] || [];
-        const unreadCount = phoneContacts.reduce(
-          (total, contact) => total + contact.unreadCount,
-          0,
-        );
-        acc[phone.number] = unreadCount;
-        return acc;
-      },
-      {} as { [phoneNumber: string]: number },
-    ) || {};
-
-  // Calculate total unread across all phone numbers
-  const totalUnreadAllNumbers = Object.values(phoneNumberUnreadCounts).reduce(
-    (total, count) => total + count,
-    0,
-  );
-
-  // Update page title with unread count for real-time awareness
-  useEffect(() => {
-    if (totalUnreadAllNumbers > 0) {
-      document.title = `(${totalUnreadAllNumbers}) Connectify - Messages`;
-    } else {
-      document.title = "Connectify - Messages";
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.title = "Connectify";
-    };
-  }, [totalUnreadAllNumbers]);
-
-  // Only log if there are issues
-  if (phoneNumbers.length === 0 && !isInitialLoading) {
-    console.log("No phone numbers available");
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading conversations...</p>
+        </div>
+      </div>
+    );
   }
 
+  const selectedContact = contacts.find((c) => c.id === selectedContactId);
+
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Navigation Bar */}
+    <div className="min-h-screen bg-background">
       <SMSNavbar
         unreadCount={totalUnreadCount}
         phoneNumbers={phoneNumbers}
         activeNumber={activePhoneNumber}
         profile={profile}
-        phoneNumberUnreadCounts={phoneNumberUnreadCounts || {}}
+        phoneNumberUnreadCounts={phoneNumberUnreadCounts}
         onSelectNumber={handleSelectPhoneNumber}
-        onBuyNewNumber={handleBuyNewNumber}
-        onUpdateProfile={handleUpdateProfile}
-        onLogout={handleLogout}
+        onBuyNewNumber={() => navigate("/buy-numbers")}
+        onUpdateProfile={() => {}}
+        onLogout={() => {
+          localStorage.removeItem("authToken");
+          socketService.disconnect();
+          window.location.href = "/";
+        }}
       />
 
-      {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {phoneNumbers.length === 0 && !isInitialLoading ? (
-          /* No Phone Numbers Message */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center p-8">
-              <h2 className="text-xl font-semibold mb-4">
-                No Phone Numbers Available
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                {profile.role === "admin"
-                  ? "You need to purchase phone numbers to start messaging."
-                  : "No phone numbers have been assigned to your account. Contact your admin."}
-              </p>
-              {profile.role === "admin" && (
-                <Button onClick={handleBuyNewNumber}>Buy Phone Number</Button>
-              )}
-            </div>
-          </div>
-        ) : isInitialLoading || isLoadingContacts ? (
-          /* Minimal Loading State */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <>
-            {/* Contact List Sidebar */}
+      <div className="flex h-[calc(100vh-4rem)]">
+        {/* Back Button - Mobile Only */}
+        <div className="md:hidden p-4 border-b">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Button>
+        </div>
+
+        {/* Sidebar with Contact List and Ad */}
+        <div className="w-96 border-r bg-card flex flex-col">
+          {/* Contact List */}
+          <div className="flex-1">
             <ContactList
               contacts={contacts}
               selectedContactId={selectedContactId}
@@ -669,17 +607,48 @@ export default function Conversations() {
               onAddContact={handleAddContact}
               onEditContact={handleEditContact}
               onDeleteContact={handleDeleteContact}
+              isLoading={isLoadingContacts}
             />
+          </div>
 
-            {/* Chat Area */}
+          {/* Ad Banner */}
+          <div className="p-4 border-t bg-muted/30">
+            <div className="text-center mb-2">
+              <span className="text-xs text-muted-foreground">
+                Advertisement
+              </span>
+            </div>
+            <div className="flex justify-center">
+              <AdBanner width={300} height={250} />
+            </div>
+          </div>
+        </div>
+
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col">
+          {selectedContact ? (
             <ChatArea
-              selectedContact={selectedContact}
+              contact={selectedContact}
               messages={messages}
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
             />
-          </>
-        )}
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <div className="text-lg mb-2">Select a conversation</div>
+                <div className="text-sm">
+                  Choose a contact from the list to start messaging
+                </div>
+                {contacts.length === 0 && (
+                  <div className="mt-4 text-xs">
+                    No contacts found. Add a contact to get started.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
