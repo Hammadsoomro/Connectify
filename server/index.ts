@@ -53,7 +53,11 @@ import {
   createSetupIntent,
 } from "./routes/payments.js";
 import { getTwilioBalance } from "./routes/twilio.js";
-import { createAdminUser, resetDatabase } from "./routes/dev.js";
+import {
+  createAdminUser,
+  resetDatabase,
+  addPhoneNumbers,
+} from "./routes/dev.js";
 import {
   testTwilioCredentials,
   testWebhook,
