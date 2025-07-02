@@ -20,7 +20,7 @@ export const getContacts = async (req: any, res: Response) => {
     let contacts;
 
     if (phoneNumber) {
-      // For phone number isolation: only show contacts that have messages with this phone number
+      // For phone number isolation: show contacts associated with this phone number OR contacts with messages
       const messagesWithContacts = await Message.find({
         userId: lookupUserId,
         $or: [{ fromNumber: phoneNumber }, { toNumber: phoneNumber }],
@@ -30,11 +30,20 @@ export const getContacts = async (req: any, res: Response) => {
         `Found ${messagesWithContacts.length} contacts with messages for phone ${phoneNumber}`,
       );
 
-      // Get contacts that have messages with this phone number
+      // Get contacts that are either:
+      // 1. Associated with this phone number, OR
+      // 2. Have messages with this phone number
       contacts = await Contact.find({
         userId: lookupUserId,
-        _id: { $in: messagesWithContacts },
+        $or: [
+          { associatedPhoneNumbers: phoneNumber },
+          { _id: { $in: messagesWithContacts } },
+        ],
       }).sort({ createdAt: -1 });
+
+      console.log(
+        `Found ${contacts.length} total contacts for phone ${phoneNumber}`,
+      );
     } else {
       // No phone number filter - show all contacts
       contacts = await Contact.find({ userId: lookupUserId }).sort({
