@@ -118,7 +118,6 @@ export const sendSMS = async (req: any, res: Response) => {
 
     // Check wallet balance for admin users (SMS cost: $0.01 per message)
     const smsPrice = 0.01;
-    const billingUserId = user.role === "sub-account" ? user.adminId : user._id;
 
     // Always check admin's balance for billing (admin pays for sub-account usage)
     const hasBalance = await checkBalance(billingUserId, smsPrice);
