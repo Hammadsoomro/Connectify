@@ -90,14 +90,14 @@ export const getContacts = async (req: any, res: Response) => {
 // Add new contact
 export const addContact = async (req: any, res: Response) => {
   try {
-    const { name, phoneNumber } = req.body;
+    const { name, phoneNumber, activePhoneNumber } = req.body;
     const user = req.user;
 
     // Each user (admin and sub-account) uses their own userId for data isolation
     const lookupUserId = user._id;
 
     console.log(
-      `Adding contact for user: ${user.email} (${user.role}), using userId: ${lookupUserId}`,
+      `Adding contact for user: ${user.email} (${user.role}), using userId: ${lookupUserId}, activePhone: ${activePhoneNumber}`,
     );
 
     // Check if contact already exists
@@ -137,11 +137,14 @@ export const addContact = async (req: any, res: Response) => {
       });
     }
 
-    // Create new contact
+    // Create new contact with phone number association
+    const associatedPhoneNumbers = activePhoneNumber ? [activePhoneNumber] : [];
+
     const contact = new Contact({
       userId: lookupUserId,
       name,
       phoneNumber,
+      associatedPhoneNumbers,
     });
 
     await contact.save();
