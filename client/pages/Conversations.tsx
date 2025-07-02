@@ -622,31 +622,31 @@ export default function Conversations() {
         }}
       />
 
-      <div className="flex h-[calc(100vh-4rem)]">
-        {/* Active Phone Number Header */}
-        {activePhoneNumber && (
-          <div className="w-full border-b bg-muted/30 p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-primary" />
-                <span className="font-medium">Active Number:</span>
-                <span className="font-mono text-primary">
-                  {phoneNumbers.find((p) => p.id === activePhoneNumber)?.number}
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/")}
-                className="md:hidden flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
+      {/* Active Phone Number Header */}
+      {activePhoneNumber && (
+        <div className="border-b bg-muted/30 p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary" />
+              <span className="font-medium">Active Number:</span>
+              <span className="font-mono text-primary">
+                {phoneNumbers.find((p) => p.id === activePhoneNumber)?.number}
+              </span>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="md:hidden flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
           </div>
-        )}
+        </div>
+      )}
 
+      <div className="flex h-[calc(100vh-8rem)]">
         {/* Sidebar with Contact List and Ad */}
         <div className="w-96 border-r bg-card flex flex-col">
           {/* Contact List */}
