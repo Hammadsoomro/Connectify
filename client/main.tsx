@@ -25,9 +25,11 @@ const App = () => {
     const checkAuth = async () => {
       if (ApiService.isAuthenticated()) {
         try {
-          await ApiService.getProfile();
+          const profile = await ApiService.getProfile();
+          console.log("User profile loaded:", profile);
           setIsAuthenticated(true);
         } catch (error) {
+          console.error("Auth check failed:", error);
           ApiService.logout();
           setIsAuthenticated(false);
         }

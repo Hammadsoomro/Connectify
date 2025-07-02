@@ -77,29 +77,43 @@ class ApiService {
 
   // Auth methods
   async login(email: string, password: string) {
-    const response = await this.request("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      console.log("Attempting login for:", email);
+      const response = await this.request("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (response.token) {
-      localStorage.setItem("authToken", response.token);
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+        console.log("Login successful, token stored");
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
     }
-
-    return response;
   }
 
   async register(name: string, email: string, password: string) {
-    const response = await this.request("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password }),
-    });
+    try {
+      console.log("Attempting registration for:", email);
+      const response = await this.request("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    if (response.token) {
-      localStorage.setItem("authToken", response.token);
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+        console.log("Registration successful, token stored");
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
     }
-
-    return response;
   }
 
   async getProfile() {
