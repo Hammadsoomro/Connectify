@@ -10,10 +10,11 @@ You need to set these environment variables in Netlify:
 
 ```
 TWILIO_SID=ACa19a1c169dc473fe2ba11051dd0c1ecd
-TWILIO_AUTH_TOKEN=7687160b0c02e0526f1296c7f4c7b2c4
+TWILIO_AUTH_TOKEN=1d2a06654b07036cdbca45f0e1ed3feb
 DB_URL=mongodb+srv://Hammad:Soomro@connectify.fvitf7a.mongodb.net/?retryWrites=true&w=majority&appName=Connectify
 JWT_SECRET=yourverysecretkey
 NODE_ENV=production
+PORT=8080
 ```
 
 **Optional for Stripe Payment:**
@@ -90,7 +91,7 @@ In your Netlify dashboard:
 | Variable                      | Value                                | Notes                            |
 | ----------------------------- | ------------------------------------ | -------------------------------- |
 | `TWILIO_SID`                  | `ACa19a1c169dc473fe2ba11051dd0c1ecd` | Your Twilio Account SID          |
-| `TWILIO_AUTH_TOKEN`           | `7687160b0c02e0526f1296c7f4c7b2c4`   | Your Twilio Auth Token           |
+| `TWILIO_AUTH_TOKEN`           | `1d2a06654b07036cdbca45f0e1ed3feb`   | Your Twilio Auth Token           |
 | `DB_URL`                      | `mongodb+srv://Hammad:...`           | Your MongoDB connection string   |
 | `JWT_SECRET`                  | `yourverysecretkey`                  | Change to a secure random string |
 | `NODE_ENV`                    | `production`                         | Set to production mode           |
