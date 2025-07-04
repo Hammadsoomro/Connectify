@@ -131,11 +131,39 @@ export const sendSMS = async (req: any, res: Response) => {
     }
 
     // Send via Twilio
-    const twilioMessage = await twilioService.sendSMS(
-      fromNumber,
-      contact.phoneNumber,
-      content,
-    );
+    let twilioMessage;
+    try {
+      twilioMessage = await twilioService.sendSMS(
+        fromNumber,
+        contact.phoneNumber,
+        content,
+      );
+    } catch (twilioError: any) {
+      console.error("Twilio SMS error:", twilioError);
+
+      // Handle specific Twilio errors
+      if (
+        twilioError.code === 20003 ||
+        twilioError.message?.includes("Authenticate")
+      ) {
+        return res.status(503).json({
+          message:
+            "SMS service authentication error. Please check Twilio credentials.",
+          code: "TWILIO_AUTH_ERROR",
+          details: "The Twilio account credentials are invalid or expired.",
+        });
+      }
+
+      if (twilioError.code === 21614) {
+        return res.status(400).json({
+          message: "Invalid phone number format",
+          code: "INVALID_PHONE_NUMBER",
+        });
+      }
+
+      // Generic Twilio error
+      throw new Error(`Twilio service error: ${twilioError.message}`);
+    }
 
     // Save to database using correct userId
     const message = new Message({
