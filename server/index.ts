@@ -177,6 +177,7 @@ export function createServer() {
 // Export just the Express app for Vite middleware
 export function createApp() {
   const app = express();
+  const server = createHttpServer(app);
 
   // Connect to MongoDB
   connectDB();
