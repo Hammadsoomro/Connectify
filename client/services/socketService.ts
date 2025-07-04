@@ -11,7 +11,12 @@ class SocketService {
 
     console.log("Connecting to Socket.IO server...");
 
-    this.socket = io(window.location.origin, {
+    // In development, connect to separate Socket.IO server
+    const socketUrl = import.meta.env.DEV
+      ? "http://localhost:3001"
+      : window.location.origin;
+
+    this.socket = io(socketUrl, {
       auth: {
         token,
       },
