@@ -442,11 +442,11 @@ export default function Conversations() {
     }
 
     try {
-      await ApiService.addContact({
-        name: newContactName.trim(),
-        phoneNumber: newContactPhone.trim(),
+      await ApiService.addContact(
+        newContactName.trim(),
+        newContactPhone.trim(),
         activePhoneNumber,
-      });
+      );
 
       setNewContactName("");
       setNewContactPhone("");
