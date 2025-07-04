@@ -400,12 +400,11 @@ export default function Conversations() {
         throw new Error("Selected contact not found");
       }
 
-      await ApiService.sendSMS({
-        to: selectedContact.phoneNumber,
-        message: newMessage.trim(),
-        fromNumber: activePhoneNumber,
-        contactId: selectedContactId,
-      });
+      await ApiService.sendSMS(
+        selectedContactId,
+        newMessage.trim(),
+        activePhoneNumber,
+      );
 
       setNewMessage("");
 
