@@ -11,7 +11,9 @@
     ]
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"node server/dev-server.js\"",
+    "dev:vite": "vite",
+    "dev:socket": "node server/dev-server.js",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
