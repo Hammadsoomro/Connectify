@@ -9,46 +9,43 @@ class SocketService {
       return;
     }
 
-    console.log("Connecting to Socket.IO server...");
+    console.log("Attempting to connect to Socket.IO server...");
 
-    // In development, connect to separate Socket.IO server
-    const socketUrl = import.meta.env.DEV
-      ? "http://localhost:3001"
-      : window.location.origin;
-
-    this.socket = io(socketUrl, {
-      auth: {
-        token,
-      },
-      transports: ["polling", "websocket"], // Try polling first, then websocket
-      timeout: 15000, // 15 second timeout
-      forceNew: true,
-      reconnection: true,
-      reconnectionDelay: 2000,
-      reconnectionDelayMax: 10000,
-      reconnectionAttempts: 5,
-      maxReconnectionAttempts: 5,
-    });
-
-    this.socket.on("connect", () => {
-      console.log("✅ Connected to Socket.IO server");
-    });
-
-    this.socket.on("disconnect", (reason) => {
-      console.log("❌ Disconnected from Socket.IO server:", reason);
-    });
-
-    this.socket.on("connect_error", (error) => {
-      console.error("Socket.IO connection error:", error.message);
-      // Don't emit this as an error to UI components since we have retries
-    });
-
-    this.socket.on("reconnect_failed", () => {
-      console.error("Socket.IO failed to reconnect after all attempts");
-      this.emit("connection_failed", {
-        message: "Failed to establish real-time connection",
+    try {
+      this.socket = io(window.location.origin, {
+        auth: {
+          token,
+        },
+        transports: ["polling", "websocket"],
+        timeout: 10000,
+        forceNew: true,
+        reconnection: false, // Disable auto-reconnection to prevent spam
+        autoConnect: true,
       });
-    });
+
+      this.socket.on("connect", () => {
+        console.log(
+          "✅ Connected to Socket.IO server - Real-time messaging enabled",
+        );
+      });
+
+      this.socket.on("disconnect", (reason) => {
+        console.log("❌ Disconnected from Socket.IO server:", reason);
+      });
+
+      this.socket.on("connect_error", (error) => {
+        console.warn("Socket.IO connection failed:", error.message);
+        console.log(
+          "📱 Real-time messaging unavailable - using polling fallback",
+        );
+        // Don't throw errors, just log and continue without real-time features
+      });
+    } catch (error) {
+      console.warn("Failed to initialize Socket.IO:", error);
+      console.log(
+        "📱 Real-time messaging unavailable - continuing without Socket.IO",
+      );
+    }
 
     // Set up event listeners
     this.setupEventListeners();
