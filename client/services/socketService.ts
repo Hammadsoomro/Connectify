@@ -16,11 +16,13 @@ class SocketService {
         token,
       },
       transports: ["polling", "websocket"], // Try polling first, then websocket
-      timeout: 10000, // 10 second timeout
+      timeout: 15000, // 15 second timeout
       forceNew: true,
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 3,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      reconnectionAttempts: 5,
+      maxReconnectionAttempts: 5,
     });
 
     this.socket.on("connect", () => {
@@ -33,6 +35,14 @@ class SocketService {
 
     this.socket.on("connect_error", (error) => {
       console.error("Socket.IO connection error:", error.message);
+      // Don't emit this as an error to UI components since we have retries
+    });
+
+    this.socket.on("reconnect_failed", () => {
+      console.error("Socket.IO failed to reconnect after all attempts");
+      this.emit("connection_failed", {
+        message: "Failed to establish real-time connection",
+      });
     });
 
     // Set up event listeners
