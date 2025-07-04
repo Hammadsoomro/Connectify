@@ -348,7 +348,10 @@ export default function Conversations() {
   const loadMessages = async (contactId: string) => {
     try {
       setIsLoadingMessages(true);
-      const messagesData = await ApiService.getMessages(contactId);
+      const messagesData = await ApiService.getMessages(
+        contactId,
+        activePhoneNumber || undefined,
+      );
       setMessages(messagesData || []);
     } catch (error) {
       console.error("Error loading messages:", error);
