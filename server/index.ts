@@ -177,7 +177,6 @@ export function createServer() {
 // Export just the Express app for Vite middleware
 export function createApp() {
   const app = express();
-  const server = createHttpServer(app);
 
   // Connect to MongoDB
   connectDB();
@@ -270,12 +269,6 @@ export function createApp() {
       version: "1.0.0",
     });
   });
-
-  // Initialize Socket.IO for real-time communication
-  socketService.init(server);
-  console.log(
-    "Socket.IO service initialized for real-time messaging (createApp)",
-  );
 
   return app;
 }
