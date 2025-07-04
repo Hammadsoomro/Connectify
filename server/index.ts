@@ -271,5 +271,11 @@ export function createApp() {
     });
   });
 
+  // Initialize Socket.IO for real-time communication
+  socketService.init(server);
+  console.log(
+    "Socket.IO service initialized for real-time messaging (createApp)",
+  );
+
   return app;
 }
