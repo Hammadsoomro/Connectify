@@ -114,7 +114,7 @@ export default function Conversations() {
   const [isConnecting, setIsConnecting] = useState(false);
 
   // UI State
-  const [twilioBalance, setTwilioBalance] = useState<number>(0);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const stored = localStorage.getItem("theme");
     return (
@@ -216,13 +216,13 @@ export default function Conversations() {
         })),
       );
 
-      // Load Twilio balance
+      // Load wallet balance
       try {
-        const balance = await ApiService.getTwilioBalance();
-        setTwilioBalance(balance || 0);
+        const walletData = await ApiService.getWallet();
+        setWalletBalance(walletData.balance || 0);
       } catch (error) {
-        console.error("Error loading Twilio balance:", error);
-        setTwilioBalance(0);
+        console.error("Error loading wallet balance:", error);
+        setWalletBalance(0);
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
@@ -728,7 +728,7 @@ export default function Conversations() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem disabled>
                     <DollarSign className="w-4 h-4 mr-2" />
-                    Balance: ${twilioBalance.toFixed(2)}
+                    Balance: ${walletBalance.toFixed(2)}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => window.location.reload()}>
@@ -1132,7 +1132,7 @@ export default function Conversations() {
               </div>
               <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                 <span>Press Enter to send, Shift+Enter for new line</span>
-                <span>Balance: ${twilioBalance.toFixed(2)}</span>
+                <span>Balance: ${walletBalance.toFixed(2)}</span>
               </div>
             </div>
           </>
@@ -1180,9 +1180,9 @@ export default function Conversations() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Twilio Balance:</span>
+                    <span>Wallet Balance:</span>
                     <span className="font-semibold text-green-600">
-                      ${twilioBalance.toFixed(2)}
+                      ${walletBalance.toFixed(2)}
                     </span>
                   </div>
                 </div>
