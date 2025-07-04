@@ -1,4 +1,4 @@
-import { createServer } from "./index.js";
+import { createServer } from "./index.ts";
 
 // Create and start the full server with Socket.IO for development
 const server = createServer();
