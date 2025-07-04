@@ -71,21 +71,21 @@ export default function SMSNavbar({
 }: SMSNavbarProps) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
-  const [twilioBalance, setTwilioBalance] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<string | null>(null);
 
-  // Load Twilio balance for admin and sub-account users
+  // Load wallet balance for admin and sub-account users
   useEffect(() => {
     if (profile.role === "admin" || profile.role === "sub-account") {
       // Show placeholder for authenticated users
-      setTwilioBalance("Loading...");
+      setWalletBalance("Loading...");
 
       // Load real balance after delay
       setTimeout(() => {
-        loadTwilioBalance();
-      }, 2000);
+        loadWalletBalance();
+      }, 1000);
     } else {
       // Other users should not see balance
-      setTwilioBalance(null);
+      setWalletBalance(null);
     }
   }, [profile.role]);
 
@@ -94,75 +94,45 @@ export default function SMSNavbar({
     if (
       profile.role !== "admin" &&
       profile.role !== "sub-account" &&
-      twilioBalance !== null
+      walletBalance !== null
     ) {
-      setTwilioBalance(null);
+      setWalletBalance(null);
     }
-  }, [profile.role, twilioBalance]);
+  }, [profile.role, walletBalance]);
 
-  const loadTwilioBalance = async () => {
+  const loadWalletBalance = async () => {
     // Safety checks - allow admin and sub-account users
     if (
       !profile ||
       !profile.role ||
       (profile.role !== "admin" && profile.role !== "sub-account")
     ) {
-      setTwilioBalance(null);
+      setWalletBalance(null);
       return;
     }
 
     try {
-      setTwilioBalance("Loading...");
+      setWalletBalance("Loading...");
 
-      // Try the authenticated endpoint first
-      const balanceInfo = await ApiService.getTwilioBalance();
-
-      if (balanceInfo.error) {
-        console.error("Twilio balance API error:", balanceInfo);
-        if (balanceInfo.message?.includes("authentication")) {
-          setTwilioBalance("Auth Error");
-        } else if (balanceInfo.message?.includes("credentials")) {
-          setTwilioBalance("Config Error");
-        } else {
-          setTwilioBalance("Error");
-        }
-      } else {
-        setTwilioBalance(`$${balanceInfo.balance}`);
-      }
+      const walletData = await ApiService.getWallet();
+      setWalletBalance(`$${walletData.balance.toFixed(2)}`);
     } catch (error: any) {
-      console.error("Error loading Twilio balance:", error);
+      console.error("Error loading wallet balance:", error);
 
       // Handle specific error cases for sub-accounts
       if (error.message?.includes("Only admins can view")) {
         console.log("User is not admin, hiding balance");
-        setTwilioBalance(null);
+        setWalletBalance(null);
         return;
-      }
-
-      // Try fallback to debug endpoint (no auth required)
-      try {
-        console.log("Trying fallback debug endpoint...");
-        const response = await fetch("/api/debug/twilio");
-        if (response.ok) {
-          const debugData = await response.json();
-          if (debugData.success && debugData.balance) {
-            setTwilioBalance(`$${debugData.balance.balance}`);
-            return;
-          }
-        }
-      } catch (fallbackError) {
-        console.error("Fallback also failed:", fallbackError);
       }
 
       // Set appropriate error message
       if (error.message?.includes("authentication")) {
-        setTwilioBalance("Auth Error");
-      } else if (error.message?.includes("credentials")) {
-        setTwilioBalance("Config Error");
+        setWalletBalance("Auth Error");
       } else if (error.message?.includes("Network")) {
-        setTwilioBalance("Network Error");
+        setWalletBalance("Network Error");
       } else {
-        setTwilioBalance("Unavailable");
+        setWalletBalance("Unavailable");
       }
     }
   };
