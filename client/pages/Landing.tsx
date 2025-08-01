@@ -116,7 +116,7 @@ const testimonials = [
   {
     name: "Maria Garcia",
     role: "Marketing Director",
-    company: "GrowthLabs",
+    company: "Slack",
     content: "The real-time features and analytics dashboard have transformed how we communicate with our customers.",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1-7?w=150",
     rating: 5,

@@ -121,7 +121,7 @@ const testimonials = [
   {
     name: "Michael Chen",
     role: "CEO",
-    company: "StartupXYZ",
+    company: "Uber",
     content: "Best SMS platform we've used. The global reach and reliability are unmatched.",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
     rating: 5,
