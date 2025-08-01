@@ -47,9 +47,22 @@ const App = () => {
 
     checkAuth();
 
+    // Global error handler for unhandled DOM errors
+    const handleGlobalError = (event: ErrorEvent) => {
+      if (event.error?.message?.includes('removeChild') ||
+          event.error?.message?.includes('Node') ||
+          event.error?.name === 'NotFoundError') {
+        console.warn('DOM manipulation error caught and suppressed:', event.error);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    window.addEventListener('error', handleGlobalError);
+
     // Cleanup function
     return () => {
-      // Any necessary cleanup when App unmounts
+      window.removeEventListener('error', handleGlobalError);
     };
   }, []);
 
