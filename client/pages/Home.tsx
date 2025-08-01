@@ -113,7 +113,7 @@ const testimonials = [
   {
     name: "Sarah Johnson",
     role: "Marketing Director",
-    company: "TechCorp",
+    company: "Salesforce",
     content: "Connectlify transformed our customer communication. The real-time features are incredible!",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1-7?w=150",
     rating: 5,

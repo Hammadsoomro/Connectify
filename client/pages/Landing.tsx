@@ -108,7 +108,7 @@ const testimonials = [
   {
     name: "Alex Thompson",
     role: "CTO",
-    company: "TechFlow",
+    company: "Spotify",
     content: "Connectlify's API integration was seamless. We saw 40% improvement in customer engagement within the first month.",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
     rating: 5,
