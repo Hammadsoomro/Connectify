@@ -309,3 +309,99 @@ export const triggerMonthlyBilling = async (req: any, res: Response) => {
     });
   }
 };
+
+// Transfer funds to sub-account
+export const transferToSubAccount = async (req: any, res: Response) => {
+  try {
+    const adminUserId = req.user._id;
+    const { subAccountId, amount } = req.body;
+
+    // Only admins can transfer funds
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Only admins can transfer funds to sub-accounts" });
+    }
+
+    // Validate input
+    if (!subAccountId || !amount || amount <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Valid sub-account ID and amount are required" });
+    }
+
+    // Get admin's wallet
+    const adminWallet = await Wallet.findOne({ userId: adminUserId });
+    if (!adminWallet) {
+      return res
+        .status(404)
+        .json({ message: "Admin wallet not found" });
+    }
+
+    // Check if admin has sufficient balance
+    if (adminWallet.balance < amount) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient balance for transfer" });
+    }
+
+    // Verify the sub-account exists and belongs to this admin
+    const subAccount = await User.findOne({
+      _id: subAccountId,
+      role: "sub-account",
+      adminId: adminUserId,
+    });
+
+    if (!subAccount) {
+      return res
+        .status(404)
+        .json({ message: "Sub-account not found or not owned by this admin" });
+    }
+
+    // Get or create sub-account wallet
+    let subAccountWallet = await Wallet.findOne({ userId: subAccountId });
+    if (!subAccountWallet) {
+      subAccountWallet = new Wallet({
+        userId: subAccountId,
+        balance: 0,
+        currency: "USD",
+        transactions: [],
+      });
+    }
+
+    // Perform the transfer
+    adminWallet.balance -= amount;
+    adminWallet.transactions.push({
+      type: "debit",
+      amount: amount,
+      description: `Transfer to sub-account: ${subAccount.name} (${subAccount.email})`,
+      status: "completed",
+      createdAt: new Date(),
+    });
+
+    subAccountWallet.balance += amount;
+    subAccountWallet.transactions.push({
+      type: "credit",
+      amount: amount,
+      description: `Transfer from admin: ${req.user.name} (${req.user.email})`,
+      status: "completed",
+      createdAt: new Date(),
+    });
+
+    // Save both wallets
+    await Promise.all([
+      adminWallet.save(),
+      subAccountWallet.save(),
+    ]);
+
+    res.json({
+      message: "Transfer completed successfully",
+      adminBalance: adminWallet.balance,
+      subAccountBalance: subAccountWallet.balance,
+      transferAmount: amount,
+    });
+  } catch (error) {
+    console.error("Transfer to sub-account error:", error);
+    res.status(500).json({ message: "Failed to transfer funds to sub-account" });
+  }
+};
