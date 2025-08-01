@@ -244,24 +244,9 @@ export default function SubAccounts() {
 
     try {
       setIsTransferring(true);
-      
-      // API call to transfer funds to sub-account
-      const response = await fetch('/api/wallet/transfer-to-subaccount', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          subAccountId: transferData.accountId,
-          amount: amount,
-        }),
-      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Transfer failed');
-      }
+      // API call to transfer funds to sub-account
+      await ApiService.transferToSubAccount(transferData.accountId, amount);
 
       setTransferData({ accountId: "", amount: "" });
       setShowTransferModal(false);
@@ -292,7 +277,7 @@ export default function SubAccounts() {
 
       // Get currently assigned numbers for this account
       const currentlyAssigned = editingAccount.assignedNumbers || [];
-      
+
       // Find numbers to assign and unassign
       const toAssign = assignedNumbers.filter(num => !currentlyAssigned.includes(num));
       const toUnassign = currentlyAssigned.filter(num => !assignedNumbers.includes(num));
@@ -335,8 +320,8 @@ export default function SubAccounts() {
   };
 
   const toggleNumberAssignment = (number: string) => {
-    setAssignedNumbers(prev => 
-      prev.includes(number) 
+    setAssignedNumbers(prev =>
+      prev.includes(number)
         ? prev.filter(n => n !== number)
         : [...prev, number]
     );
@@ -521,7 +506,7 @@ export default function SubAccounts() {
                           {account.assignedNumbers?.length || 0}
                         </Badge>
                       </div>
-                      
+
                       {account.assignedNumbers && account.assignedNumbers.length > 0 ? (
                         <div className="space-y-1">
                           {account.assignedNumbers.slice(0, 2).map((number) => (
