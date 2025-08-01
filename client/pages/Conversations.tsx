@@ -748,61 +748,7 @@ export default function Conversations() {
             </div>
           </div>
 
-          {/* Active Phone Number Selector */}
-          <div className="mb-4">
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
-              Active Number:
-            </Label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-between h-auto py-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <span className="font-mono text-sm">
-                      {activePhoneNumber || "Select number"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {totalUnreadCount > 0 && (
-                      <Badge variant="destructive" className="text-xs">
-                        {totalUnreadCount}
-                      </Badge>
-                    )}
-                    {isConnecting && (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    )}
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full min-w-[300px]">
-                {phoneNumbers.map((phone) => (
-                  <DropdownMenuItem
-                    key={phone.id}
-                    onClick={() => switchPhoneNumber(phone.number)}
-                    className="font-mono"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{phone.number}</span>
-                        {phone.isActive && (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        )}
-                      </div>
-                      {phone.unreadCount && phone.unreadCount > 0 && (
-                        <Badge variant="destructive" className="ml-2 text-xs">
-                          {phone.unreadCount}
-                        </Badge>
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+
 
           {/* Search Contacts */}
           <div className="relative">
@@ -1108,6 +1054,63 @@ export default function Conversations() {
                 </div>
               )}
             </ScrollArea>
+
+            {/* Phone Number Selection - Above Message Input */}
+            <div className="p-3 border-t border-border bg-muted/20">
+              <Label className="text-xs font-medium text-muted-foreground mb-2 block">
+                Send from:
+              </Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between h-auto py-2"
+                    size="sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3 h-3" />
+                      <span className="font-mono text-xs">
+                        {activePhoneNumber || "Select number"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {totalUnreadCount > 0 && (
+                        <Badge variant="destructive" className="text-xs h-4 min-w-[16px]">
+                          {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
+                        </Badge>
+                      )}
+                      {isConnecting && (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      )}
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full min-w-[300px]">
+                  {phoneNumbers.map((phone) => (
+                    <DropdownMenuItem
+                      key={phone.id}
+                      onClick={() => switchPhoneNumber(phone.number)}
+                      className="font-mono"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          <span>{phone.number}</span>
+                          {phone.isActive && (
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          )}
+                        </div>
+                        {phone.unreadCount && phone.unreadCount > 0 && (
+                          <Badge variant="destructive" className="ml-2 text-xs">
+                            {phone.unreadCount}
+                          </Badge>
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
             {/* Message Input */}
             <div className="p-4 border-t border-border bg-card">
