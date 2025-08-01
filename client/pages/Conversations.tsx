@@ -154,7 +154,14 @@ export default function Conversations() {
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
 
     return () => {
-      socketService.disconnect();
+      try {
+        if (activePhoneNumber) {
+          socketService.leavePhoneNumber(activePhoneNumber);
+        }
+        socketService.disconnect();
+      } catch (error) {
+        console.error("Error during Conversations cleanup:", error);
+      }
     };
   }, []);
 

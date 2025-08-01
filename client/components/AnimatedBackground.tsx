@@ -5,6 +5,10 @@ export default function AnimatedBackground() {
 
   useEffect(() => {
     setMounted(true);
+
+    return () => {
+      setMounted(false);
+    };
   }, []);
 
   if (!mounted) return null;

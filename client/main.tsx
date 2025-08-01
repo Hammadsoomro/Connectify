@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import BuyNumbers from "./pages/BuyNumbers";
 import SubAccounts from "./pages/SubAccounts";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { useState, useEffect } from "react";
 import ApiService from "./services/api";
 
@@ -24,22 +25,32 @@ const App = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (ApiService.isAuthenticated()) {
-        try {
-          const profile = await ApiService.getProfile();
-          console.log("User profile loaded:", profile);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error("Auth check failed:", error);
-          ApiService.logout();
+      try {
+        if (ApiService.isAuthenticated()) {
+          try {
+            const profile = await ApiService.getProfile();
+            console.log("User profile loaded:", profile);
+            setIsAuthenticated(true);
+          } catch (error) {
+            console.error("Auth check failed:", error);
+            ApiService.logout();
+            setIsAuthenticated(false);
+          }
+        } else {
           setIsAuthenticated(false);
         }
-      } else {
+      } catch (error) {
+        console.error("Error during auth check:", error);
         setIsAuthenticated(false);
       }
     };
 
     checkAuth();
+
+    // Cleanup function
+    return () => {
+      // Any necessary cleanup when App unmounts
+    };
   }, []);
 
   // Show loading while checking authentication
@@ -55,11 +66,12 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             <Route
               path="/"
@@ -108,6 +120,7 @@ const App = () => {
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
