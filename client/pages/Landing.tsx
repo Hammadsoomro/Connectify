@@ -109,7 +109,7 @@ const testimonials = [
     name: "Alex Thompson",
     role: "CTO",
     company: "TechFlow",
-    content: "Connectify's API integration was seamless. We saw 40% improvement in customer engagement within the first month.",
+    content: "Connectlify's API integration was seamless. We saw 40% improvement in customer engagement within the first month.",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
     rating: 5,
   },
@@ -326,7 +326,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                  Connectify
+                  Connectlify
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Enterprise SMS Platform
@@ -360,7 +360,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                   <DialogHeader>
                     <DialogTitle className="text-center">Welcome Back</DialogTitle>
                     <DialogDescription className="text-center">
-                      Sign in to your Connectify account
+                      Sign in to your Connectlify account
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleLogin} className="space-y-4">
@@ -669,7 +669,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              See what our customers say about their experience with Connectify.
+              See what our customers say about their experience with Connectlify.
             </p>
           </div>
 
@@ -829,7 +829,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Everything you need to know about Connectify. Can't find what you're looking for?
+              Everything you need to know about Connectlify. Can't find what you're looking for?
               <a href="#" className="text-blue-600 hover:text-blue-700 ml-1">Contact our support team</a>.
             </p>
           </div>
@@ -871,7 +871,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                 Ready to Get Started?
               </h2>
               <p className="text-xl mb-10 opacity-90 max-w-2xl mx-auto">
-                Join thousands of businesses already using Connectify to enhance their customer communication.
+                Join thousands of businesses already using Connectlify to enhance their customer communication.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button
@@ -907,7 +907,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">Connectify</h3>
+                  <h3 className="text-xl font-bold">Connectlify</h3>
                   <p className="text-xs text-slate-400">Enterprise SMS Platform</p>
                 </div>
               </div>
