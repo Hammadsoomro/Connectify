@@ -134,7 +134,7 @@ const testimonials = [
   },
 ];
 
-const stats = [
+const heroStats = [
   { number: "10M+", label: "Messages Sent", icon: MessageSquare },
   { number: "50+", label: "Countries", icon: Globe },
   { number: "99.9%", label: "Uptime", icon: Zap },
@@ -151,7 +151,7 @@ export default function Home() {
   });
   const [phoneNumbers, setPhoneNumbers] = useState<any[]>([]);
   const [currentQuote, setCurrentQuote] = useState(0);
-  const [stats, setStats] = useState({
+  const [userStats, setUserStats] = useState({
     contacts: 0,
     phoneNumbers: 0,
     unreadMessages: 0,
@@ -207,7 +207,7 @@ export default function Home() {
         0,
       );
 
-      setStats({
+      setUserStats({
         contacts: contactsData.length,
         phoneNumbers: phoneNumbersData.length,
         unreadMessages: unreadCount,
@@ -242,7 +242,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Enhanced Navbar */}
       <SMSNavbar
-        unreadCount={stats.unreadMessages}
+        unreadCount={userStats.unreadMessages}
         phoneNumbers={phoneNumbers}
         activeNumber={phoneNumbers.find((p) => p.isActive)?.id || null}
         profile={profile}
@@ -300,7 +300,7 @@ export default function Home() {
 
       <div className="container mx-auto px-6">
         {/* Enhanced Hero Section */}
-        <div 
+        <div
           ref={heroRef}
           className={`text-center py-20 mb-20 relative transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
@@ -337,8 +337,8 @@ export default function Home() {
 
             {/* Enhanced CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 animate-fade-in-up delay-700">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
                 onClick={handleConversationsClick}
               >
@@ -347,9 +347,9 @@ export default function Home() {
                 Start Messaging Now
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 size="lg"
                 className="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 onClick={() => navigate("/pricing")}
@@ -366,7 +366,7 @@ export default function Home() {
                   <MessageSquare className="w-8 h-8" />
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <blockquote className="text-xl md:text-2xl font-medium text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
                   "{messagingQuotes[currentQuote].text}"
@@ -382,8 +382,8 @@ export default function Home() {
                   <button
                     key={index}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentQuote 
-                        ? "bg-blue-500 scale-125" 
+                      index === currentQuote
+                        ? "bg-blue-500 scale-125"
                         : "bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
                     }`}
                     onClick={() => setCurrentQuote(index)}
@@ -397,7 +397,7 @@ export default function Home() {
         {/* Enhanced Stats Section */}
         <div className="mb-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {stats.map((stat, index) => (
+            {heroStats.map((stat, index) => (
               <Card key={index} className="text-center p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${index * 100 + 1100}ms` }}>
                 <div className="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                   <stat.icon className="w-6 h-6 text-white" />
@@ -418,9 +418,9 @@ export default function Home() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <MessageSquare className="w-20 h-20 text-white group-hover:scale-110 transition-transform duration-300" />
               </div>
-              {stats.unreadMessages > 0 && (
+            {userStats.unreadMessages > 0 && (
                 <Badge className="absolute top-4 right-4 bg-red-500 text-white animate-pulse">
-                  {stats.unreadMessages} unread
+                  {userStats.unreadMessages} unread
                 </Badge>
               )}
               <div className="absolute bottom-4 left-4 text-white">
@@ -446,14 +446,14 @@ export default function Home() {
                     <Users className="w-4 h-4 text-blue-500" />
                     Total Contacts
                   </span>
-                  <span className="font-bold text-blue-600">{stats.contacts}</span>
+                  <span className="font-bold text-blue-600">{userStats.contacts}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-green-500" />
                     Active Numbers
                   </span>
-                  <span className="font-bold text-green-600">{stats.phoneNumbers}</span>
+                  <span className="font-bold text-green-600">{userStats.phoneNumbers}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-2">
@@ -579,8 +579,8 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {features.map((feature, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className={`group p-8 text-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 animate-fade-in-up ${feature.delay}`}
               >
                 <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${feature.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
@@ -655,8 +655,8 @@ export default function Home() {
               Join thousands of businesses already using Connectify to enhance their customer communication.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-10 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
                 onClick={handleConversationsClick}
               >
@@ -664,9 +664,9 @@ export default function Home() {
                 Get Started Free
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 size="lg"
                 className="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 font-semibold px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 onClick={() => navigate("/pricing")}
