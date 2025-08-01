@@ -21,6 +21,7 @@ export interface Contact {
   lastMessage?: string;
   lastMessageTime?: string;
   unreadCount: number;
+  isOnline?: boolean;
 }
 
 interface ContactListProps {
