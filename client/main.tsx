@@ -49,20 +49,25 @@ const App = () => {
 
     // Global error handler for unhandled DOM errors
     const handleGlobalError = (event: ErrorEvent) => {
-      if (event.error?.message?.includes('removeChild') ||
-          event.error?.message?.includes('Node') ||
-          event.error?.name === 'NotFoundError') {
-        console.warn('DOM manipulation error caught and suppressed:', event.error);
+      if (
+        event.error?.message?.includes("removeChild") ||
+        event.error?.message?.includes("Node") ||
+        event.error?.name === "NotFoundError"
+      ) {
+        console.warn(
+          "DOM manipulation error caught and suppressed:",
+          event.error,
+        );
         event.preventDefault();
         return false;
       }
     };
 
-    window.addEventListener('error', handleGlobalError);
+    window.addEventListener("error", handleGlobalError);
 
     // Cleanup function
     return () => {
-      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener("error", handleGlobalError);
     };
   }, []);
 
@@ -85,54 +90,54 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Home />
-                ) : (
-                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
-                )
-              }
-            />
-            <Route
-              path="/conversations"
-              element={
-                isAuthenticated ? (
-                  <Conversations />
-                ) : (
-                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
-                )
-              }
-            />
-            <Route
-              path="/buy-numbers"
-              element={
-                isAuthenticated ? (
-                  <BuyNumbers />
-                ) : (
-                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
-                )
-              }
-            />
-            <Route
-              path="/sub-accounts"
-              element={
-                isAuthenticated ? (
-                  <SubAccounts />
-                ) : (
-                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
-                )
-              }
-            />
-            <Route path="/pricing" element={<Pricing />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    <Home />
+                  ) : (
+                    <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
+                  )
+                }
+              />
+              <Route
+                path="/conversations"
+                element={
+                  isAuthenticated ? (
+                    <Conversations />
+                  ) : (
+                    <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
+                  )
+                }
+              />
+              <Route
+                path="/buy-numbers"
+                element={
+                  isAuthenticated ? (
+                    <BuyNumbers />
+                  ) : (
+                    <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
+                  )
+                }
+              />
+              <Route
+                path="/sub-accounts"
+                element={
+                  isAuthenticated ? (
+                    <SubAccounts />
+                  ) : (
+                    <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
+                  )
+                }
+              />
+              <Route path="/pricing" element={<Pricing />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 };

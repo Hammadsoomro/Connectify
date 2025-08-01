@@ -333,9 +333,7 @@ export const transferToSubAccount = async (req: any, res: Response) => {
     // Get admin's wallet
     const adminWallet = await Wallet.findOne({ userId: adminUserId });
     if (!adminWallet) {
-      return res
-        .status(404)
-        .json({ message: "Admin wallet not found" });
+      return res.status(404).json({ message: "Admin wallet not found" });
     }
 
     // Check if admin has sufficient balance
@@ -389,10 +387,7 @@ export const transferToSubAccount = async (req: any, res: Response) => {
     });
 
     // Save both wallets
-    await Promise.all([
-      adminWallet.save(),
-      subAccountWallet.save(),
-    ]);
+    await Promise.all([adminWallet.save(), subAccountWallet.save()]);
 
     res.json({
       message: "Transfer completed successfully",
@@ -402,6 +397,8 @@ export const transferToSubAccount = async (req: any, res: Response) => {
     });
   } catch (error) {
     console.error("Transfer to sub-account error:", error);
-    res.status(500).json({ message: "Failed to transfer funds to sub-account" });
+    res
+      .status(500)
+      .json({ message: "Failed to transfer funds to sub-account" });
   }
 };

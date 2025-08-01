@@ -111,7 +111,9 @@ export default function SubAccounts() {
     password: "",
   });
   const [editingAccount, setEditingAccount] = useState<SubAccount | null>(null);
-  const [deletingAccount, setDeletingAccount] = useState<SubAccount | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState<SubAccount | null>(
+    null,
+  );
   const [transferData, setTransferData] = useState({
     accountId: "",
     amount: "",
@@ -127,11 +129,13 @@ export default function SubAccounts() {
   const loadInitialData = async () => {
     try {
       setIsLoading(true);
-      const [subAccountsData, phoneNumbersData, walletData] = await Promise.all([
-        ApiService.getSubAccounts(),
-        ApiService.getPhoneNumbers(),
-        ApiService.getWallet(),
-      ]);
+      const [subAccountsData, phoneNumbersData, walletData] = await Promise.all(
+        [
+          ApiService.getSubAccounts(),
+          ApiService.getPhoneNumbers(),
+          ApiService.getWallet(),
+        ],
+      );
 
       setSubAccounts(subAccountsData || []);
       setPhoneNumbers(phoneNumbersData || []);
@@ -149,7 +153,11 @@ export default function SubAccounts() {
   };
 
   const createSubAccount = async () => {
-    if (!newAccountData.name.trim() || !newAccountData.email.trim() || !newAccountData.password.trim()) {
+    if (
+      !newAccountData.name.trim() ||
+      !newAccountData.email.trim() ||
+      !newAccountData.password.trim()
+    ) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
@@ -163,7 +171,7 @@ export default function SubAccounts() {
       await ApiService.createSubAccount(
         newAccountData.name.trim(),
         newAccountData.email.trim(),
-        newAccountData.password.trim()
+        newAccountData.password.trim(),
       );
 
       setNewAccountData({ name: "", email: "", password: "" });
@@ -252,7 +260,9 @@ export default function SubAccounts() {
       setShowTransferModal(false);
       await loadInitialData();
 
-      const targetAccount = subAccounts.find(acc => acc._id === transferData.accountId);
+      const targetAccount = subAccounts.find(
+        (acc) => acc._id === transferData.accountId,
+      );
       toast({
         title: "Transfer Successful",
         description: `$${amount.toFixed(2)} transferred to ${targetAccount?.name}`,
@@ -279,8 +289,12 @@ export default function SubAccounts() {
       const currentlyAssigned = editingAccount.assignedNumbers || [];
 
       // Find numbers to assign and unassign
-      const toAssign = assignedNumbers.filter(num => !currentlyAssigned.includes(num));
-      const toUnassign = currentlyAssigned.filter(num => !assignedNumbers.includes(num));
+      const toAssign = assignedNumbers.filter(
+        (num) => !currentlyAssigned.includes(num),
+      );
+      const toUnassign = currentlyAssigned.filter(
+        (num) => !assignedNumbers.includes(num),
+      );
 
       // Assign new numbers
       for (const number of toAssign) {
@@ -320,20 +334,20 @@ export default function SubAccounts() {
   };
 
   const toggleNumberAssignment = (number: string) => {
-    setAssignedNumbers(prev =>
+    setAssignedNumbers((prev) =>
       prev.includes(number)
-        ? prev.filter(n => n !== number)
-        : [...prev, number]
+        ? prev.filter((n) => n !== number)
+        : [...prev, number],
     );
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -379,7 +393,8 @@ export default function SubAccounts() {
                   Sub-Account Management
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Create and manage sub-accounts, assign phone numbers, and transfer funds
+                  Create and manage sub-accounts, assign phone numbers, and
+                  transfer funds
                 </p>
               </div>
             </div>
@@ -427,7 +442,10 @@ export default function SubAccounts() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {subAccounts.map((account) => (
-                <Card key={account._id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={account._id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -438,7 +456,9 @@ export default function SubAccounts() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <CardTitle className="text-lg">{account.name}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {account.name}
+                          </CardTitle>
                           <p className="text-sm text-muted-foreground">
                             {account.email}
                           </p>
@@ -452,13 +472,18 @@ export default function SubAccounts() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditModal(account)}>
+                          <DropdownMenuItem
+                            onClick={() => openEditModal(account)}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Assignments
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
-                              setTransferData({ ...transferData, accountId: account._id });
+                              setTransferData({
+                                ...transferData,
+                                accountId: account._id,
+                              });
                               setShowTransferModal(true);
                             }}
                           >
@@ -484,15 +509,21 @@ export default function SubAccounts() {
                   <CardContent className="space-y-4">
                     {/* Status */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Status:</span>
-                      <Badge variant={account.isActive ? "default" : "destructive"}>
+                      <span className="text-sm text-muted-foreground">
+                        Status:
+                      </span>
+                      <Badge
+                        variant={account.isActive ? "default" : "destructive"}
+                      >
                         {account.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </div>
 
                     {/* Wallet Balance */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Wallet:</span>
+                      <span className="text-sm text-muted-foreground">
+                        Wallet:
+                      </span>
                       <span className="font-semibold text-green-600">
                         ${account.walletBalance?.toFixed(2) || "0.00"}
                       </span>
@@ -501,13 +532,16 @@ export default function SubAccounts() {
                     {/* Assigned Numbers */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Phone Numbers:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Phone Numbers:
+                        </span>
                         <Badge variant="outline" className="text-xs">
                           {account.assignedNumbers?.length || 0}
                         </Badge>
                       </div>
 
-                      {account.assignedNumbers && account.assignedNumbers.length > 0 ? (
+                      {account.assignedNumbers &&
+                      account.assignedNumbers.length > 0 ? (
                         <div className="space-y-1">
                           {account.assignedNumbers.slice(0, 2).map((number) => (
                             <div
@@ -567,7 +601,10 @@ export default function SubAccounts() {
                 type="email"
                 value={newAccountData.email}
                 onChange={(e) =>
-                  setNewAccountData({ ...newAccountData, email: e.target.value })
+                  setNewAccountData({
+                    ...newAccountData,
+                    email: e.target.value,
+                  })
                 }
                 placeholder="Enter email address"
               />
@@ -579,7 +616,10 @@ export default function SubAccounts() {
                 type="password"
                 value={newAccountData.password}
                 onChange={(e) =>
-                  setNewAccountData({ ...newAccountData, password: e.target.value })
+                  setNewAccountData({
+                    ...newAccountData,
+                    password: e.target.value,
+                  })
                 }
                 placeholder="Enter password"
               />
@@ -620,14 +660,18 @@ export default function SubAccounts() {
                     >
                       <div className="flex items-center space-x-2">
                         <Phone className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{phone.number}</span>
+                        <span className="font-mono text-sm">
+                          {phone.number}
+                        </span>
                         <Badge variant="outline" className="text-xs">
                           {phone.location}
                         </Badge>
                       </div>
                       <Switch
                         checked={assignedNumbers.includes(phone.number)}
-                        onCheckedChange={() => toggleNumberAssignment(phone.number)}
+                        onCheckedChange={() =>
+                          toggleNumberAssignment(phone.number)
+                        }
                       />
                     </div>
                   ))}
@@ -666,7 +710,10 @@ export default function SubAccounts() {
                   className="w-full p-2 border rounded"
                   value={transferData.accountId}
                   onChange={(e) =>
-                    setTransferData({ ...transferData, accountId: e.target.value })
+                    setTransferData({
+                      ...transferData,
+                      accountId: e.target.value,
+                    })
                   }
                 >
                   <option value="">Select an account...</option>
@@ -697,7 +744,10 @@ export default function SubAccounts() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowTransferModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowTransferModal(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={transferFunds} disabled={isTransferring}>

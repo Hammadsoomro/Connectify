@@ -26,7 +26,7 @@ class ApiService {
 
         // Only add timeout for non-login requests to avoid abort issues
         let timeoutId: NodeJS.Timeout | null = null;
-        if (!endpoint.includes('/auth/login')) {
+        if (!endpoint.includes("/auth/login")) {
           const controller = new AbortController();
           timeoutId = setTimeout(() => controller.abort(), 30000);
           config.signal = controller.signal;
@@ -51,10 +51,12 @@ class ApiService {
         if (timeoutId !== null) clearTimeout(timeoutId);
 
         // Handle abort errors specifically
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           console.error(`Request timeout (attempt ${attempt + 1}) for ${url}`);
           if (attempt === maxRetries) {
-            throw new Error("Request timeout - please check your connection and try again");
+            throw new Error(
+              "Request timeout - please check your connection and try again",
+            );
           }
           continue; // Retry on timeout
         }

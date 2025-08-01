@@ -1,7 +1,8 @@
 import twilio from "twilio";
 
 // Messaging Service SID for better delivery and webhook reliability
-const MESSAGING_SERVICE_SID = process.env.TWILIO_MESSAGING_SERVICE_SID || "MG21589ec4b84e864";
+const MESSAGING_SERVICE_SID =
+  process.env.TWILIO_MESSAGING_SERVICE_SID || "MG21589ec4b84e864";
 
 // Create Twilio client dynamically to ensure env vars are available
 function createTwilioClient() {

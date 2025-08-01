@@ -55,7 +55,7 @@ export default function WalletDepositModal({
 
   const handleDeposit = async () => {
     const amount = selectedAmount || parseFloat(customAmount);
-    
+
     if (!amount || amount < 5) {
       toast({
         title: "Invalid Amount",
@@ -70,20 +70,21 @@ export default function WalletDepositModal({
     try {
       // Simulate API call for now - replace with real payment integration
       await ApiService.addFunds(amount);
-      
+
       const newBalance = currentBalance + amount;
       onBalanceUpdate(newBalance);
-      
+
       toast({
         title: "Deposit Successful!",
         description: `$${amount.toFixed(2)} has been added to your wallet.`,
       });
-      
+
       onClose();
     } catch (error: any) {
       toast({
         title: "Deposit Failed",
-        description: error.message || "Failed to process deposit. Please try again.",
+        description:
+          error.message || "Failed to process deposit. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -93,8 +94,8 @@ export default function WalletDepositModal({
 
   const getTotal = () => {
     const amount = selectedAmount || parseFloat(customAmount) || 0;
-    const bonus = selectedAmount 
-      ? depositAmounts.find(d => d.amount === selectedAmount)?.bonus || 0
+    const bonus = selectedAmount
+      ? depositAmounts.find((d) => d.amount === selectedAmount)?.bonus || 0
       : 0;
     return amount + bonus;
   };
@@ -110,7 +111,8 @@ export default function WalletDepositModal({
             Add Funds to Wallet
           </DialogTitle>
           <DialogDescription>
-            Add funds to your wallet to start sending SMS messages. Your current balance is <strong>${currentBalance.toFixed(2)}</strong>
+            Add funds to your wallet to start sending SMS messages. Your current
+            balance is <strong>${currentBalance.toFixed(2)}</strong>
           </DialogDescription>
         </DialogHeader>
 
@@ -120,7 +122,9 @@ export default function WalletDepositModal({
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Current Balance</p>
+                  <p className="text-sm text-muted-foreground">
+                    Current Balance
+                  </p>
                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                     ${currentBalance.toFixed(2)}
                   </p>
@@ -135,7 +139,9 @@ export default function WalletDepositModal({
 
           {/* Quick Amount Selection */}
           <div>
-            <Label className="text-base font-semibold mb-4 block">Choose Amount</Label>
+            <Label className="text-base font-semibold mb-4 block">
+              Choose Amount
+            </Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {depositAmounts.map((option) => (
                 <Card
@@ -157,7 +163,9 @@ export default function WalletDepositModal({
                         Popular
                       </Badge>
                     )}
-                    <div className="text-2xl font-bold mb-1">${option.amount}</div>
+                    <div className="text-2xl font-bold mb-1">
+                      ${option.amount}
+                    </div>
                     {option.bonus > 0 && (
                       <div className="text-sm text-green-600 dark:text-green-400 font-medium">
                         <Gift className="w-3 h-3 inline mr-1" />
@@ -198,11 +206,15 @@ export default function WalletDepositModal({
 
           {/* Payment Method */}
           <div>
-            <Label className="text-base font-semibold mb-4 block">Payment Method</Label>
+            <Label className="text-base font-semibold mb-4 block">
+              Payment Method
+            </Label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Card
                 className={`cursor-pointer transition-all duration-300 ${
-                  paymentMethod === "card" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950" : ""
+                  paymentMethod === "card"
+                    ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950"
+                    : ""
                 }`}
                 onClick={() => setPaymentMethod("card")}
               >
@@ -212,10 +224,12 @@ export default function WalletDepositModal({
                   <div className="text-xs text-muted-foreground">Instant</div>
                 </CardContent>
               </Card>
-              
+
               <Card
                 className={`cursor-pointer transition-all duration-300 ${
-                  paymentMethod === "paypal" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950" : ""
+                  paymentMethod === "paypal"
+                    ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950"
+                    : ""
                 }`}
                 onClick={() => setPaymentMethod("paypal")}
               >
@@ -225,10 +239,12 @@ export default function WalletDepositModal({
                   <div className="text-xs text-muted-foreground">Instant</div>
                 </CardContent>
               </Card>
-              
+
               <Card
                 className={`cursor-pointer transition-all duration-300 ${
-                  paymentMethod === "crypto" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950" : ""
+                  paymentMethod === "crypto"
+                    ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950"
+                    : ""
                 }`}
                 onClick={() => setPaymentMethod("crypto")}
               >
@@ -252,20 +268,37 @@ export default function WalletDepositModal({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Amount:</span>
-                    <span className="font-medium">${(selectedAmount || parseFloat(customAmount) || 0).toFixed(2)}</span>
+                    <span className="font-medium">
+                      $
+                      {(
+                        selectedAmount ||
+                        parseFloat(customAmount) ||
+                        0
+                      ).toFixed(2)}
+                    </span>
                   </div>
-                  {selectedAmount && depositAmounts.find(d => d.amount === selectedAmount)?.bonus && (
-                    <div className="flex justify-between text-green-600 dark:text-green-400">
-                      <span>Bonus:</span>
-                      <span className="font-medium">+${depositAmounts.find(d => d.amount === selectedAmount)?.bonus.toFixed(2)}</span>
-                    </div>
-                  )}
+                  {selectedAmount &&
+                    depositAmounts.find((d) => d.amount === selectedAmount)
+                      ?.bonus && (
+                      <div className="flex justify-between text-green-600 dark:text-green-400">
+                        <span>Bonus:</span>
+                        <span className="font-medium">
+                          +$
+                          {depositAmounts
+                            .find((d) => d.amount === selectedAmount)
+                            ?.bonus.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
                   <div className="border-t pt-2 flex justify-between text-lg font-bold">
                     <span>Total Credit:</span>
-                    <span className="text-green-600 dark:text-green-400">${getTotal().toFixed(2)}</span>
+                    <span className="text-green-600 dark:text-green-400">
+                      ${getTotal().toFixed(2)}
+                    </span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    ≈ {Math.floor(getTotal() / 0.01).toLocaleString()} SMS messages
+                    ≈ {Math.floor(getTotal() / 0.01).toLocaleString()} SMS
+                    messages
                   </div>
                 </div>
               </CardContent>
@@ -276,9 +309,12 @@ export default function WalletDepositModal({
           <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
             <Shield className="w-6 h-6 text-blue-600 flex-shrink-0" />
             <div className="text-sm">
-              <div className="font-medium text-blue-700 dark:text-blue-300">Secure Payment</div>
+              <div className="font-medium text-blue-700 dark:text-blue-300">
+                Secure Payment
+              </div>
               <div className="text-blue-600 dark:text-blue-400">
-                Your payment information is encrypted and secure. We never store your card details.
+                Your payment information is encrypted and secure. We never store
+                your card details.
               </div>
             </div>
           </div>
