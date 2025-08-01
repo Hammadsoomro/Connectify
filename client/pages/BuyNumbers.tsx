@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Phone, MapPin, Globe, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import AdBanner from "@/components/AdBanner";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import ApiService from "@/services/api";
 
 const countries = [
@@ -127,9 +128,14 @@ export default function BuyNumbers() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="flex h-16 items-center px-6">
           <Link to="/">
             <Button variant="ghost" size="sm" className="mr-4">
@@ -141,8 +147,8 @@ export default function BuyNumbers() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-6 py-8">
+        {/* Content */}
+        <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Available Twilio Phone Numbers
@@ -343,6 +349,7 @@ export default function BuyNumbers() {
           <div className="flex justify-center">
             <AdBanner width={728} height={90} />
           </div>
+        </div>
         </div>
       </div>
     </div>
