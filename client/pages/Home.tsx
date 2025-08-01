@@ -37,6 +37,8 @@ import { useNavigate } from "react-router-dom";
 import SMSNavbar from "@/components/SMSNavbar";
 import PhoneNumberSelectionModal from "@/components/PhoneNumberSelectionModal";
 import AdBanner from "@/components/AdBanner";
+import AnimatedBackground from "@/components/AnimatedBackground";
+import WalletDepositModal from "@/components/WalletDepositModal";
 import ApiService from "@/services/api";
 
 const messagingQuotes = [
@@ -161,6 +163,8 @@ export default function Home() {
     [phoneNumber: string]: number;
   }>({});
   const [isVisible, setIsVisible] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer for animations
@@ -212,6 +216,20 @@ export default function Home() {
         phoneNumbers: phoneNumbersData.length,
         unreadMessages: unreadCount,
       });
+
+      // Load wallet balance
+      try {
+        const walletData = await ApiService.getWallet();
+        setWalletBalance(walletData.balance || 0);
+
+        // Show wallet modal if balance is 0 for new users
+        if (walletData.balance === 0) {
+          setTimeout(() => setIsWalletModalOpen(true), 2000);
+        }
+      } catch (error) {
+        console.error("Error loading wallet:", error);
+        setWalletBalance(0);
+      }
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -239,9 +257,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Enhanced Navbar */}
-      <SMSNavbar
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Enhanced Navbar */}
+        <SMSNavbar
         unreadCount={userStats.unreadMessages}
         phoneNumbers={phoneNumbers}
         activeNumber={phoneNumbers.find((p) => p.isActive)?.id || null}
@@ -689,14 +712,23 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Phone Number Selection Modal */}
-      <PhoneNumberSelectionModal
-        isOpen={isPhoneNumberModalOpen}
-        onClose={() => setIsPhoneNumberModalOpen(false)}
-        phoneNumbers={phoneNumbers}
-        phoneNumberUnreadCounts={phoneNumberUnreadCounts}
-        onSelectPhoneNumber={handlePhoneNumberSelected}
-      />
+        {/* Phone Number Selection Modal */}
+        <PhoneNumberSelectionModal
+          isOpen={isPhoneNumberModalOpen}
+          onClose={() => setIsPhoneNumberModalOpen(false)}
+          phoneNumbers={phoneNumbers}
+          phoneNumberUnreadCounts={phoneNumberUnreadCounts}
+          onSelectPhoneNumber={handlePhoneNumberSelected}
+        />
+
+        {/* Wallet Deposit Modal */}
+        <WalletDepositModal
+          isOpen={isWalletModalOpen}
+          onClose={() => setIsWalletModalOpen(false)}
+          currentBalance={walletBalance}
+          onBalanceUpdate={setWalletBalance}
+        />
+      </div>
     </div>
   );
 }
