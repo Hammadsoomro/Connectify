@@ -264,7 +264,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
               <MessageSquare className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
               Conversations
-              {stats.unreadMessages > 0 && (
+              {userStats.unreadMessages > 0 && (
                 <Badge
                   variant="destructive"
                   className="ml-2 h-6 w-6 rounded-full p-0 text-xs flex items-center justify-center animate-pulse"
