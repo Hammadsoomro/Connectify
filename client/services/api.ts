@@ -35,7 +35,7 @@ class ApiService {
         console.log(`API Request (attempt ${attempt + 1}): ${url}`);
 
         const response = await fetch(url, config);
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({
@@ -48,7 +48,7 @@ class ApiService {
         console.log(`API Success: ${url}`);
         return data;
       } catch (error: any) {
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         // Handle abort errors specifically
         if (error.name === 'AbortError') {
