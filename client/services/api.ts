@@ -45,6 +45,17 @@ class ApiService {
         console.log(`API Success: ${url}`);
         return data;
       } catch (error: any) {
+        clearTimeout(timeoutId);
+
+        // Handle abort errors specifically
+        if (error.name === 'AbortError') {
+          console.error(`Request timeout (attempt ${attempt + 1}) for ${url}`);
+          if (attempt === maxRetries) {
+            throw new Error("Request timeout - please check your connection and try again");
+          }
+          continue; // Retry on timeout
+        }
+
         console.error(
           `API Error (attempt ${attempt + 1}) for ${url}:`,
           error.message,
