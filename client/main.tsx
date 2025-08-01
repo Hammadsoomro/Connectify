@@ -91,6 +91,16 @@ const App = () => {
                 )
               }
             />
+            <Route
+              path="/sub-accounts"
+              element={
+                isAuthenticated ? (
+                  <SubAccounts />
+                ) : (
+                  <Landing onLoginSuccess={() => setIsAuthenticated(true)} />
+                )
+              }
+            />
             <Route path="/pricing" element={<Pricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
