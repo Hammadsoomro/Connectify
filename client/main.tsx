@@ -13,6 +13,7 @@ import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import BuyNumbers from "./pages/BuyNumbers";
+import SubAccounts from "./pages/SubAccounts";
 import { useState, useEffect } from "react";
 import ApiService from "./services/api";
 
