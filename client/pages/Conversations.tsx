@@ -985,8 +985,8 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* Right Side - Chat Area */}
-      <div className="flex-1 flex flex-col bg-background">
+        {/* Right Side - Chat Area */}
+        <div className="flex-1 flex flex-col bg-background/80 backdrop-blur-xl">
         {selectedContact ? (
           <>
             {/* Chat Header */}
@@ -1274,6 +1274,7 @@ export default function Conversations() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
