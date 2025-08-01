@@ -51,6 +51,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import AdBanner from "@/components/AdBanner";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import ApiService from "@/services/api";
 
 interface LandingProps {
@@ -224,7 +225,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  
+
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Login form state
@@ -309,9 +310,14 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Enhanced Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Enhanced Header */}
+        <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -524,7 +530,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
       </header>
 
       {/* Enhanced Hero Section */}
-      <section 
+      <section
         ref={heroRef}
         className={`py-20 lg:py-32 relative transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
@@ -562,8 +568,8 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-fade-in-up delay-700">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-10 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
                 onClick={() => setIsRegisterOpen(true)}
               >
@@ -571,9 +577,9 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 size="lg"
                 className="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 font-semibold px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
@@ -632,8 +638,8 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {features.map((feature, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className={`group p-8 text-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 animate-fade-in-up`}
                 style={{ animationDelay: `${index * 100 + 1400}ms` }}
               >
@@ -699,8 +705,8 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
             {/* Testimonial Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {testimonials.map((testimonial, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className={`p-6 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl cursor-pointer transition-all duration-300 ${
                     index === activeTestimonial ? 'ring-2 ring-blue-500 scale-105' : 'hover:scale-105'
                   }`}
@@ -760,8 +766,8 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className={`relative p-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 ${
                   plan.popular ? 'ring-2 ring-purple-500 scale-105' : ''
                 }`}
@@ -771,7 +777,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                     Most Popular
                   </Badge>
                 )}
-                
+
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
                     {plan.name}
@@ -796,10 +802,10 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                   ))}
                 </ul>
 
-                <Button 
+                <Button
                   className={`w-full ${
-                    plan.popular 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700' 
+                    plan.popular
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
                       : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700'
                   }`}
                   onClick={() => setIsRegisterOpen(true)}
@@ -823,7 +829,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Everything you need to know about Connectify. Can't find what you're looking for? 
+              Everything you need to know about Connectify. Can't find what you're looking for?
               <a href="#" className="text-blue-600 hover:text-blue-700 ml-1">Contact our support team</a>.
             </p>
           </div>
@@ -868,17 +874,17 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
                 Join thousands of businesses already using Connectify to enhance their customer communication.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-white text-blue-600 hover:bg-slate-100 font-semibold px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   onClick={() => setIsRegisterOpen(true)}
                 >
                   <Rocket className="w-5 h-5 mr-2" />
                   Start Free Trial
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="lg"
                   className="bg-transparent border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-10 py-4 rounded-2xl transition-all duration-300"
                 >
@@ -970,6 +976,7 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
           </div>
           <AdBanner width={300} height={100} />
         </Card>
+      </div>
       </div>
     </div>
   );
