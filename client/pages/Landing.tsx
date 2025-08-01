@@ -593,12 +593,12 @@ export default function Landing({ onLoginSuccess }: LandingProps) {
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
                 Trusted by leading companies worldwide
               </p>
-              <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-                <div className="text-2xl font-bold text-slate-400">TechCorp</div>
-                <div className="text-2xl font-bold text-slate-400">GrowthLabs</div>
-                <div className="text-2xl font-bold text-slate-400">StartupXYZ</div>
-                <div className="text-2xl font-bold text-slate-400">Enterprise+</div>
-              </div>
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+              <div className="text-2xl font-bold text-slate-400">Microsoft</div>
+              <div className="text-2xl font-bold text-slate-400">Shopify</div>
+              <div className="text-2xl font-bold text-slate-400">Airbnb</div>
+              <div className="text-2xl font-bold text-slate-400">Netflix</div>
+            </div>
             </div>
           </div>
         </div>
