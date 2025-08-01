@@ -44,6 +44,7 @@ import {
   updateMonthlyLimit,
   getBillingSummary,
   triggerMonthlyBilling,
+  transferToSubAccount,
 } from "./routes/wallet.js";
 import {
   createPaymentIntent,
