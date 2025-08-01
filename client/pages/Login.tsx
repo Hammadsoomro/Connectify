@@ -67,8 +67,8 @@ export default function Login({
           </CardTitle>
           <CardDescription>
             {isLogin
-              ? "Sign in to your Connectify account"
-              : "Start messaging with Connectify"}
+              ? "Sign in to your Connectlify account"
+              : "Start messaging with Connectlify"}
           </CardDescription>
         </CardHeader>
 

@@ -83,7 +83,7 @@ export default function ChatArea({
             <MessageSquare className="w-8 h-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
-            Welcome to Connectify
+            Welcome to Connectlify
           </h3>
           <p className="text-muted-foreground">
             Select a contact to start messaging

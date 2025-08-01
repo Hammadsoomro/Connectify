@@ -114,7 +114,7 @@ const testimonials = [
     name: "Sarah Johnson",
     role: "Marketing Director",
     company: "TechCorp",
-    content: "Connectify transformed our customer communication. The real-time features are incredible!",
+    content: "Connectlify transformed our customer communication. The real-time features are incredible!",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1-7?w=150",
     rating: 5,
   },
@@ -602,7 +602,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-slate-100 mb-6">
               Why Choose{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Connectify
+                Connectlify
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
@@ -640,7 +640,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              See what our customers say about their experience with Connectify.
+              See what our customers say about their experience with Connectlify.
             </p>
           </div>
 
@@ -685,7 +685,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-10">
-              Join thousands of businesses already using Connectify to enhance their customer communication.
+              Join thousands of businesses already using Connectlify to enhance their customer communication.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button

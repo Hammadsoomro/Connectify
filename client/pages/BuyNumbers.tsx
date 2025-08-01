@@ -21,7 +21,7 @@ const countries = [
   { code: "ALL", name: "All Countries", flag: "🌍" },
   { code: "US", name: "United States", flag: "🇺🇸" },
   { code: "CA", name: "Canada", flag: "🇨🇦" },
-  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "GB", name: "United Kingdom", flag: "��🇧" },
   { code: "AU", name: "Australia", flag: "🇦🇺" },
   { code: "DE", name: "Germany", flag: "🇩🇪" },
   { code: "FR", name: "France", flag: "����🇷" },
@@ -140,7 +140,7 @@ export default function BuyNumbers() {
           <Link to="/">
             <Button variant="ghost" size="sm" className="mr-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Connectify
+              Back to Connectlify
             </Button>
           </Link>
           <h1 className="text-xl font-semibold">Buy Phone Numbers</h1>

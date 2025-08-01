@@ -155,7 +155,7 @@ export default function SMSNavbar({
           <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-md">
             <MessageSquare className="w-4 h-4 text-primary-foreground" />
           </div>
-          <h1 className="text-lg font-semibold text-foreground">Connectify</h1>
+          <h1 className="text-lg font-semibold text-foreground">Connectlify</h1>
         </div>
 
         {/* Phone Numbers - Hidden for admin on conversations page */}

@@ -592,9 +592,9 @@ export default function Conversations() {
       0,
     );
     if (totalUnread > 0) {
-      document.title = `(${totalUnread}) Connectify - Messages`;
+      document.title = `(${totalUnread}) Connectlify - Messages`;
     } else {
-      document.title = "Connectify - Messages";
+      document.title = "Connectlify - Messages";
     }
   };
 
@@ -649,7 +649,7 @@ export default function Conversations() {
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
           <div>
-            <h3 className="text-lg font-semibold">Loading Connectify</h3>
+            <h3 className="text-lg font-semibold">Loading Connectlify</h3>
             <p className="text-sm text-muted-foreground">
               Setting up your conversations...
             </p>
@@ -1157,7 +1157,7 @@ export default function Conversations() {
 
               <div>
                 <h2 className="text-2xl font-bold mb-2">
-                  Welcome to Connectify
+                  Welcome to Connectlify
                 </h2>
                 <p className="text-muted-foreground">
                   Select a contact from the sidebar to start messaging, or add a
