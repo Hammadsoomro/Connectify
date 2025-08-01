@@ -269,7 +269,7 @@ export default function Home() {
                   variant="destructive"
                   className="ml-2 h-6 w-6 rounded-full p-0 text-xs flex items-center justify-center animate-pulse"
                 >
-                  {stats.unreadMessages}
+                  {userStats.unreadMessages}
                 </Badge>
               )}
               <Sparkles className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
