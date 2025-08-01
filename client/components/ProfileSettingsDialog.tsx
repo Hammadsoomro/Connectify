@@ -179,7 +179,7 @@ export default function ProfileSettingsDialog({
                   Active
                 </Badge>
                 <span className="text-sm text-muted-foreground">
-                  Connectify Premium
+                  Connectlify Premium
                 </span>
               </div>
             </div>
