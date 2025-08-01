@@ -289,7 +289,7 @@ export default function Conversations() {
       });
 
       socketService.on("unreadUpdated", (data: any) => {
-        console.log("🔔 Unread counts updated:", data);
+        console.log("�� Unread counts updated:", data);
         updatePageTitle();
       });
 
@@ -434,7 +434,6 @@ export default function Conversations() {
 
   const addContact = async () => {
     if (
-      !newContactName.trim() ||
       !newContactPhone.trim() ||
       !activePhoneNumber
     ) {
@@ -442,8 +441,9 @@ export default function Conversations() {
     }
 
     try {
+      const finalName = newContactName.trim() || newContactPhone.trim();
       await ApiService.addContact(
-        newContactName.trim(),
+        finalName,
         newContactPhone.trim(),
         activePhoneNumber,
       );
@@ -777,12 +777,12 @@ export default function Conversations() {
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="contactName">Contact Name</Label>
+                  <Label htmlFor="contactName">Contact Name (Optional)</Label>
                   <Input
                     id="contactName"
                     value={newContactName}
                     onChange={(e) => setNewContactName(e.target.value)}
-                    placeholder="Enter contact name"
+                    placeholder="Enter contact name (optional)"
                   />
                 </div>
                 <div>
@@ -804,7 +804,7 @@ export default function Conversations() {
                 </Button>
                 <Button
                   onClick={addContact}
-                  disabled={!newContactName.trim() || !newContactPhone.trim()}
+                  disabled={!newContactPhone.trim()}
                 >
                   Add Contact
                 </Button>
