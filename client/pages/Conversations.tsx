@@ -53,6 +53,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import ApiService from "@/services/api";
 import socketService from "@/services/socketService";
 import AdBanner from "@/components/AdBanner";
+import AnimatedBackground from "@/components/AnimatedBackground";
 
 // Types
 interface Contact {
@@ -660,10 +661,15 @@ export default function Conversations() {
 
   return (
     <div
-      className={`min-h-screen flex bg-background ${isDarkMode ? "dark" : ""}`}
+      className={`min-h-screen flex relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
     >
-      {/* Left Sidebar - Contact List & Controls */}
-      <div className="w-80 bg-card border-r border-border flex flex-col">
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      {/* Main Content */}
+      <div className="relative z-10 flex w-full">
+        {/* Left Sidebar - Contact List & Controls */}
+        <div className="w-80 bg-card/80 backdrop-blur-xl border-r border-border flex flex-col">
         {/* Header Section */}
         <div className="p-4 border-b border-border bg-muted/20">
           {/* Top Navigation */}
