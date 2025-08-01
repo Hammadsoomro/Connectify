@@ -54,9 +54,15 @@ class SocketService {
   disconnect() {
     if (this.socket) {
       console.log("Disconnecting from Socket.IO server...");
-      this.socket.disconnect();
-      this.socket = null;
-      this.listeners.clear();
+      try {
+        this.socket.removeAllListeners();
+        this.socket.disconnect();
+      } catch (error) {
+        console.error("Error during socket disconnect:", error);
+      } finally {
+        this.socket = null;
+        this.listeners.clear();
+      }
     }
   }
 
