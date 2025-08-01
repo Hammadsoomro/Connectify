@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Monitor, Smartphone, Tablet, MessageSquare, Phone, Zap, Globe, Send } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function AnimatedBackground() {
   const [mounted, setMounted] = useState(false);
@@ -22,67 +22,9 @@ export default function AnimatedBackground() {
       <div className="absolute bottom-20 right-20 w-28 h-28 bg-gradient-to-br from-orange-400/20 to-yellow-400/20 rounded-full blur-xl animate-floating" style={{ animationDelay: '1s' }} />
       <div className="absolute top-1/2 left-1/4 w-36 h-36 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-xl animate-floating" style={{ animationDelay: '3s' }} />
 
-      {/* Animated devices */}
-      <div className="absolute top-1/4 left-1/6 transform animate-floating" style={{ animationDelay: '0s', animationDuration: '4s' }}>
-        <div className="relative">
-          <div className="w-16 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-2xl border border-slate-700">
-            <div className="w-12 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-sm m-2 flex items-center justify-center">
-              <MessageSquare className="w-3 h-3 text-white" />
-            </div>
-          </div>
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-        </div>
-      </div>
 
-      <div className="absolute top-1/3 right-1/5 transform animate-floating" style={{ animationDelay: '2s', animationDuration: '5s' }}>
-        <div className="relative">
-          <div className="w-12 h-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-slate-700">
-            <div className="w-8 h-14 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl m-2 flex items-center justify-center">
-              <Phone className="w-4 h-4 text-white" />
-            </div>
-          </div>
-          <div className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-        </div>
-      </div>
 
-      <div className="absolute bottom-1/4 left-1/5 transform animate-floating" style={{ animationDelay: '1s', animationDuration: '6s' }}>
-        <div className="relative">
-          <div className="w-20 h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-2xl border border-slate-700">
-            <div className="w-16 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-sm m-2 flex items-center justify-center">
-              <Monitor className="w-4 h-4 text-white" />
-            </div>
-          </div>
-          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full animate-pulse" />
-        </div>
-      </div>
 
-      <div className="absolute bottom-1/3 right-1/4 transform animate-floating" style={{ animationDelay: '3s', animationDuration: '4.5s' }}>
-        <div className="relative">
-          <div className="w-14 h-18 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700">
-            <div className="w-10 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg m-2 flex items-center justify-center">
-              <Tablet className="w-4 h-4 text-white" />
-            </div>
-          </div>
-          <div className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
-        </div>
-      </div>
-
-      {/* Floating icons */}
-      <div className="absolute top-1/5 left-1/3 transform animate-bounce-gentle text-blue-500/30" style={{ animationDelay: '0s' }}>
-        <Send className="w-8 h-8" />
-      </div>
-
-      <div className="absolute top-2/3 right-1/3 transform animate-bounce-gentle text-purple-500/30" style={{ animationDelay: '2s' }}>
-        <Zap className="w-6 h-6" />
-      </div>
-
-      <div className="absolute bottom-1/5 left-1/2 transform animate-bounce-gentle text-green-500/30" style={{ animationDelay: '1s' }}>
-        <Globe className="w-7 h-7" />
-      </div>
-
-      <div className="absolute top-1/2 right-1/6 transform animate-bounce-gentle text-orange-500/30" style={{ animationDelay: '3s' }}>
-        <MessageSquare className="w-6 h-6" />
-      </div>
 
       {/* Animated connection lines */}
       <svg className="absolute inset-0 w-full h-full">
