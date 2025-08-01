@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useEffect, useState } from "react";
 
 export default function AnimatedBackground() {
   const [mounted, setMounted] = useState(false);
