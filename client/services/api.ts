@@ -293,6 +293,14 @@ class ApiService {
     return this.request("/twilio/balance");
   }
 
+  // Transfer funds to sub-account
+  async transferToSubAccount(subAccountId: string, amount: number) {
+    return this.request("/wallet/transfer-to-subaccount", {
+      method: "POST",
+      body: { subAccountId, amount },
+    });
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");
