@@ -98,14 +98,28 @@ export const assignNumberToSubAccount = async (req: any, res: Response) => {
         .json({ message: "Only admins can assign numbers" });
     }
 
-    // Verify the phone number belongs to the admin
-    const phoneNumber = await PhoneNumber.findOne({
-      _id: phoneNumberId,
-      userId: adminId,
-      status: "active",
-    });
+    console.log(`Assign number request - subAccountId: ${subAccountId}, phoneNumberId: ${phoneNumberId}, adminId: ${adminId}`);
+
+    // Check if phoneNumberId is actually a phone number string or ObjectId
+    let phoneNumber;
+    if (phoneNumberId.startsWith('+')) {
+      // It's a phone number string, find by number
+      phoneNumber = await PhoneNumber.findOne({
+        number: phoneNumberId,
+        userId: adminId,
+        status: "active",
+      });
+    } else {
+      // It's an ObjectId, find by _id
+      phoneNumber = await PhoneNumber.findOne({
+        _id: phoneNumberId,
+        userId: adminId,
+        status: "active",
+      });
+    }
 
     if (!phoneNumber) {
+      console.log(`Phone number not found: ${phoneNumberId}`);
       return res
         .status(404)
         .json({ message: "Phone number not found or not owned by admin" });
@@ -119,6 +133,7 @@ export const assignNumberToSubAccount = async (req: any, res: Response) => {
     });
 
     if (!subAccount) {
+      console.log(`Sub-account not found: ${subAccountId}`);
       return res.status(404).json({ message: "Sub-account not found" });
     }
 
@@ -131,9 +146,10 @@ export const assignNumberToSubAccount = async (req: any, res: Response) => {
 
     // Assign the number
     await User.findByIdAndUpdate(subAccountId, {
-      $push: { assignedNumbers: phoneNumber.number },
+      $addToSet: { assignedNumbers: phoneNumber.number }, // Use $addToSet to avoid duplicates
     });
 
+    console.log(`Successfully assigned number ${phoneNumber.number} to sub-account ${subAccount.name}`);
     res.json({ message: "Number assigned successfully" });
   } catch (error) {
     console.error("Assign number error:", error);
