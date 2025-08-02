@@ -14,6 +14,8 @@ class ApiService {
     const maxRetries = 3;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      let timeoutId: NodeJS.Timeout | null = null;
+
       try {
         const config: RequestInit = {
           headers: {
@@ -25,7 +27,6 @@ class ApiService {
         };
 
         // Only add timeout for non-login requests to avoid abort issues
-        let timeoutId: NodeJS.Timeout | null = null;
         if (!endpoint.includes("/auth/login")) {
           const controller = new AbortController();
           timeoutId = setTimeout(() => controller.abort(), 30000);
