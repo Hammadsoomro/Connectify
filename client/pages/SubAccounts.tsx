@@ -410,14 +410,13 @@ export default function SubAccounts() {
                 </div>
               </Card>
 
-              <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <UserPlus className="w-4 h-4" />
-                    Create Sub-Account
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                Create Sub-Account
+              </Button>
             </div>
           </div>
         </div>
