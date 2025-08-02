@@ -577,67 +577,69 @@ export default function SubAccounts() {
         </div>
 
         {/* Create Sub-Account Modal */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Sub-Account</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                value={newAccountData.name}
-                onChange={(e) =>
-                  setNewAccountData({ ...newAccountData, name: e.target.value })
-                }
-                placeholder="Enter full name"
-              />
+        <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Sub-Account</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={newAccountData.name}
+                  onChange={(e) =>
+                    setNewAccountData({ ...newAccountData, name: e.target.value })
+                  }
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newAccountData.email}
+                  onChange={(e) =>
+                    setNewAccountData({
+                      ...newAccountData,
+                      email: e.target.value,
+                    })
+                  }
+                  placeholder="Enter email address"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={newAccountData.password}
+                  onChange={(e) =>
+                    setNewAccountData({
+                      ...newAccountData,
+                      password: e.target.value,
+                    })
+                  }
+                  placeholder="Enter password"
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={newAccountData.email}
-                onChange={(e) =>
-                  setNewAccountData({
-                    ...newAccountData,
-                    email: e.target.value,
-                  })
-                }
-                placeholder="Enter email address"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={newAccountData.password}
-                onChange={(e) =>
-                  setNewAccountData({
-                    ...newAccountData,
-                    password: e.target.value,
-                  })
-                }
-                placeholder="Enter password"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={createSubAccount} disabled={isCreating}>
-              {isCreating ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <UserPlus className="w-4 h-4 mr-2" />
-              )}
-              Create Account
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={createSubAccount} disabled={isCreating}>
+                {isCreating ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <UserPlus className="w-4 h-4 mr-2" />
+                )}
+                Create Account
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Assignments Modal */}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
