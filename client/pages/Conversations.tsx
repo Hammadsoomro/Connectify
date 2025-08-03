@@ -211,26 +211,38 @@ export default function Conversations() {
   const loadInitialData = async () => {
     try {
       setIsLoading(true);
-      const [userProfile, phoneNumbersData] = await Promise.all([
-        ApiService.getProfile(),
-        ApiService.getPhoneNumbers(),
-      ]);
 
+      // Load profile first
+      const userProfile = await ApiService.getProfile();
       setProfile(userProfile);
+
+      // Load phone numbers (optimized for sub-accounts)
+      const phoneNumbersData = await ApiService.getPhoneNumbers();
+
+      // For sub-accounts, filter only assigned numbers
+      let availablePhones = phoneNumbersData || [];
+      if (userProfile.role === "sub-account") {
+        availablePhones = phoneNumbersData?.filter(phone =>
+          userProfile.assignedNumbers?.includes(phone.number)
+        ) || [];
+      }
+
       setPhoneNumbers(
-        phoneNumbersData.map((phone: any) => ({
+        availablePhones.map((phone: any) => ({
           ...phone,
           unreadCount: 0,
         })),
       );
 
-      // Load wallet balance
-      try {
-        const walletData = await ApiService.getWallet();
-        setWalletBalance(walletData.balance || 0);
-      } catch (error) {
-        console.error("Error loading wallet balance:", error);
-        setWalletBalance(0);
+      // Load wallet balance only for admin and sub-accounts
+      if (userProfile.role === "admin" || userProfile.role === "sub-account") {
+        try {
+          const walletData = await ApiService.getWallet();
+          setWalletBalance(walletData.balance || 0);
+        } catch (error) {
+          console.error("Error loading wallet balance:", error);
+          setWalletBalance(0);
+        }
       }
     } catch (error) {
       console.error("Error loading initial data:", error);
