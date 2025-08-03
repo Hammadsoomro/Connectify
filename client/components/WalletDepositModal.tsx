@@ -164,16 +164,16 @@ export default function WalletDepositModal({
                       </Badge>
                     )}
                     <div className="text-2xl font-bold mb-1">
-                      ${option.amount}
+                      PKR {option.amount}
                     </div>
                     {option.bonus > 0 && (
                       <div className="text-sm text-green-600 dark:text-green-400 font-medium">
                         <Gift className="w-3 h-3 inline mr-1" />
-                        +${option.bonus} bonus
+                        +PKR {option.bonus} bonus
                       </div>
                     )}
                     <div className="text-xs text-muted-foreground mt-1">
-                      ≈ {Math.floor((option.amount + option.bonus) / 0.01)} SMS
+                      ≈ {Math.floor((option.amount + option.bonus) / 3.5)} SMS
                     </div>
                   </CardContent>
                 </Card>
@@ -191,14 +191,14 @@ export default function WalletDepositModal({
               <Input
                 id="custom-amount"
                 type="number"
-                placeholder="Enter amount (min $5)"
+                placeholder="Enter amount (min PKR 500)"
                 value={customAmount}
                 onChange={(e) => {
                   setCustomAmount(e.target.value);
                   setSelectedAmount(null);
                 }}
                 className="pl-10"
-                min="5"
+                min="500"
                 step="0.01"
               />
             </div>
