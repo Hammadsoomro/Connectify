@@ -265,13 +265,13 @@ export default function Pricing() {
         {/* SMS Pricing */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
-            SMS Pricing by Region
+            SMS Pricing
           </h2>
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
-                Per Message Costs
+                Per Message Costs by Country
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -281,8 +281,15 @@ export default function Pricing() {
                     key={index}
                     className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
                   >
-                    <span className="font-medium">{item.region}</span>
-                    <span className="font-bold text-primary">{item.price}</span>
+                    <span className="font-medium">{item.country}</span>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-primary">
+                        {item.price}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        per SMS
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
