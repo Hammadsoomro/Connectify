@@ -228,12 +228,19 @@ export default function Conversations() {
         ) || [];
       }
 
-      setPhoneNumbers(
-        availablePhones.map((phone: any) => ({
-          ...phone,
-          unreadCount: 0,
-        })),
-      );
+      const processedPhones = availablePhones.map((phone: any) => ({
+        ...phone,
+        unreadCount: 0,
+      }));
+
+      setPhoneNumbers(processedPhones);
+
+      // Set active phone number if we have phones but no active one
+      if (processedPhones.length > 0 && !activePhoneNumber) {
+        const activePhone = processedPhones.find((p) => p.isActive) || processedPhones[0];
+        setActivePhoneNumber(activePhone.number);
+        loadContactsForPhoneNumber(activePhone.number);
+      }
 
       // Load wallet balance only for admin and sub-accounts
       if (userProfile.role === "admin" || userProfile.role === "sub-account") {
@@ -492,12 +499,22 @@ export default function Conversations() {
   };
 
   const addContactFromDialog = async (name: string, phoneNumber: string) => {
-    if (!activePhoneNumber) {
-      throw new Error("No active phone number selected");
+    // Check if we have an active phone number
+    let currentActiveNumber = activePhoneNumber;
+
+    // If no active number, try to select the first available one
+    if (!currentActiveNumber && phoneNumbers.length > 0) {
+      currentActiveNumber = phoneNumbers[0].number;
+      setActivePhoneNumber(currentActiveNumber);
     }
 
-    await ApiService.addContact(name, phoneNumber, activePhoneNumber);
-    await loadContactsForPhoneNumber(activePhoneNumber);
+    // If still no phone number available, show helpful error
+    if (!currentActiveNumber) {
+      throw new Error("No phone numbers available. Please purchase a phone number first.");
+    }
+
+    await ApiService.addContact(name, phoneNumber, currentActiveNumber);
+    await loadContactsForPhoneNumber(currentActiveNumber);
   };
 
   const editContact = async () => {
@@ -797,10 +814,17 @@ export default function Conversations() {
               className="w-full"
               size="sm"
               onClick={() => setShowAddContact(true)}
+              disabled={phoneNumbers.length === 0}
+              title={phoneNumbers.length === 0 ? "No phone numbers available. Please purchase a phone number first." : "Add new contact"}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Contact
             </Button>
+            {phoneNumbers.length === 0 && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                No phone numbers available
+              </p>
+            )}
           </div>
 
           {/* Contacts List */}

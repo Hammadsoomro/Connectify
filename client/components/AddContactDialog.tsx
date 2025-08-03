@@ -42,8 +42,15 @@ export default function AddContactDialog({
       setName("");
       setPhoneNumber("");
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding contact:", error);
+
+      // Show user-friendly error message
+      const errorMessage = error.message || "Failed to add contact";
+
+      // Create a simple alert for now since we can't access toast here
+      alert(`Error: ${errorMessage}`);
+
       // Don't close dialog on error, let user retry
     } finally {
       setIsLoading(false);
