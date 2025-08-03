@@ -314,8 +314,8 @@ class ApiService {
   async transferToSubAccount(subAccountId: string, amount: number) {
     return this.request("/wallet/transfer-to-subaccount", {
       method: "POST",
-      body: { subAccountId, amount },
-    } as any);
+      body: JSON.stringify({ subAccountId, amount }),
+    });
   }
 
   // Utility methods
