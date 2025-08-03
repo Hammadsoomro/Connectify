@@ -1328,6 +1328,13 @@ export default function Conversations() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Add Contact Dialog */}
+        <AddContactDialog
+          open={showAddContact}
+          onOpenChange={setShowAddContact}
+          onAddContact={addContactFromDialog}
+        />
       </div>
     </div>
   );
