@@ -239,6 +239,7 @@ export function createApp() {
   app.put("/api/wallet/monthly-limit", auth, updateMonthlyLimit);
   app.get("/api/wallet/billing-summary", auth, getBillingSummary);
   app.post("/api/wallet/trigger-billing", auth, triggerMonthlyBilling);
+  app.post("/api/wallet/transfer-to-subaccount", auth, transferToSubAccount);
 
   // Payment routes
   app.post("/api/payments/create-intent", auth, createPaymentIntent);
