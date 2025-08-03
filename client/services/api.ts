@@ -318,6 +318,28 @@ class ApiService {
     });
   }
 
+  // SafePay payment methods
+  async createPaymentIntent(amount: number, currency: string = "PKR") {
+    return this.request("/payments/create-intent", {
+      method: "POST",
+      body: JSON.stringify({ amount, currency }),
+    });
+  }
+
+  async createPaymentSession(amount: number, currency: string = "PKR") {
+    return this.request("/payments/create-session", {
+      method: "POST",
+      body: JSON.stringify({ amount, currency }),
+    });
+  }
+
+  async confirmPayment(paymentId: string) {
+    return this.request("/payments/confirm", {
+      method: "POST",
+      body: JSON.stringify({ paymentId }),
+    });
+  }
+
   // Utility methods
   isAuthenticated(): boolean {
     return !!localStorage.getItem("authToken");
