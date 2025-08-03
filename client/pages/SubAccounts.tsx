@@ -415,8 +415,12 @@ export default function SubAccounts() {
               </Card>
 
               <Button
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => {
+                  console.log("Create Sub-Account clicked (header)");
+                  setShowCreateModal(true);
+                }}
                 className="flex items-center gap-2"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
               >
                 <UserPlus className="w-4 h-4" />
                 Create Sub-Account
