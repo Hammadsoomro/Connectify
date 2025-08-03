@@ -453,6 +453,11 @@ export default function Conversations() {
 
   const addContact = async () => {
     if (!newContactPhone.trim() || !activePhoneNumber) {
+      toast({
+        title: "Validation Error",
+        description: "Phone number is required and an active phone number must be selected",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -472,7 +477,7 @@ export default function Conversations() {
 
       toast({
         title: "Contact Added",
-        description: `${newContactName} has been added to your contacts`,
+        description: `${finalName} has been added to your contacts`,
       });
     } catch (error: any) {
       console.error("Error adding contact:", error);
@@ -483,6 +488,15 @@ export default function Conversations() {
         variant: "destructive",
       });
     }
+  };
+
+  const addContactFromDialog = async (name: string, phoneNumber: string) => {
+    if (!activePhoneNumber) {
+      throw new Error("No active phone number selected");
+    }
+
+    await ApiService.addContact(name, phoneNumber, activePhoneNumber);
+    await loadContactsForPhoneNumber(activePhoneNumber);
   };
 
   const editContact = async () => {
