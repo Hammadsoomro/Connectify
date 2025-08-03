@@ -371,7 +371,7 @@ export default function SubAccounts() {
       <AnimatedBackground />
 
       {/* Main Content */}
-      <div className="relative z-20 flex-1 bg-background/95 backdrop-blur-xl border-l border-border/50">
+      <div className="relative z-20 flex-1 bg-background/95 backdrop-blur-xl border-l border-border/50" style={{ pointerEvents: 'auto' }}>
         {/* Header */}
         <div className="p-6 border-b border-border/50 bg-card/95 backdrop-blur-xl shadow-sm">
           <div className="flex items-center justify-between">
