@@ -271,6 +271,12 @@ export function createApp() {
     app.post("/api/dev/reset-db", resetDatabase);
   }
 
+  // Razorpay payment routes (Alternative to SafePay)
+  app.post("/api/razorpay/create-order", auth, createRazorpayOrder);
+  app.post("/api/razorpay/verify-payment", auth, verifyRazorpayPayment);
+  app.get("/api/razorpay/config", getRazorpayConfig);
+  app.post("/api/webhooks/razorpay", handleRazorpayWebhook);
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({
