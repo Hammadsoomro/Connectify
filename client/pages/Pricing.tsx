@@ -210,58 +210,21 @@ export default function Pricing() {
           </p>
         </div>
 
-        {/* Pricing Plans */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
-          {pricingPlans.map((plan, index) => (
-            <Card
-              key={index}
-              className={`relative border-2 hover:shadow-xl transition-all duration-300 ${
-                plan.popular ? "border-primary scale-105" : "border-gray-200"
-              } ${plan.color}`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-primary text-white px-4 py-1">
-                    <Star className="w-3 h-3 mr-1" />
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl font-bold">
-                  {plan.name}
-                </CardTitle>
-                <div className="text-4xl font-bold text-primary mb-2">
-                  {plan.price}
-                  <span className="text-lg font-normal text-muted-foreground">
-                    /{plan.period}
-                  </span>
-                </div>
-                <p className="text-muted-foreground">{plan.description}</p>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  className="w-full mt-6"
-                  variant={plan.popular ? "default" : "outline"}
-                  size="lg"
-                  onClick={() => handleSelectPlan(plan)}
-                >
-                  {plan.price === "$0" ? "Get Started Free" : "Choose Plan"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Call to Action for Packages */}
+        <div className="text-center mb-16">
+          <Card className="max-w-2xl mx-auto bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Looking for Package Plans?
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Check out our comprehensive packages with bundled SMS credits and phone numbers.
+              </p>
+              <Button size="lg" onClick={() => navigate("/packages")}>
+                View Packages
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Phone Number Pricing */}
@@ -285,12 +248,11 @@ export default function Pricing() {
                   >
                     <span className="font-medium">{item.country}</span>
                     <div className="text-right">
-                      <div className="text-sm text-muted-foreground">
-                        Local: <span className="font-bold">{item.local}</span>
+                      <div className="text-lg font-bold text-primary">
+                        {item.local}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Toll-free:{" "}
-                        <span className="font-bold">{item.tollFree}</span>
+                        per month
                       </div>
                     </div>
                   </div>
