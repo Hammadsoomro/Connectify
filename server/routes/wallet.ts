@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Wallet from "../models/Wallet.js";
+import User from "../models/User.js";
 import BillingService from "../services/billingService.js";
 
 // Get wallet balance and recent transactions
