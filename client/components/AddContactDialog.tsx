@@ -44,6 +44,7 @@ export default function AddContactDialog({
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding contact:", error);
+      // Don't close dialog on error, let user retry
     } finally {
       setIsLoading(false);
     }
