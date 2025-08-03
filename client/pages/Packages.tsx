@@ -12,7 +12,7 @@ import {
   Crown,
   Rocket,
 } from "lucide-react";
-import SMSNavbar from "@/components/SMSNavbar";
+// SMSNavbar removed as requested
 import AnimatedBackground from "@/components/AnimatedBackground";
 
 const packages = [
@@ -89,18 +89,8 @@ export default function Packages() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <AnimatedBackground />
-      
-      {/* Navigation */}
-      <SMSNavbar
-        unreadCount={0}
-        phoneNumbers={[]}
-        activeNumber={null}
-        profile={profile}
-        onSelectNumber={() => {}}
-        onBuyNewNumber={() => navigate("/buy-numbers")}
-        onUpdateProfile={() => {}}
-        onLogout={() => {}}
-      />
+
+      {/* Navigation removed as requested */}
 
       <div className="relative z-10">
         <div className="container mx-auto px-6 py-8">
@@ -153,23 +143,23 @@ export default function Packages() {
                 <CardHeader className="text-center pb-4">
                   <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-2xl ${
-                      pkg.popular 
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600" 
+                      pkg.popular
+                        ? "bg-gradient-to-br from-blue-500 to-purple-600"
                         : "bg-gradient-to-br from-slate-500 to-slate-600"
                     }`}>
                       <pkg.icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
-                  
+
                   <CardTitle className="text-2xl font-bold">{pkg.name}</CardTitle>
-                  
+
                   <div className="text-4xl font-bold text-primary mb-2">
                     {pkg.price}
                     <span className="text-lg font-normal text-muted-foreground">
                       {pkg.period}
                     </span>
                   </div>
-                  
+
                   <p className="text-muted-foreground">{pkg.description}</p>
                 </CardHeader>
 
@@ -219,7 +209,7 @@ export default function Packages() {
                       Get started immediately with zero upfront costs
                     </p>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Zap className="w-8 h-8 text-white" />
@@ -231,7 +221,7 @@ export default function Packages() {
                       Your package is activated immediately upon payment
                     </p>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Rocket className="w-8 h-8 text-white" />
