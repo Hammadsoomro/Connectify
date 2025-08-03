@@ -371,20 +371,21 @@ export default function SubAccounts() {
       <AnimatedBackground />
 
       {/* Main Content */}
-      <div className="relative z-20 flex-1 bg-background/80 backdrop-blur-xl" style={{ pointerEvents: 'auto' }}>
+      <div className="relative z-20 flex-1 bg-background/95 backdrop-blur-xl border-l border-border/50">
         {/* Header */}
-        <div className="p-6 border-b border-border bg-card/80 backdrop-blur-xl">
+        <div className="p-6 border-b border-border/50 bg-card/95 backdrop-blur-xl shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log("Back to Dashboard clicked");
-                  navigate("/");
+                  setTimeout(() => navigate("/"), 100);
                 }}
-                className="flex items-center gap-2"
-                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                className="flex items-center gap-2 hover:bg-accent/80"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <Home className="w-4 h-4" />
