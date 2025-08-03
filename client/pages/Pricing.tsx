@@ -38,73 +38,24 @@ interface PricingPlan {
   color: string;
 }
 
-const pricingPlans: PricingPlan[] = [
-  {
-    name: "Starter",
-    price: "$0",
-    period: "Forever",
-    description: "Perfect for testing and small projects",
-    features: [
-      "100 SMS messages/month",
-      "1 Phone number",
-      "Basic support",
-      "SMS delivery reports",
-      "Contact management",
-    ],
-    color: "bg-gray-50 dark:bg-gray-800",
-  },
-  {
-    name: "Professional",
-    price: "$29",
-    period: "per month",
-    description: "Ideal for small to medium businesses",
-    features: [
-      "5,000 SMS messages/month",
-      "5 Phone numbers",
-      "Priority support",
-      "Advanced analytics",
-      "API access",
-      "Webhook integrations",
-      "Custom sender IDs",
-    ],
-    popular: true,
-    color: "bg-primary/5 dark:bg-primary/10",
-  },
-  {
-    name: "Enterprise",
-    price: "$99",
-    period: "per month",
-    description: "For large organizations and high-volume usage",
-    features: [
-      "Unlimited SMS messages",
-      "Unlimited phone numbers",
-      "24/7 dedicated support",
-      "Custom integrations",
-      "SLA guarantees",
-      "Advanced security",
-      "White-label options",
-      "Custom billing",
-    ],
-    color: "bg-purple-50 dark:bg-purple-900/20",
-  },
-];
+// Pricing plans moved to separate Packages page
 
 const countryPricing = [
-  { country: "🇺🇸 United States", local: "$1.00", tollFree: "$2.00" },
-  { country: "🇨🇦 Canada", local: "$1.50", tollFree: "$3.00" },
-  { country: "🇬🇧 United Kingdom", local: "$1.80", tollFree: "$3.50" },
-  { country: "🇦🇺 Australia", local: "$2.00", tollFree: "$4.00" },
-  { country: "🇩🇪 Germany", local: "$1.60", tollFree: "$3.20" },
-  { country: "🇫🇷 France", local: "$1.70", tollFree: "$3.40" },
+  { country: "🇺🇸 United States", local: "$2.50" },
+  { country: "🇨🇦 Canada", local: "$2.50" },
+  { country: "🇬🇧 United Kingdom", local: "$3.00" },
+  { country: "🇦🇺 Australia", local: "$3.85" },
+  { country: "🇩🇪 Germany", local: "$3.75" },
+  { country: "🇫🇷 France", local: "$3.95" },
 ];
 
 const smsPricing = [
-  { region: "North America", price: "$0.0075" },
-  { region: "Europe", price: "$0.0090" },
-  { region: "Asia Pacific", price: "$0.0120" },
-  { region: "Latin America", price: "$0.0150" },
-  { region: "Africa", price: "$0.0200" },
-  { region: "Middle East", price: "$0.0180" },
+  { country: "🇺🇸 United States", price: "$0.01" },
+  { country: "🇨🇦 Canada", price: "$0.01" },
+  { country: "🇬🇧 United Kingdom", price: "$0.03" },
+  { country: "🇦🇺 Australia", price: "$0.08" },
+  { country: "🇩🇪 Germany", price: "$0.07" },
+  { country: "🇫🇷 France", price: "$0.09" },
 ];
 
 // Initialize Stripe (use your publishable key)
