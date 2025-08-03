@@ -48,11 +48,11 @@ import {
 } from "./routes/wallet.js";
 import {
   createPaymentIntent,
-  createSubscription,
+  createPaymentSession,
   confirmPayment,
-  getPaymentMethods,
-  handleStripeWebhook,
-  createSetupIntent,
+  handleWebhook,
+  getAccountBalance,
+  refundPayment,
 } from "./routes/payments.js";
 import { getTwilioBalance } from "./routes/twilio.js";
 import {
@@ -135,13 +135,13 @@ export function createServer() {
   app.post("/api/wallet/trigger-billing", auth, triggerMonthlyBilling);
   app.post("/api/wallet/transfer-to-subaccount", auth, transferToSubAccount);
 
-  // Payment routes
+  // Payment routes (SafePay)
   app.post("/api/payments/create-intent", auth, createPaymentIntent);
-  app.post("/api/payments/create-subscription", auth, createSubscription);
+  app.post("/api/payments/create-session", auth, createPaymentSession);
   app.post("/api/payments/confirm", auth, confirmPayment);
-  app.get("/api/payments/methods", auth, getPaymentMethods);
-  app.post("/api/payments/setup-intent", auth, createSetupIntent);
-  app.post("/api/webhooks/stripe", handleStripeWebhook); // No auth for webhooks
+  app.get("/api/payments/balance", auth, getAccountBalance);
+  app.post("/api/payments/refund", auth, refundPayment);
+  app.post("/api/webhooks/safepay", handleWebhook); // No auth for webhooks
 
   // Twilio routes
   app.get("/api/twilio/balance", auth, getTwilioBalance);
@@ -241,11 +241,13 @@ export function createApp() {
   app.post("/api/wallet/trigger-billing", auth, triggerMonthlyBilling);
   app.post("/api/wallet/transfer-to-subaccount", auth, transferToSubAccount);
 
-  // Payment routes
+  // Payment routes (SafePay)
   app.post("/api/payments/create-intent", auth, createPaymentIntent);
-  app.post("/api/payments/create-subscription", auth, createSubscription);
-  app.post("/api/payments/setup-intent", auth, createSetupIntent);
-  app.post("/api/webhooks/stripe", handleStripeWebhook); // No auth for webhooks
+  app.post("/api/payments/create-session", auth, createPaymentSession);
+  app.post("/api/payments/confirm", auth, confirmPayment);
+  app.get("/api/payments/balance", auth, getAccountBalance);
+  app.post("/api/payments/refund", auth, refundPayment);
+  app.post("/api/webhooks/safepay", handleWebhook); // No auth for webhooks
 
   // Twilio routes
   app.get("/api/twilio/balance", auth, getTwilioBalance);
