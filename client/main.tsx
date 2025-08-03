@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Conversations from "./pages/Conversations";
 import Pricing from "./pages/Pricing";
+import Packages from "./pages/Packages";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import BuyNumbers from "./pages/BuyNumbers";
