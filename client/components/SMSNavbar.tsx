@@ -219,7 +219,7 @@ export default function SMSNavbar({
               </SelectContent>
             </Select>
 
-            {isAdmin && (
+            {profile.role === "admin" && (
               <Button
                 onClick={onBuyNewNumber}
                 size="sm"
@@ -288,11 +288,9 @@ export default function SMSNavbar({
                 <div className="flex flex-col space-y-1 leading-none">
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{profile.name}</p>
-                    {isAdmin && (
-                      <Badge variant="default" className="text-xs">
-                        Admin
-                      </Badge>
-                    )}
+                    <Badge variant={profile.role === "admin" ? "default" : "secondary"} className="text-xs">
+                      {profile.role === "admin" ? "Admin" : "Sub-Account"}
+                    </Badge>
                   </div>
                   <p className="w-[200px] truncate text-sm text-muted-foreground">
                     {profile.email}

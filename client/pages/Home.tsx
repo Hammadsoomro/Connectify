@@ -308,25 +308,43 @@ export default function Home() {
                 <Sparkles className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
 
-              <Button
-                onClick={() => navigate("/buy-numbers")}
-                variant="outline"
-                className="group hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-950 dark:hover:to-emerald-950 transform hover:scale-105 transition-all duration-300"
-                size="lg"
-              >
-                <Phone className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                Buy New Number
-              </Button>
+              {/* Admin-only buttons */}
+              {profile.role === "admin" && (
+                <>
+                  <Button
+                    onClick={() => navigate("/buy-numbers")}
+                    variant="outline"
+                    className="group hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-950 dark:hover:to-emerald-950 transform hover:scale-105 transition-all duration-300"
+                    size="lg"
+                  >
+                    <Phone className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    Buy New Number
+                  </Button>
 
-              <Button
-                onClick={() => navigate("/sub-accounts")}
-                variant="outline"
-                className="group hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-950 dark:hover:to-indigo-950 transform hover:scale-105 transition-all duration-300"
-                size="lg"
-              >
-                <Users className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                Sub-Accounts
-              </Button>
+                  <Button
+                    onClick={() => navigate("/sub-accounts")}
+                    variant="outline"
+                    className="group hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-950 dark:hover:to-indigo-950 transform hover:scale-105 transition-all duration-300"
+                    size="lg"
+                  >
+                    <Users className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    Sub-Accounts
+                  </Button>
+                </>
+              )}
+
+              {/* Sub-account and admin can see pricing */}
+              {(profile.role === "admin" || profile.role === "sub-account") && (
+                <Button
+                  onClick={() => navigate("/pricing")}
+                  variant="outline"
+                  className="group hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 dark:hover:from-orange-950 dark:hover:to-yellow-950 transform hover:scale-105 transition-all duration-300"
+                  size="lg"
+                >
+                  <DollarSign className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                  Pricing
+                </Button>
+              )}
 
               <Button
                 onClick={() => navigate("/pricing")}
