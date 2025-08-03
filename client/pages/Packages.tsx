@@ -144,8 +144,8 @@ export default function Packages() {
                   <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-2xl ${
                       pkg.popular
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                        : "bg-gradient-to-br from-slate-500 to-slate-600"
+                        ? "bg-gradient-to-br from-yellow-500 to-amber-600"
+                        : "bg-gradient-to-br from-gray-500 to-gray-600"
                     }`}>
                       <pkg.icon className="w-6 h-6 text-white" />
                     </div>

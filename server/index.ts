@@ -54,6 +54,12 @@ import {
   getAccountBalance,
   refundPayment,
 } from "./routes/payments.js";
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  handleRazorpayWebhook,
+  getRazorpayConfig,
+} from "./routes/razorpay.js";
 import { getTwilioBalance } from "./routes/twilio.js";
 import {
   createAdminUser,
