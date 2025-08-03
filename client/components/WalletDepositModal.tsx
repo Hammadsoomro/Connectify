@@ -112,7 +112,7 @@ export default function WalletDepositModal({
           </DialogTitle>
           <DialogDescription>
             Add funds to your wallet to start sending SMS messages. Your current
-            balance is <strong>${currentBalance.toFixed(2)}</strong>
+            balance is <strong>PKR {currentBalance.toFixed(2)}</strong>
           </DialogDescription>
         </DialogHeader>
 
@@ -126,12 +126,12 @@ export default function WalletDepositModal({
                     Current Balance
                   </p>
                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                    ${currentBalance.toFixed(2)}
+                    PKR {currentBalance.toFixed(2)}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">SMS Cost</p>
-                  <p className="text-lg font-semibold">$0.01 per message</p>
+                  <p className="text-lg font-semibold">PKR 3.50 per message</p>
                 </div>
               </div>
             </CardContent>
