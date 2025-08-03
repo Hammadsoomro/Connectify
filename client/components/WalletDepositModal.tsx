@@ -34,12 +34,12 @@ interface WalletDepositModalProps {
 }
 
 const depositAmounts = [
-  { amount: 10, bonus: 0, popular: false },
-  { amount: 25, bonus: 2, popular: false },
-  { amount: 50, bonus: 5, popular: true },
-  { amount: 100, bonus: 15, popular: false },
-  { amount: 250, bonus: 50, popular: false },
-  { amount: 500, bonus: 125, popular: false },
+  { amount: 1000, bonus: 0, popular: false, currency: "PKR" },
+  { amount: 2500, bonus: 200, popular: false, currency: "PKR" },
+  { amount: 5000, bonus: 500, popular: true, currency: "PKR" },
+  { amount: 10000, bonus: 1500, popular: false, currency: "PKR" },
+  { amount: 25000, bonus: 5000, popular: false, currency: "PKR" },
+  { amount: 50000, bonus: 12500, popular: false, currency: "PKR" },
 ];
 
 export default function WalletDepositModal({
@@ -56,10 +56,10 @@ export default function WalletDepositModal({
   const handleDeposit = async () => {
     const amount = selectedAmount || parseFloat(customAmount);
 
-    if (!amount || amount < 5) {
+    if (!amount || amount < 500) {
       toast({
         title: "Invalid Amount",
-        description: "Minimum deposit amount is $5.00",
+        description: "Minimum deposit amount is PKR 500.00",
         variant: "destructive",
       });
       return;
@@ -76,7 +76,7 @@ export default function WalletDepositModal({
 
       toast({
         title: "Deposit Successful!",
-        description: `$${amount.toFixed(2)} has been added to your wallet.`,
+        description: `PKR ${amount.toFixed(2)} has been added to your wallet.`,
       });
 
       onClose();
