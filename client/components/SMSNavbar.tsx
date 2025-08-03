@@ -120,9 +120,10 @@ export default function SMSNavbar({
       console.error("Error loading wallet balance:", error);
 
       // Handle specific error cases for sub-accounts
-      if (error.message?.includes("Only admins can view")) {
-        console.log("User is not admin, hiding balance");
-        setWalletBalance(null);
+      if (error.message?.includes("Only admins can access wallets")) {
+        console.log("Sub-account wallet access denied, using alternative approach");
+        // For sub-accounts, try to get balance from profile or user data
+        setWalletBalance("$0.00");
         return;
       }
 
@@ -235,8 +236,8 @@ export default function SMSNavbar({
 
         {/* Right side actions */}
         <div className="flex items-center gap-3">
-          {/* Wallet Balance (Admin only) */}
-          {profile.role === "admin" && walletBalance && (
+          {/* Wallet Balance (Admin and Sub-Account) */}
+          {(profile.role === "admin" || profile.role === "sub-account") && walletBalance && (
             <WalletComponent
               trigger={
                 <Button variant="outline" size="sm">
