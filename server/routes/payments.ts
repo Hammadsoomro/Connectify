@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import StripeService from "../services/stripeService.js";
+import SafePayService from "../services/safepayService.js";
 import { addFunds } from "./wallet.js";
 
 // Create payment intent for adding funds
