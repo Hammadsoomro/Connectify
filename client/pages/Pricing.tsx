@@ -25,7 +25,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import SMSNavbar from "@/components/SMSNavbar";
+// SMSNavbar removed as requested
 import ApiService from "@/services/api";
 
 interface PricingPlan {
