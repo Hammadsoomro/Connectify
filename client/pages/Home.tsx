@@ -348,7 +348,7 @@ export default function Home() {
                   </Button>
 
                   <Button
-                    onClick={() => navigate("/pricing")}
+                    onClick={() => navigate("/packages")}
                     variant="outline"
                     className="group hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 dark:hover:from-cyan-950 dark:hover:to-blue-950 transform hover:scale-105 transition-all duration-300"
                     size="lg"
