@@ -79,7 +79,19 @@ export const getSubAccounts = async (req: any, res: Response) => {
       .select("-password")
       .sort({ createdAt: -1 });
 
-    res.json(subAccounts);
+    // Get wallet balances for each sub-account
+    const Wallet = (await import("../models/Wallet.js")).default;
+    const subAccountsWithWallet = await Promise.all(
+      subAccounts.map(async (account) => {
+        const wallet = await Wallet.findOne({ userId: account._id });
+        return {
+          ...account.toObject(),
+          walletBalance: wallet ? wallet.balance : 0,
+        };
+      })
+    );
+
+    res.json(subAccountsWithWallet);
   } catch (error) {
     console.error("Get sub-accounts error:", error);
     res.status(500).json({ message: "Server error" });

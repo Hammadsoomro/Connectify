@@ -70,7 +70,7 @@ const features = [
     title: "Real-time Messaging",
     description:
       "Instant message delivery with live typing indicators and read receipts",
-    color: "from-green-500 to-emerald-600",
+    color: "from-emerald-500 to-green-600",
     delay: "delay-100",
   },
   {
@@ -78,7 +78,7 @@ const features = [
     title: "Global Reach",
     description:
       "Phone numbers available in 50+ countries with competitive pricing",
-    color: "from-blue-500 to-cyan-600",
+    color: "from-purple-500 to-blue-600",
     delay: "delay-200",
   },
   {
@@ -86,14 +86,14 @@ const features = [
     title: "Enterprise Security",
     description:
       "Bank-level encryption with compliance standards for businesses",
-    color: "from-purple-500 to-violet-600",
+    color: "from-blue-500 to-purple-600",
     delay: "delay-300",
   },
   {
     icon: BarChart3,
     title: "Advanced Analytics",
     description: "Detailed insights and reporting for your messaging campaigns",
-    color: "from-orange-500 to-red-600",
+    color: "from-purple-600 to-emerald-600",
     delay: "delay-400",
   },
   {

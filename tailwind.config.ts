@@ -65,6 +65,13 @@ export default {
         },
         online: "hsl(142 76% 36%)",
         offline: "hsl(220 14% 71%)",
+        // Modern gradient colors
+        gradient: {
+          purple: "hsl(262.1 83.3% 57.8%)",
+          blue: "hsl(221.2 83.2% 53.3%)",
+          emerald: "hsl(142.1 76.2% 36.3%)",
+          amber: "hsl(32.1 94.6% 43.7%)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
