@@ -793,53 +793,14 @@ export default function Conversations() {
 
           {/* Add Contact Button */}
           <div className="p-3 border-b border-border">
-            <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
-              <DialogTrigger asChild>
-                <Button className="w-full" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add New Contact
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Contact</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="contactName">Contact Name (Optional)</Label>
-                    <Input
-                      id="contactName"
-                      value={newContactName}
-                      onChange={(e) => setNewContactName(e.target.value)}
-                      placeholder="Enter contact name (optional)"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contactPhone">Phone Number</Label>
-                    <Input
-                      id="contactPhone"
-                      value={newContactPhone}
-                      onChange={(e) => setNewContactPhone(e.target.value)}
-                      placeholder="+1234567890"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAddContact(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={addContact}
-                    disabled={!newContactPhone.trim()}
-                  >
-                    Add Contact
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Button
+              className="w-full"
+              size="sm"
+              onClick={() => setShowAddContact(true)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Contact
+            </Button>
           </div>
 
           {/* Contacts List */}
