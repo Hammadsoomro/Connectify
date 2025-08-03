@@ -379,8 +379,12 @@ export default function SubAccounts() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  console.log("Back to Dashboard clicked");
+                  navigate("/");
+                }}
                 className="flex items-center gap-2"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
               >
                 <ArrowLeft className="w-4 h-4" />
                 <Home className="w-4 h-4" />
