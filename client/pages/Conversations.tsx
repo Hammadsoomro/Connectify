@@ -54,6 +54,7 @@ import ApiService from "@/services/api";
 import socketService from "@/services/socketService";
 import AdBanner from "@/components/AdBanner";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import AddContactDialog from "@/components/AddContactDialog";
 
 // Types
 interface Contact {
