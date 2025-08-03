@@ -228,7 +228,7 @@ export function createApp() {
   app.post("/api/admin/sub-accounts", auth, createSubAccount);
   app.get("/api/admin/sub-accounts", auth, getSubAccounts);
   app.post("/api/admin/assign-number", auth, assignNumberToSubAccount);
-  app.delete("/api/admin/remove-assignment", auth, removeNumberAssignment);
+  app.post("/api/admin/remove-assignment", auth, removeNumberAssignment);
   app.post("/api/admin/deactivate-sub-account", auth, deactivateSubAccount);
   app.get("/api/admin/dashboard-stats", auth, getDashboardStats);
 
