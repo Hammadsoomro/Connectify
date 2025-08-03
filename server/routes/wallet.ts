@@ -8,11 +8,11 @@ export const getWallet = async (req: any, res: Response) => {
   try {
     const userId = req.user._id;
 
-    // Only admins can have wallets
-    if (req.user.role !== "admin") {
+    // Only admins and sub-accounts can have wallets
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
       return res
         .status(403)
-        .json({ message: "Only admins can access wallets" });
+        .json({ message: "Only admins and sub-accounts can access wallets" });
     }
 
     let wallet = await Wallet.findOne({ userId });
@@ -55,9 +55,9 @@ export const addFunds = async (req: any, res: Response) => {
     const userId = req.user._id;
     const { amount, paymentMethod = "manual" } = req.body;
 
-    // Only admins can add funds
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only admins can add funds" });
+    // Only admins and sub-accounts can add funds
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
+      return res.status(403).json({ message: "Only admins and sub-accounts can add funds" });
     }
 
     // Validate amount
@@ -176,10 +176,10 @@ export const getWalletStats = async (req: any, res: Response) => {
   try {
     const userId = req.user._id;
 
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
       return res
         .status(403)
-        .json({ message: "Only admins can access wallet stats" });
+        .json({ message: "Only admins and sub-accounts can access wallet stats" });
     }
 
     const wallet = await Wallet.findOne({ userId });
@@ -233,10 +233,10 @@ export const updateMonthlyLimit = async (req: any, res: Response) => {
     const userId = req.user._id;
     const { limit } = req.body;
 
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
       return res
         .status(403)
-        .json({ message: "Only admins can update monthly limit" });
+        .json({ message: "Only admins and sub-accounts can update monthly limit" });
     }
 
     if (limit < 0) {
@@ -276,10 +276,10 @@ export const getBillingSummary = async (req: any, res: Response) => {
   try {
     const userId = req.user._id;
 
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "admin" && req.user.role !== "sub-account") {
       return res
         .status(403)
-        .json({ message: "Only admins can access billing summary" });
+        .json({ message: "Only admins and sub-accounts can access billing summary" });
     }
 
     const billingSummary = await BillingService.getAdminBillingSummary(userId);
