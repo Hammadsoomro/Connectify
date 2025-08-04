@@ -292,7 +292,7 @@ export default function Home() {
             <div className="flex items-center justify-center gap-4 animate-fade-in">
               <Button
                 onClick={handleConversationsClick}
-                className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 dark:from-yellow-500 dark:to-amber-600 hover:from-blue-700 hover:to-purple-700 dark:hover:from-yellow-600 dark:hover:to-amber-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 size="lg"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
