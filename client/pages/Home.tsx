@@ -391,16 +391,16 @@ export default function Home() {
               </div>
 
               {/* Main Heading with Animation */}
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-blue-400 dark:to-purple-400 mb-8 leading-tight animate-fade-in-up delay-300">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-yellow-400 dark:to-amber-500 mb-8 leading-tight animate-fade-in-up delay-300">
                 Connect the
-                <span className="block text-gradient animate-pulse">World</span>
-                Instantly
+                <span className="block text-gradient animate-pulse bg-gradient-to-r from-blue-600 to-purple-600 dark:from-yellow-400 dark:to-amber-500 text-transparent bg-clip-text">World</span>
+                <span className="text-blue-600 dark:text-amber-400">Instantly</span>
               </h1>
 
               {/* Enhanced Description */}
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed animate-fade-in-up delay-500">
                 Transform your business communication with our{" "}
-                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                <span className="font-semibold text-blue-600 dark:text-amber-400">
                   enterprise-grade SMS platform
                 </span>
                 . Real-time messaging, global reach, and unmatched reliability.
