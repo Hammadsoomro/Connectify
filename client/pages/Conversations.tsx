@@ -535,62 +535,80 @@ export default function Conversations() {
   const editContact = async () => {
     if (!editingContact || !newContactName.trim()) return;
 
-    try {
-      await ApiService.updateContact(editingContact.id, {
-        name: newContactName.trim(),
-      });
+    const contactName = newContactName.trim();
 
-      setNewContactName("");
-      setShowEditContact(false);
-      setEditingContact(null);
+    // Use timeout to prevent UI freezing
+    setTimeout(async () => {
+      try {
+        await ApiService.updateContact(editingContact.id, {
+          name: contactName,
+        });
 
-      await loadContactsForPhoneNumber(activePhoneNumber!);
+        setNewContactName("");
+        setShowEditContact(false);
+        setEditingContact(null);
 
-      toast({
-        title: "Contact Updated",
-        description: "Contact has been updated successfully",
-      });
-    } catch (error: any) {
-      console.error("Error editing contact:", error);
-      toast({
-        title: "Failed to Update",
-        description:
-          error.message || "Failed to update contact. Please try again.",
-        variant: "destructive",
-      });
-    }
+        // Reload contacts with small delay
+        setTimeout(() => {
+          if (activePhoneNumber) {
+            loadContactsForPhoneNumber(activePhoneNumber);
+          }
+        }, 100);
+
+        toast({
+          title: "Contact Updated",
+          description: "Contact has been updated successfully",
+        });
+      } catch (error: any) {
+        console.error("Error editing contact:", error);
+        toast({
+          title: "Failed to Update",
+          description: error.message || "Failed to update contact. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 50);
   };
 
   const deleteContact = async () => {
     if (!deletingContact) return;
 
-    try {
-      await ApiService.deleteContact(deletingContact.id);
+    const contactName = deletingContact.name;
 
-      // Clear selection if deleted contact was selected
-      if (selectedContactId === deletingContact.id) {
-        setSelectedContactId(null);
-        setMessages([]);
+    // Use timeout to prevent UI freezing
+    setTimeout(async () => {
+      try {
+        await ApiService.deleteContact(deletingContact.id);
+
+        // Clear selection if deleted contact was selected
+        if (selectedContactId === deletingContact.id) {
+          setSelectedContactId(null);
+          setMessages([]);
+        }
+
+        setShowDeleteContact(false);
+        setDeletingContact(null);
+
+        // Reload contacts with small delay
+        setTimeout(() => {
+          if (activePhoneNumber) {
+            loadContactsForPhoneNumber(activePhoneNumber);
+          }
+        }, 100);
+
+        toast({
+          title: "Contact Deleted",
+          description: "Contact and all messages have been deleted",
+        });
+      } catch (error: any) {
+        console.error("Error deleting contact:", error);
+        toast({
+          title: "Failed to Delete",
+          description: error.message || "Failed to delete contact. Please try again.",
+          variant: "destructive",
+        });
       }
-
-      setShowDeleteContact(false);
-      setDeletingContact(null);
-
-      await loadContactsForPhoneNumber(activePhoneNumber!);
-
-      toast({
-        title: "Contact Deleted",
-        description: "Contact and all messages have been deleted",
-      });
-    } catch (error: any) {
-      console.error("Error deleting contact:", error);
-      toast({
-        title: "Failed to Delete",
-        description:
-          error.message || "Failed to delete contact. Please try again.",
-        variant: "destructive",
-      });
-    }
+    }, 50);
   };
 
   const switchPhoneNumber = async (phoneNumber: string) => {
@@ -1075,7 +1093,7 @@ export default function Conversations() {
                                     <span className="text-xs opacity-70 flex items-center">
                                       {message.status === "read" ? (
                                         <span className="text-blue-400">
-                                          ✓✓
+                                          ✓��
                                         </span>
                                       ) : message.status === "delivered" ? (
                                         <span>✓✓</span>
