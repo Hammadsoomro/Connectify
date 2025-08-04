@@ -54,12 +54,6 @@ import {
   getAccountBalance,
   refundPayment,
 } from "./routes/payments.js";
-import {
-  createRazorpayOrder,
-  verifyRazorpayPayment,
-  handleRazorpayWebhook,
-  getRazorpayConfig,
-} from "./routes/razorpay.js";
 import { getTwilioBalance } from "./routes/twilio.js";
 import {
   createAdminUser,
@@ -271,11 +265,7 @@ export function createApp() {
     app.post("/api/dev/reset-db", resetDatabase);
   }
 
-  // Razorpay payment routes (Alternative to SafePay)
-  app.post("/api/razorpay/create-order", auth, createRazorpayOrder);
-  app.post("/api/razorpay/verify-payment", auth, verifyRazorpayPayment);
-  app.get("/api/razorpay/config", getRazorpayConfig);
-  app.post("/api/webhooks/razorpay", handleRazorpayWebhook);
+  // Razorpay integration removed as requested
 
   // Health check
   app.get("/api/health", (_req, res) => {
