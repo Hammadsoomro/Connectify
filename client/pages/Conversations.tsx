@@ -223,9 +223,10 @@ export default function Conversations() {
       // For sub-accounts, filter only assigned numbers
       let availablePhones = phoneNumbersData || [];
       if (userProfile.role === "sub-account") {
-        availablePhones = phoneNumbersData?.filter(phone =>
-          userProfile.assignedNumbers?.includes(phone.number)
-        ) || [];
+        availablePhones =
+          phoneNumbersData?.filter((phone) =>
+            userProfile.assignedNumbers?.includes(phone.number),
+          ) || [];
       }
 
       const processedPhones = availablePhones.map((phone: any) => ({
@@ -237,7 +238,8 @@ export default function Conversations() {
 
       // Set active phone number if we have phones but no active one
       if (processedPhones.length > 0 && !activePhoneNumber) {
-        const activePhone = processedPhones.find((p) => p.isActive) || processedPhones[0];
+        const activePhone =
+          processedPhones.find((p) => p.isActive) || processedPhones[0];
         setActivePhoneNumber(activePhone.number);
         loadContactsForPhoneNumber(activePhone.number);
       }
@@ -463,7 +465,8 @@ export default function Conversations() {
     if (!newContactPhone.trim() || !activePhoneNumber) {
       toast({
         title: "Validation Error",
-        description: "Phone number is required and an active phone number must be selected",
+        description:
+          "Phone number is required and an active phone number must be selected",
         variant: "destructive",
       });
       return;
@@ -498,7 +501,8 @@ export default function Conversations() {
           console.error("Error adding contact:", error);
           toast({
             title: "Failed to Add Contact",
-            description: error.message || "Failed to add contact. Please try again.",
+            description:
+              error.message || "Failed to add contact. Please try again.",
             variant: "destructive",
           });
         }
@@ -507,7 +511,8 @@ export default function Conversations() {
       console.error("Error adding contact:", error);
       toast({
         title: "Failed to Add Contact",
-        description: error.message || "Failed to add contact. Please try again.",
+        description:
+          error.message || "Failed to add contact. Please try again.",
         variant: "destructive",
       });
     }
@@ -525,7 +530,9 @@ export default function Conversations() {
 
     // If still no phone number available, show helpful error
     if (!currentActiveNumber) {
-      throw new Error("No phone numbers available. Please purchase a phone number first.");
+      throw new Error(
+        "No phone numbers available. Please purchase a phone number first.",
+      );
     }
 
     await ApiService.addContact(name, phoneNumber, currentActiveNumber);
@@ -563,7 +570,8 @@ export default function Conversations() {
         console.error("Error editing contact:", error);
         toast({
           title: "Failed to Update",
-          description: error.message || "Failed to update contact. Please try again.",
+          description:
+            error.message || "Failed to update contact. Please try again.",
           variant: "destructive",
         });
       }
@@ -594,30 +602,33 @@ export default function Conversations() {
       });
 
       // Delete from server in background
-      ApiService.deleteContact(contactId).then(() => {
-        console.log("Contact deleted successfully from server");
-        // Reload contacts to sync with server
-        if (activePhoneNumber) {
-          loadContactsForPhoneNumber(activePhoneNumber);
-        }
-      }).catch((error: any) => {
-        console.error("Error deleting contact from server:", error);
-        // Show error but don't block UI
-        toast({
-          title: "Warning",
-          description: "Contact removed from UI but server sync failed. Please refresh if issues persist.",
-          variant: "destructive",
+      ApiService.deleteContact(contactId)
+        .then(() => {
+          console.log("Contact deleted successfully from server");
+          // Reload contacts to sync with server
+          if (activePhoneNumber) {
+            loadContactsForPhoneNumber(activePhoneNumber);
+          }
+        })
+        .catch((error: any) => {
+          console.error("Error deleting contact from server:", error);
+          // Show error but don't block UI
+          toast({
+            title: "Warning",
+            description:
+              "Contact removed from UI but server sync failed. Please refresh if issues persist.",
+            variant: "destructive",
+          });
         });
-      });
 
       // Immediately update local contacts list
-      setContacts(prev => prev.filter(contact => contact.id !== contactId));
-
+      setContacts((prev) => prev.filter((contact) => contact.id !== contactId));
     } catch (error: any) {
       console.error("Error deleting contact:", error);
       toast({
         title: "Failed to Delete",
-        description: error.message || "Failed to delete contact. Please try again.",
+        description:
+          error.message || "Failed to delete contact. Please try again.",
         variant: "destructive",
       });
     }
@@ -825,10 +836,14 @@ export default function Conversations() {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => navigate("/")}>
                       <User className="w-4 h-4 mr-2" />
-                      {profile.role === "admin" ? "Admin Dashboard" : "Dashboard"}
+                      {profile.role === "admin"
+                        ? "Admin Dashboard"
+                        : "Dashboard"}
                     </DropdownMenuItem>
                     {profile.role === "admin" && (
-                      <DropdownMenuItem onClick={() => navigate("/buy-numbers")}>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/buy-numbers")}
+                      >
                         <Phone className="w-4 h-4 mr-2" />
                         Buy Phone Numbers
                       </DropdownMenuItem>
@@ -867,7 +882,11 @@ export default function Conversations() {
               size="sm"
               onClick={() => setShowAddContact(true)}
               disabled={phoneNumbers.length === 0}
-              title={phoneNumbers.length === 0 ? "No phone numbers available. Please purchase a phone number first." : "Add new contact"}
+              title={
+                phoneNumbers.length === 0
+                  ? "No phone numbers available. Please purchase a phone number first."
+                  : "Add new contact"
+              }
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Contact

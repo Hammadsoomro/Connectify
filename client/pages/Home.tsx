@@ -393,8 +393,12 @@ export default function Home() {
               {/* Main Heading with Animation */}
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-emerald-600 to-teal-600 dark:from-slate-100 dark:via-yellow-400 dark:to-amber-500 mb-8 leading-tight animate-fade-in-up delay-300">
                 Connect the
-                <span className="block text-gradient animate-pulse bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-yellow-400 dark:to-amber-500 text-transparent bg-clip-text">World</span>
-                <span className="text-emerald-600 dark:text-amber-400">Instantly</span>
+                <span className="block text-gradient animate-pulse bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-yellow-400 dark:to-amber-500 text-transparent bg-clip-text">
+                  World
+                </span>
+                <span className="text-emerald-600 dark:text-amber-400">
+                  Instantly
+                </span>
               </h1>
 
               {/* Enhanced Description */}
