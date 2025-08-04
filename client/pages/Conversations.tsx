@@ -471,28 +471,43 @@ export default function Conversations() {
 
     try {
       const finalName = newContactName.trim() || newContactPhone.trim();
-      await ApiService.addContact(
-        finalName,
-        newContactPhone.trim(),
-        activePhoneNumber,
-      );
 
-      setNewContactName("");
-      setNewContactPhone("");
-      setShowAddContact(false);
+      // Use timeout to prevent UI freezing
+      setTimeout(async () => {
+        try {
+          await ApiService.addContact(
+            finalName,
+            newContactPhone.trim(),
+            activePhoneNumber,
+          );
 
-      await loadContactsForPhoneNumber(activePhoneNumber);
+          setNewContactName("");
+          setNewContactPhone("");
+          setShowAddContact(false);
 
-      toast({
-        title: "Contact Added",
-        description: `${finalName} has been added to your contacts`,
-      });
+          // Reload contacts with small delay
+          setTimeout(() => {
+            loadContactsForPhoneNumber(activePhoneNumber);
+          }, 100);
+
+          toast({
+            title: "Contact Added",
+            description: `${finalName} has been added to your contacts`,
+          });
+        } catch (error: any) {
+          console.error("Error adding contact:", error);
+          toast({
+            title: "Failed to Add Contact",
+            description: error.message || "Failed to add contact. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }, 50);
     } catch (error: any) {
       console.error("Error adding contact:", error);
       toast({
         title: "Failed to Add Contact",
-        description:
-          error.message || "Failed to add contact. Please try again.",
+        description: error.message || "Failed to add contact. Please try again.",
         variant: "destructive",
       });
     }
@@ -725,7 +740,12 @@ export default function Conversations() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate("/")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log("Home navigation clicked");
+                  window.location.href = "/";
+                }}
                 className="flex items-center gap-2 text-primary hover:text-primary/80"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -775,12 +795,14 @@ export default function Conversations() {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => navigate("/")}>
                       <User className="w-4 h-4 mr-2" />
-                      Admin Dashboard
+                      {profile.role === "admin" ? "Admin Dashboard" : "Dashboard"}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/buy-numbers")}>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Buy Phone Numbers
-                    </DropdownMenuItem>
+                    {profile.role === "admin" && (
+                      <DropdownMenuItem onClick={() => navigate("/buy-numbers")}>
+                        <Phone className="w-4 h-4 mr-2" />
+                        Buy Phone Numbers
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem disabled>
                       <DollarSign className="w-4 h-4 mr-2" />
