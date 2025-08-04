@@ -574,41 +574,53 @@ export default function Conversations() {
     if (!deletingContact) return;
 
     const contactName = deletingContact.name;
+    const contactId = deletingContact.id;
 
-    // Use timeout to prevent UI freezing
-    setTimeout(async () => {
-      try {
-        await ApiService.deleteContact(deletingContact.id);
+    try {
+      // Clear UI state immediately
+      setShowDeleteContact(false);
+      setDeletingContact(null);
 
-        // Clear selection if deleted contact was selected
-        if (selectedContactId === deletingContact.id) {
-          setSelectedContactId(null);
-          setMessages([]);
+      // Clear selection if deleted contact was selected
+      if (selectedContactId === contactId) {
+        setSelectedContactId(null);
+        setMessages([]);
+      }
+
+      // Show optimistic success message
+      toast({
+        title: "Contact Deleted",
+        description: "Contact and all messages have been deleted",
+      });
+
+      // Delete from server in background
+      ApiService.deleteContact(contactId).then(() => {
+        console.log("Contact deleted successfully from server");
+        // Reload contacts to sync with server
+        if (activePhoneNumber) {
+          loadContactsForPhoneNumber(activePhoneNumber);
         }
-
-        setShowDeleteContact(false);
-        setDeletingContact(null);
-
-        // Reload contacts with small delay
-        setTimeout(() => {
-          if (activePhoneNumber) {
-            loadContactsForPhoneNumber(activePhoneNumber);
-          }
-        }, 100);
-
+      }).catch((error: any) => {
+        console.error("Error deleting contact from server:", error);
+        // Show error but don't block UI
         toast({
-          title: "Contact Deleted",
-          description: "Contact and all messages have been deleted",
-        });
-      } catch (error: any) {
-        console.error("Error deleting contact:", error);
-        toast({
-          title: "Failed to Delete",
-          description: error.message || "Failed to delete contact. Please try again.",
+          title: "Warning",
+          description: "Contact removed from UI but server sync failed. Please refresh if issues persist.",
           variant: "destructive",
         });
-      }
-    }, 50);
+      });
+
+      // Immediately update local contacts list
+      setContacts(prev => prev.filter(contact => contact.id !== contactId));
+
+    } catch (error: any) {
+      console.error("Error deleting contact:", error);
+      toast({
+        title: "Failed to Delete",
+        description: error.message || "Failed to delete contact. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const switchPhoneNumber = async (phoneNumber: string) => {
@@ -1093,7 +1105,7 @@ export default function Conversations() {
                                     <span className="text-xs opacity-70 flex items-center">
                                       {message.status === "read" ? (
                                         <span className="text-blue-400">
-                                          ✓��
+                                          ✓✓
                                         </span>
                                       ) : message.status === "delivered" ? (
                                         <span>✓✓</span>
