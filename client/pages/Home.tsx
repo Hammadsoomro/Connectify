@@ -295,7 +295,7 @@ export default function Home() {
                 className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 dark:from-yellow-500 dark:to-amber-600 hover:from-blue-700 hover:to-purple-700 dark:hover:from-yellow-600 dark:hover:to-amber-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 size="lg"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 dark:from-yellow-400 dark:to-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                 <MessageSquare className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                 Conversations
                 {userStats.unreadMessages > 0 && (
@@ -410,10 +410,10 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 animate-fade-in-up delay-700">
                 <Button
                   size="lg"
-                  className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+                  className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 dark:from-yellow-500 dark:to-amber-600 hover:from-blue-700 hover:to-purple-700 dark:hover:from-yellow-600 dark:hover:to-amber-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
                   onClick={handleConversationsClick}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 dark:from-yellow-400 dark:to-amber-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
                   <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                   Start Messaging Now
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -495,7 +495,7 @@ export default function Home() {
               className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm overflow-hidden transform hover:scale-105 animate-fade-in-up delay-1200"
               onClick={handleConversationsClick}
             >
-              <div className="relative h-64 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 overflow-hidden">
+              <div className="relative h-64 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 dark:from-yellow-500 dark:via-amber-500 dark:to-orange-500 overflow-hidden">
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <MessageSquare className="w-20 h-20 text-white group-hover:scale-110 transition-transform duration-300" />
